@@ -1,0 +1,19 @@
+{
+  "name": "@mattb.tech/billio",
+  "version": "1.0.0",
+  "description": "Digital shelves to track collections and interests",
+  "main": "index.js",
+  "repository": "git@github.com:mjwbenton/billio.git",
+  "author": "Matthew Benton <m@mattb.tech>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces run build",
+    "clean": "yarn workspaces run clean && ./scripts/clean.sh",
+    "check": "yarn workspaces run check",
+    "fix": "yarn workspaces run fix"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@mattb.tech/billio-cdk",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CDK for billio",
+  "main": "dist/index.js",
+  "author": "Matt Benton <m@mattb.tech>",
+  "license": "MIT",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "clean": "../../scripts/clean.sh",
+    "fix": "../../scripts/fix.sh",
+    "check": "../../scripts/check.sh",
+    "watch": "../../scripts/watch.sh",
+    "deploy": "yarn build && cdk deploy --profile mattb.tech-deploy --require-approval never"
+  },
+  "devDependencies": {
+    "@aws-cdk/aws-dynamodb": "^1.97.0",
+    "@aws-cdk/core": "^1.97.0",
+    "aws-cdk": "^1.97.0",
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.4"
+  }
+}
