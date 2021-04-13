@@ -10,13 +10,17 @@ dynamoose.model.defaults.set({
 const TABLE_NAME =
   process.env.BILLIO_TABLE ?? "BillioData-ItemTable276B2AC8-1HIYN64N2BKA1";
 
-type ItemType = "book" | "videogame";
+export enum ItemType {
+  Book = "book",
+  VideoGame = "videogame",
+}
 
-class ItemDocument extends Document {
+export class ItemDocument extends Document {
   type: ItemType;
   id: string;
   shelf: string;
   title: string;
+  updatedAt: Date;
 }
 
 const Item = dynamoose.model<ItemDocument>(
@@ -66,11 +70,19 @@ const Item = dynamoose.model<ItemDocument>(
 
 export default Item;
 
+type QueryResponseMeta = {
+  count: number;
+  lastKey?: string;
+};
+
 export const Query = {
   withId: (type: ItemType, id: string) =>
     Item.get({ "type:id": `${type}:${id}` }),
-  ofType: (type: ItemType) =>
+  ofType: (type: ItemType): Promise<Array<ItemDocument> & QueryResponseMeta> =>
     Item.query("type").eq("videogame").using("type").exec(),
-  onShelf: (type: ItemType, shelf: string) =>
+  onShelf: (
+    type: ItemType,
+    shelf: string
+  ): Promise<Array<ItemDocument> & QueryResponseMeta> =>
     Item.query("type:shelf").eq(`${type}:${shelf}`).using("shelf").exec(),
 };
