@@ -70,8 +70,15 @@ const Item = dynamoose.model<ItemDocument>(
 
 export default Item;
 
-type QueryResponseMeta = {
+type QueryResponse = {
+  items: ItemDocument[];
   lastKey?: string;
+  count: number;
+};
+
+type After = {
+  lastKey?: Object;
+  countSoFar: number;
 };
 
 export const Query = {
@@ -80,47 +87,72 @@ export const Query = {
   ofType: async (
     type: ItemType,
     { first, after }: { first: number; after?: string }
-  ): Promise<Array<ItemDocument> & QueryResponseMeta> => {
+  ): Promise<QueryResponse> => {
+    const { count } = await Item.query("type")
+      .eq(type)
+      .using("type")
+      .all()
+      .count()
+      .exec();
     const baseQuery = Item.query("type").eq(type).using("type").limit(first);
-    const data = await (after
-      ? baseQuery.startAt(fromBase64(after))
+    const { lastKey, countSoFar }: After = after
+      ? fromBase64(after)
+      : { countSoFar: 0 };
+    const data = await (lastKey
+      ? baseQuery.startAt(lastKey)
       : baseQuery
     ).exec();
-    data.lastKey = data.lastKey ? toBase64(data.lastKey) : null;
-    return data;
-  },
-  countOfType: async (
-    type: ItemType,
-  ): Promise<number> {
-    const data = await Item.query("type").eq(type).using("type").all().count().exec();
-    return data.count;
+    const newCountSoFar = countSoFar + data.count;
+    const newLastKey =
+      count > newCountSoFar && data.lastKey
+        ? toBase64({ countSoFar: newCountSoFar, lastKey: data.lastKey })
+        : undefined;
+    return {
+      items: Array.from(data),
+      count,
+      lastKey: newLastKey,
+    };
   },
   onShelf: async (
     type: ItemType,
     shelf: string,
     { first, after }: { first: number; after?: string }
-  ): Promise<Array<ItemDocument> & QueryResponseMeta> => {
+  ): Promise<QueryResponse> => {
+    const key = `${type}:${shelf}`;
+    const { count } = await Item.query("type:shelf")
+      .eq(key)
+      .using("shelf")
+      .all()
+      .count()
+      .exec();
     const baseQuery = Item.query("type:shelf")
-      .eq(`${type}:${shelf}`)
+      .eq(key)
       .using("shelf")
       .limit(first);
-    const data = await (after
-      ? baseQuery.startAt(fromBase64(after))
+    const { lastKey, countSoFar }: After = after
+      ? fromBase64(after)
+      : { countSoFar: 0 };
+    const data = await (lastKey
+      ? baseQuery.startAt(lastKey)
       : baseQuery
     ).exec();
-    data.lastKey = data.lastKey ? toBase64(data.lastKey) : null;
-    return data;
+    const newCountSoFar = countSoFar + data.count;
+    const newLastKey =
+      count > newCountSoFar && data.lastKey
+        ? toBase64({ countSoFar: newCountSoFar, lastKey: data.lastKey })
+        : undefined;
+    return {
+      items: Array.from(data),
+      count,
+      lastKey: newLastKey,
+    };
   },
-  countOnShelf: async (type: ItemType, shelf: string): Promise<number> {
-    const data = await Item.query("type:shelf").eq(`${type}:${shelf}`).using("shelf").all().count().exec();
-    return data.count;
-  }
 };
 
-function toBase64(lastKey: Object): string {
+function toBase64(lastKey: After): string {
   return Buffer.from(JSON.stringify(lastKey), "utf-8").toString("base64");
 }
 
-function fromBase64(lastKey: string): Object {
+function fromBase64(lastKey: string): After {
   return JSON.parse(Buffer.from(lastKey, "base64").toString("utf-8"));
 }
