@@ -96,7 +96,7 @@ class ShelfResolver implements ResolverInterface<Shelf> {
     @Arg("type", (type) => ItemType) type: ItemType,
     @Arg("id") id: string
   ): Promise<Pick<Shelf, "id" | "type"> | null> {
-    const data = await DataQuery.onShelf(type, id);
+    const data = await DataQuery.onShelf(type, id, { first: 0 });
     if (data.length) {
       return {
         id,
@@ -115,11 +115,13 @@ class ShelfResolver implements ResolverInterface<Shelf> {
 
   @FieldResolver()
   async items(
-    @Root() { type, id }: Pick<Shelf, "type" | "id">
+    @Root() { type, id }: Pick<Shelf, "type" | "id">,
+    @Arg("first") first: number,
+    @Arg("after", { nullable: true }) after?: string
   ): Promise<ItemPage> {
-    const data = await DataQuery.onShelf(type.id, id);
+    const data = await DataQuery.onShelf(type.id, id, { first, after });
     return {
-      total: data.count,
+      total: await DataQuery.countOnShelf(type.id, id),
       hasNextPage: !!data.lastKey,
       nextPageCursor: data.lastKey,
       items: data.map(transformItem),
@@ -144,10 +146,14 @@ class TypeResolver {
   }
 
   @FieldResolver()
-  async items(@Root() { id }: Pick<Type, "id">): Promise<ItemPage> {
-    const data = await DataQuery.ofType(id);
+  async items(
+    @Root() { id }: Pick<Type, "id">,
+    @Arg("first") first: number,
+    @Arg("after", { nullable: true }) after?: string
+  ): Promise<ItemPage> {
+    const data = await DataQuery.ofType(id, { first, after });
     return {
-      total: data.count,
+      total: await DataQuery.countOfType(id),
       hasNextPage: !!data.lastKey,
       nextPageCursor: data.lastKey,
       items: data.map(transformItem),
