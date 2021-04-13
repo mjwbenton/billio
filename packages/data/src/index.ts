@@ -132,15 +132,14 @@ export const Query = {
     shelf: string,
     { first, after }: { first: number; after?: string }
   ): Promise<QueryResponse> => {
-    // TODO: Use combinedKey?
-    const key = `${type}:${shelf}`;
-    const { count } = await ItemModel.query("type:shelf")
+    const key = combineValue({ type, shelf }, TYPE_SHELF);
+    const { count } = await ItemModel.query(combineKey(TYPE_SHELF))
       .eq(key)
       .using("shelf")
       .all()
       .count()
       .exec();
-    const baseQuery = ItemModel.query("type:shelf")
+    const baseQuery = ItemModel.query(combineKey(TYPE_SHELF))
       .eq(key)
       .using("shelf")
       .limit(first);
@@ -204,13 +203,19 @@ export const Mutate = {
   },
 };
 
-function combinedKey<T>(item: T, keys: ReadonlyArray<keyof T>) {
-  const key = keys.join(":");
-  const value = keys
+function combineValue<T>(item: T, keys: ReadonlyArray<keyof T>) {
+  return keys
     .map((k) => item[k])
     .map((v) => (v instanceof Date ? v.getTime() : v))
     .join(":");
-  return { [key]: value };
+}
+
+function combineKey(keys: ReadonlyArray<unknown>) {
+  return keys.join(":");
+}
+
+function combinedKey<T>(item: T, keys: ReadonlyArray<keyof T>) {
+  return { [combineKey(keys)]: combineValue(item, keys) };
 }
 
 function toBase64(lastKey: After): string {
