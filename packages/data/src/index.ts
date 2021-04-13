@@ -25,6 +25,7 @@ export interface Item {
   shelf: string;
   title: string;
   updatedAt: Date;
+  createdAt: Date;
 }
 
 class ItemDocument extends Document {
@@ -33,6 +34,7 @@ class ItemDocument extends Document {
   shelf: string;
   title: string;
   updatedAt: Date;
+  createdAt: Date;
 }
 
 const ItemModel = dynamoose.model<ItemDocument>(

@@ -42,6 +42,8 @@ class Item {
   @Field()
   title: string;
   @Field()
+  createdAt: Date;
+  @Field()
   updatedAt: Date;
 }
 
