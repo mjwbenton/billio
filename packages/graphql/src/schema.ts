@@ -7,6 +7,7 @@ import {
   FieldResolver,
   ID,
   Int,
+  Mutation,
   ObjectType,
   Query,
   registerEnumType,
@@ -15,9 +16,10 @@ import {
   Root,
 } from "type-graphql";
 import {
-  ItemDocument,
+  Item as DataItem,
   ItemType,
   Query as DataQuery,
+  Mutate as DataMutate,
 } from "@mattb.tech/billio-data";
 
 registerEnumType(ItemType, {
@@ -41,6 +43,14 @@ class Item {
   title: string;
   @Field()
   updatedAt: Date;
+}
+
+@ObjectType()
+class ItemKey {
+  @Field((type) => ID)
+  id: string;
+  @Field((type) => Type)
+  type: Pick<Type, "id">;
 }
 
 @ObjectType()
@@ -86,6 +96,36 @@ class ItemResolver {
   ): Promise<Item | null> {
     const data = await DataQuery.withId(type, id);
     return transformItem(data);
+  }
+
+  @Mutation((returns) => Item)
+  async addItem(
+    @Arg("type", (type) => ItemType) type: ItemType,
+    @Arg("id", (type) => ID) id: string,
+    @Arg("shelf", (type) => ID) shelf: string,
+    @Arg("title") title: string
+  ): Promise<Item> {
+    const item = await DataMutate.createItem({ type, id, shelf, title });
+    return transformItem(item);
+  }
+
+  @Mutation((returns) => Item)
+  async moveShelf(
+    @Arg("type", (type) => ItemType) type: ItemType,
+    @Arg("id", (type) => ID) id: string,
+    @Arg("shelf", (type) => ID) shelf: string
+  ): Promise<Item> {
+    const item = await DataMutate.moveShelf({ type, id, shelf });
+    return transformItem(item);
+  }
+
+  @Mutation((returns) => ItemKey)
+  async deleteItem(
+    @Arg("type", (type) => ItemType) type: ItemType,
+    @Arg("id", (type) => ID) id: string
+  ): Promise<ItemKey> {
+    await DataMutate.deleteItem({ id, type });
+    return { id, type: { id: type } };
   }
 }
 
@@ -167,7 +207,7 @@ class TypeResolver implements ResolverInterface<Type> {
   }
 }
 
-function transformItem(input: ItemDocument): Item {
+function transformItem(input: DataItem): Item {
   return {
     ...input,
     type: {
