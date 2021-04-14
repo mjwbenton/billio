@@ -158,8 +158,8 @@ class ShelfResolver implements ResolverInterface<Shelf> {
   @FieldResolver()
   async items(
     @Root() { type, id }: Pick<Shelf, "type" | "id">,
-    @Arg("first") first: number,
-    @Arg("after", { nullable: true }) after?: string
+    @Arg("first", (type) => Int) first: number,
+    @Arg("after", (type) => ID, { nullable: true }) after?: string
   ): Promise<ItemPage> {
     const { count, items, lastKey } = await DataQuery.onShelf(type.id, id, {
       first,
@@ -193,8 +193,8 @@ class TypeResolver implements ResolverInterface<Type> {
   @FieldResolver()
   async items(
     @Root() { id }: Pick<Type, "id">,
-    @Arg("first") first: number,
-    @Arg("after", { nullable: true }) after?: string
+    @Arg("first", (type) => Int) first: number,
+    @Arg("after", (type) => ID, { nullable: true }) after?: string
   ): Promise<ItemPage> {
     const { count, items, lastKey } = await DataQuery.ofType(id, {
       first,
