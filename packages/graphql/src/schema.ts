@@ -6,6 +6,7 @@ import {
   Field,
   FieldResolver,
   ID,
+  InputType,
   Int,
   Mutation,
   ObjectType,
@@ -89,12 +90,20 @@ class Type {
   items: ItemPage;
 }
 
+@InputType()
+class UpdateItemInput {
+  @Field({ nullable: true })
+  title: string;
+  @Field((type) => ID, { nullable: true })
+  shelfId: string;
+}
+
 @Resolver(Item)
 class ItemResolver {
   @Query((returns) => Item, { nullable: true })
   async item(
     @Arg("type", (type) => ItemType) type: ItemType,
-    @Arg("id") id: string
+    @Arg("id", (type) => ID) id: string
   ): Promise<Item | null> {
     const data = await DataQuery.withId(type, id);
     return transformItem(data);
@@ -112,12 +121,16 @@ class ItemResolver {
   }
 
   @Mutation((returns) => Item)
-  async moveShelf(
+  async updateItem(
     @Arg("type", (type) => ItemType) type: ItemType,
     @Arg("id", (type) => ID) id: string,
-    @Arg("shelf", (type) => ID) shelf: string
-  ): Promise<Item> {
-    const item = await DataMutate.moveShelf({ type, id, shelf });
+    @Arg("updates", (type) => UpdateItemInput) updates: UpdateItemInput
+  ) {
+    const item = await DataMutate.updateItem({
+      type,
+      id,
+      ...transformInputItem(updates),
+    });
     return transformItem(item);
   }
 
@@ -207,6 +220,14 @@ class TypeResolver implements ResolverInterface<Type> {
       items: items.map(transformItem),
     };
   }
+}
+
+function transformInputItem(input: UpdateItemInput): Partial<DataItem> {
+  const { shelfId, ...rest } = input;
+  return {
+    ...rest,
+    ...(shelfId ? { shelf: shelfId } : {}),
+  };
 }
 
 function transformItem(input: DataItem): Item {

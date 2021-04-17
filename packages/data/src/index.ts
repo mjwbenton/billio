@@ -187,16 +187,18 @@ export const Mutate = {
   }: Pick<ItemDocument, "id" | "type">): Promise<void> {
     await ItemModel.delete(combinedKey({ id, type }, TYPE_ID));
   },
-  async moveShelf({
-    type,
+  async updateItem({
     id,
-    shelf,
-  }: Pick<ItemDocument, "id" | "type" | "shelf">): Promise<ItemDocument> {
+    type,
+    ...updates
+  }: Pick<ItemDocument, "id" | "type"> & Partial<ItemDocument>) {
     const date = new Date();
     await ItemModel.update(combinedKey({ type, id }, TYPE_ID), {
-      shelf,
+      ...updates,
       updatedAt: date,
-      ...combinedKey({ type, shelf }, TYPE_SHELF),
+      ...(updates.shelf
+        ? combinedKey({ type, shelf: updates.shelf }, TYPE_SHELF)
+        : {}),
       ...combinedKey({ updatedAt: date, type, id }, UPDATED_AT_TYPE_ID),
     });
     return await Query.withId(type, id, { consistent: true });
