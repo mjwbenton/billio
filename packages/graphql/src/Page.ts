@@ -9,7 +9,7 @@ import {
   Resolver,
 } from "type-graphql";
 import Item, { transformItem } from "./Item";
-import { upperFirst } from "./util";
+import { lowerFirst } from "./util";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
 
 export default interface Page<TItem extends Item> {
@@ -20,10 +20,9 @@ export default interface Page<TItem extends Item> {
 }
 
 export function PageTypeFactory<TItem extends Item>(
-  type: string,
   TItem: () => ClassType<TItem>
 ) {
-  @ObjectType(`${upperFirst(type)}Page`)
+  @ObjectType(`${TItem.name}Page`)
   class PageImpl implements Page<TItem> {
     @Field((type) => Int)
     total: number;
@@ -38,18 +37,18 @@ export function PageTypeFactory<TItem extends Item>(
 }
 
 export function PageResolverFactory<TItem extends Item>(
-  type: string,
+  TItem: ClassType<TItem>,
   TPage: ClassType<Page<TItem>>
 ) {
   @Resolver()
   class PageResolverImpl {
-    @Query((returns) => TPage, { name: `${type}s` })
+    @Query((returns) => TPage, { name: `${lowerFirst(TItem.name)}s` })
     async itemsForType(
       @Arg("first", (type) => Int) first: number,
       @Arg("after", (type) => ID, { nullable: true }) after?: string
     ): Promise<Page<TItem>> {
       const { count, items, lastKey } = await DataQuery.ofType(
-        { type },
+        { type: TItem.name },
         {
           first,
           after,

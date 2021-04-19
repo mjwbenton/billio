@@ -14,7 +14,7 @@ import {
   Mutate as DataMutate,
   Item as DataItem,
 } from "@mattb.tech/billio-data";
-import { upperFirst } from "./util";
+import { lowerFirst } from "./util";
 
 export default interface Item {
   id: string;
@@ -74,48 +74,47 @@ export function ItemResolverFactory<
   TAddItemInput extends AddItemInput,
   TUpdateItemInput extends UpdateItemInput
 >(
-  type: string,
   TItem: ClassType<TItem>,
   TAddItemInput: ClassType<TAddItemInput>,
   TUpdateItemInput: ClassType<TUpdateItemInput>
 ) {
   @Resolver(TItem)
   class ItemResolverImpl {
-    @Query((returns) => TItem, { nullable: true, name: type })
+    @Query((returns) => TItem, { nullable: true, name: lowerFirst(TItem.name) })
     async item(@Arg("id", (type) => ID) id: string): Promise<TItem | null> {
-      const data = await DataQuery.withId({ type, id });
+      const data = await DataQuery.withId({ type: TItem.name, id });
       return transformItem<TItem>(data);
     }
 
-    @Mutation((returns) => TItem, { name: `add${upperFirst(type)}` })
+    @Mutation((returns) => TItem, { name: `add${TItem.name}` })
     async addItem(
       @Arg("item", (type) => TAddItemInput) item: TAddItemInput
     ): Promise<TItem> {
       const outputItem = await DataMutate.createItem({
-        type,
+        type: TItem.name,
         ...transformAddItemInput(item),
       });
       return transformItem<TItem>(outputItem);
     }
 
-    @Mutation((returns) => TItem, { name: `update${upperFirst(type)}` })
+    @Mutation((returns) => TItem, { name: `update${TItem.name}` })
     async updateItem(
       @Arg("item", (type) => TUpdateItemInput) inputItem: TUpdateItemInput
     ) {
       const outputItem = await DataMutate.updateItem({
-        type,
+        type: TItem.name,
         ...transformUpdateItemInput(inputItem),
       });
       return transformItem<TItem>(outputItem);
     }
 
     @Mutation((returns) => DeleteItemOutput, {
-      name: `delete${upperFirst(type)}`,
+      name: `delete${TItem.name}`,
     })
     async deleteItem(
       @Arg("item", (type) => DeleteItemInput) { id }: DeleteItemInput
     ): Promise<DeleteItemOutput> {
-      await DataMutate.deleteItem({ id, type });
+      await DataMutate.deleteItem({ id, type: TItem.name });
       return { id };
     }
   }

@@ -8,8 +8,6 @@ import {
 import { PageResolverFactory, PageTypeFactory } from "./Page";
 import { ShelfResolverFactory, ShelfTypeFactory } from "./Shelf";
 
-const VIDEO_GAME = "videogame";
-
 enum ShelfId {
   Playing = "Playing",
   Played = "Played",
@@ -33,32 +31,35 @@ class VideoGame extends AbstractItem {
   platforms: Platform[];
 }
 
-const Page = PageTypeFactory(VIDEO_GAME, () => VideoGame);
+const Page = PageTypeFactory(() => VideoGame);
 const Shelf = ShelfTypeFactory(
-  VIDEO_GAME,
+  () => VideoGame,
   () => Page,
   () => ShelfId
 );
 
 @InputType()
 class AddVideoGameInput extends AddItemInput {
-  @Field((type) => [String])
-  platforms: string[];
+  @Field((type) => ShelfId)
+  shelfId: ShelfId;
+  @Field((type) => [Platform])
+  platforms: Platform[];
 }
 
 @InputType()
 class UpdateVideoGameInput extends UpdateItemInput {
+  @Field((type) => ShelfId, { nullable: true })
+  shelfId: ShelfId;
   @Field((type) => [String], { nullable: true })
   platforms: string[];
 }
 
 const ItemResolver = ItemResolverFactory(
-  VIDEO_GAME,
   VideoGame,
   AddVideoGameInput,
   UpdateVideoGameInput
 );
-const ShelfResolver = ShelfResolverFactory(VIDEO_GAME, Shelf, ShelfId);
-const PageResolver = PageResolverFactory(VIDEO_GAME, Page);
+const ShelfResolver = ShelfResolverFactory(VideoGame, Shelf, ShelfId);
+const PageResolver = PageResolverFactory(VideoGame, Page);
 
 export const resolvers = [ItemResolver, ShelfResolver, PageResolver] as const;

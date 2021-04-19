@@ -14,7 +14,7 @@ import {
 import { Query as DataQuery } from "@mattb.tech/billio-data";
 import Item, { transformItem } from "./Item";
 import Page from "./Page";
-import { StringKey, upperFirst } from "./util";
+import { lowerFirst, StringKey } from "./util";
 
 export default interface Shelf<TItem extends Item, TShelfEnum extends object> {
   id: StringKey<TShelfEnum>;
@@ -23,11 +23,11 @@ export default interface Shelf<TItem extends Item, TShelfEnum extends object> {
 }
 
 export function ShelfTypeFactory<TItem extends Item, TShelfEnum extends object>(
-  type: string,
+  TItem: () => ClassType<TItem>,
   TPage: () => ClassType<Page<TItem>>,
   TShelfEnum: () => TShelfEnum
 ) {
-  @ObjectType(`${upperFirst(type)}Shelf`)
+  @ObjectType(`${TItem.name}Shelf`)
   class ShelfImpl implements Shelf<TItem, TShelfEnum> {
     @Field((type) => TShelfEnum())
     id: StringKey<TShelfEnum>;
@@ -44,27 +44,23 @@ export function ShelfResolverFactory<
   TItem extends Item,
   TShelfEnum extends object
 >(
-  type: string,
+  TItem: ClassType<TItem>,
   TShelf: ClassType<Shelf<TItem, TShelfEnum>>,
   TShelfEnum: TShelfEnum
 ) {
   @Resolver(TShelf)
   class ShelfResolverImpl
     implements ResolverInterface<Shelf<TItem, TShelfEnum>> {
-    @Query((returns) => TShelf, { nullable: true, name: `${type}Shelf` })
+    @Query((returns) => TShelf, {
+      nullable: true,
+      name: `${lowerFirst(TItem.name)}Shelf`,
+    })
     async shelf(
       @Arg("id", (type) => TShelfEnum) id: StringKey<TShelfEnum>
     ): Promise<Pick<Shelf<TItem, TShelfEnum>, "id"> | null> {
-      const { count } = await DataQuery.onShelf(
-        { type, shelf: id },
-        { first: 0 }
-      );
-      if (count) {
-        return {
-          id,
-        };
-      }
-      return null;
+      return {
+        id,
+      };
     }
 
     @FieldResolver()
@@ -79,7 +75,7 @@ export function ShelfResolverFactory<
       @Arg("after", (type) => ID, { nullable: true }) after?: string
     ): Promise<Page<TItem>> {
       const { count, items, lastKey } = await DataQuery.onShelf(
-        { type, shelf: id },
+        { type: TItem.name, shelf: id },
         {
           first,
           after,
