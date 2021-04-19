@@ -10,31 +10,34 @@ dynamoose.model.defaults.set({
 const TABLE_NAME =
   process.env.BILLIO_TABLE ?? "BillioData-ItemTable276B2AC8-1HIYN64N2BKA1";
 
-export enum ItemType {
-  Book = "book",
-  VideoGame = "videogame",
-}
-
 const TYPE_ID = ["type", "id"] as const;
 const TYPE_SHELF = ["type", "shelf"] as const;
 const UPDATED_AT_TYPE_ID = ["updatedAt", "type", "id"] as const;
 
 export interface Item {
-  type: ItemType;
+  type: string;
   id: string;
   shelf: string;
-  title: string;
   updatedAt: Date;
   createdAt: Date;
+  [additional: string]: any;
 }
 
-class ItemDocument extends Document {
-  type: ItemType;
+type TypeKey = Pick<Item, "type">;
+type ItemKey = TypeKey & Pick<Item, "id">;
+type ShelfKey = TypeKey & Pick<Item, "shelf">;
+type UpdateItem = ItemKey & Omit<Partial<Item>, "updatedAt" | "createdAt">;
+type CreateItem = ItemKey &
+  ShelfKey &
+  Omit<Partial<Item>, "updatedAt" | "createdAt">;
+
+class ItemDocument extends Document implements Item {
+  type: string;
   id: string;
   shelf: string;
-  title: string;
   updatedAt: Date;
   createdAt: Date;
+  [additional: string]: any;
 }
 
 const ItemModel = dynamoose.model<ItemDocument>(
@@ -50,7 +53,6 @@ const ItemModel = dynamoose.model<ItemDocument>(
         },
       },
       shelf: String,
-      title: String,
       createdAt: Date,
       updatedAt: Date,
       "type:id": {
@@ -69,7 +71,7 @@ const ItemModel = dynamoose.model<ItemDocument>(
       },
     },
     {
-      saveUnknown: false,
+      saveUnknown: true,
       timestamps: false,
     }
   )
@@ -88,15 +90,14 @@ type After = {
 
 export const Query = {
   withId: async (
-    type: ItemType,
-    id: string,
+    { type, id }: ItemKey,
     options?: { consistent?: boolean }
-  ) =>
+  ): Promise<Item> =>
     ItemModel.get(combinedKey({ type, id }, TYPE_ID), {
       consistent: options?.consistent ?? false,
     }),
   ofType: async (
-    type: ItemType,
+    { type }: TypeKey,
     { first, after }: { first: number; after?: string }
   ): Promise<QueryResponse> => {
     const { count } = await ItemModel.query("type")
@@ -128,8 +129,7 @@ export const Query = {
     };
   },
   onShelf: async (
-    type: ItemType,
-    shelf: string,
+    { type, shelf }: ShelfKey,
     { first, after }: { first: number; after?: string }
   ): Promise<QueryResponse> => {
     const key = combineValue({ type, shelf }, TYPE_SHELF);
@@ -164,12 +164,12 @@ export const Query = {
 };
 
 export const Mutate = {
-  async createItem(
-    item: Pick<ItemDocument, "id" | "type" | "shelf" | "title">
-  ): Promise<ItemDocument> {
+  async createItem({ id, type, ...rest }: CreateItem): Promise<Item> {
     const date = new Date();
     const withTimestamps = {
-      ...item,
+      id,
+      type,
+      ...rest,
       updatedAt: date,
       createdAt: date,
     };
@@ -179,19 +179,12 @@ export const Mutate = {
       ...combinedKey(withTimestamps, TYPE_SHELF),
       ...combinedKey(withTimestamps, UPDATED_AT_TYPE_ID),
     });
-    return Query.withId(item.type, item.id, { consistent: true });
+    return Query.withId({ type, id }, { consistent: true });
   },
-  async deleteItem({
-    id,
-    type,
-  }: Pick<ItemDocument, "id" | "type">): Promise<void> {
+  async deleteItem({ id, type }: ItemKey): Promise<void> {
     await ItemModel.delete(combinedKey({ id, type }, TYPE_ID));
   },
-  async updateItem({
-    id,
-    type,
-    ...updates
-  }: Pick<ItemDocument, "id" | "type"> & Partial<ItemDocument>) {
+  async updateItem({ id, type, ...updates }: UpdateItem) {
     const date = new Date();
     await ItemModel.update(combinedKey({ type, id }, TYPE_ID), {
       ...updates,
@@ -201,7 +194,7 @@ export const Mutate = {
         : {}),
       ...combinedKey({ updatedAt: date, type, id }, UPDATED_AT_TYPE_ID),
     });
-    return await Query.withId(type, id, { consistent: true });
+    return await Query.withId({ type, id }, { consistent: true });
   },
 };
 
