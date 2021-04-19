@@ -14,22 +14,23 @@ import {
 import { Query as DataQuery } from "@mattb.tech/billio-data";
 import Item, { transformItem } from "./Item";
 import Page from "./Page";
-import { upperFirst } from "./util";
+import { StringKey, upperFirst } from "./util";
 
-export default interface Shelf<TItem extends Item> {
-  id: string;
+export default interface Shelf<TItem extends Item, TShelfEnum extends object> {
+  id: StringKey<TShelfEnum>;
   name: string;
   items: Page<TItem>;
 }
 
-export function ShelfTypeFactory<TItem extends Item>(
+export function ShelfTypeFactory<TItem extends Item, TShelfEnum extends object>(
   type: string,
-  TPage: () => ClassType<Page<TItem>>
+  TPage: () => ClassType<Page<TItem>>,
+  TShelfEnum: () => TShelfEnum
 ) {
   @ObjectType(`${upperFirst(type)}Shelf`)
-  class ShelfImpl implements Shelf<TItem> {
-    @Field((type) => ID)
-    id: string;
+  class ShelfImpl implements Shelf<TItem, TShelfEnum> {
+    @Field((type) => TShelfEnum())
+    id: StringKey<TShelfEnum>;
     @Field()
     name: string;
     @Field((type) => TPage())
@@ -39,16 +40,21 @@ export function ShelfTypeFactory<TItem extends Item>(
   return ShelfImpl;
 }
 
-export function ShelfResolverFactory<TItem extends Item>(
+export function ShelfResolverFactory<
+  TItem extends Item,
+  TShelfEnum extends object
+>(
   type: string,
-  TShelf: ClassType<Shelf<TItem>>
+  TShelf: ClassType<Shelf<TItem, TShelfEnum>>,
+  TShelfEnum: TShelfEnum
 ) {
   @Resolver(TShelf)
-  class ShelfResolverImpl implements ResolverInterface<Shelf<TItem>> {
+  class ShelfResolverImpl
+    implements ResolverInterface<Shelf<TItem, TShelfEnum>> {
     @Query((returns) => TShelf, { nullable: true, name: `${type}Shelf` })
     async shelf(
-      @Arg("id") id: string
-    ): Promise<Pick<Shelf<TItem>, "id"> | null> {
+      @Arg("id", (type) => TShelfEnum) id: StringKey<TShelfEnum>
+    ): Promise<Pick<Shelf<TItem, TShelfEnum>, "id"> | null> {
       const { count } = await DataQuery.onShelf(
         { type, shelf: id },
         { first: 0 }
@@ -62,13 +68,13 @@ export function ShelfResolverFactory<TItem extends Item>(
     }
 
     @FieldResolver()
-    name(@Root() { id }: Pick<Shelf<TItem>, "id">) {
+    name(@Root() { id }: Pick<Shelf<TItem, TShelfEnum>, "id">) {
       return id;
     }
 
     @FieldResolver()
     async items(
-      @Root() { id }: Pick<Shelf<TItem>, "id">,
+      @Root() { id }: Pick<Shelf<TItem, TShelfEnum>, "id">,
       @Arg("first", (type) => Int) first: number,
       @Arg("after", (type) => ID, { nullable: true }) after?: string
     ): Promise<Page<TItem>> {
