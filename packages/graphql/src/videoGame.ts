@@ -50,8 +50,8 @@ class AddVideoGameInput extends AddItemInput {
 class UpdateVideoGameInput extends UpdateItemInput {
   @Field((type) => ShelfId, { nullable: true })
   shelfId: ShelfId;
-  @Field((type) => [String], { nullable: true })
-  platforms: string[];
+  @Field((type) => [Platform], { nullable: true })
+  platforms: Platform[];
 }
 
 const ItemResolver = ItemResolverFactory(
