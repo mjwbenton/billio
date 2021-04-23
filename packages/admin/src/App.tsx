@@ -6,13 +6,26 @@ import {
   EditGuesser,
   DataProvider,
 } from "react-admin";
-import dataProvider from "./dataProvider";
+import dataProviderPromise from "./dataProvider";
 import GamesIcon from "@material-ui/icons/Games";
 import BookIcon from "@material-ui/icons/Book";
+import { useEffect, useState } from "react";
 
 function App() {
+  const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
+
+  useEffect(() => {
+    dataProviderPromise.then((dataProvider: DataProvider) =>
+      setDataProvider(() => dataProvider)
+    );
+  });
+
+  if (!dataProvider) {
+    return <p>Loading...</p>;
+  }
+
   return (
-    <Admin dataProvider={dataProvider as DataProvider}>
+    <Admin dataProvider={dataProvider}>
       <Resource
         name="VideoGame"
         list={ListGuesser}

@@ -1,0 +1,11 @@
+fragment VideoGame on VideoGame {
+  id
+  title
+  platforms
+  shelf {
+    id
+    name
+  }
+  updatedAt
+  createdAt
+}

@@ -1,167 +1,132 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
 import gql from "graphql-tag";
-import {
-  GetListResult,
-  GetOneResult,
-  GetListParams,
-  GetOneParams,
-  UpdateParams,
-  UpdateResult,
-} from "react-admin";
-import {
-  ItemFragment,
-  GetListQuery,
-  GetOneQuery,
-  UpdateMutation,
-  UpdateItemInput,
-} from "./generated/graphql";
+import client from "./client";
+import buildGraphQLProvider from "ra-data-graphql";
+import { loader } from "graphql.macro";
+import stripTypename from "./stripTypename";
 
-const CLIENT = new ApolloClient({
-  uri: "http://localhost:4000/",
-  cache: new InMemoryCache(),
-  defaultOptions: {
-    query: {
-      fetchPolicy: "network-only",
-    },
-  },
-});
-
-const ITEM_FRAGMENT = gql`
-  fragment Item on Item {
-    id
-    shelf {
-      id
-      name
-    }
-    title
-    createdAt
-    updatedAt
-  }
-`;
-
-const GET_LIST = gql`
-  query GetList($type: ItemType!, $first: Int!) {
-    type(id: $type) {
-      items(first: $first) {
-        total
-        items {
-          ...Item
-        }
-      }
-    }
-  }
-  ${ITEM_FRAGMENT}
-`;
-
-const GET_ONE = gql`
-  query GetOne($type: ItemType!, $id: ID!) {
-    item(id: $id, type: $type) {
-      ...Item
-    }
-  }
-  ${ITEM_FRAGMENT}
-`;
-
-const UPDATE = gql`
-  mutation Update($type: ItemType!, $id: ID!, $updates: UpdateItemInput!) {
-    updateItem(id: $id, type: $type, updates: $updates) {
-      ...Item
-    }
-  }
-  ${ITEM_FRAGMENT}
-`;
-
-async function unsupported(): Promise<any> {
-  throw new Error("Unsupported");
-}
-
-const dataProvider = {
-  create: unsupported,
-  delete: unsupported,
-  deleteMany: unsupported,
-  async getList(
-    resource: string,
-    params: GetListParams
-  ): Promise<GetListResult<ItemFragment>> {
-    const result = await CLIENT.query<GetListQuery>({
-      query: GET_LIST,
-      variables: {
-        type: resource,
-        first: params.pagination.perPage,
-      },
-    });
-    if (result.error) {
-      throw new Error(`Graphql Error ${result.error}`);
-    }
-    return {
-      data: result.data.type.items.items.map(stripTypename),
-      total: result.data.type.items.total,
-    };
-  },
-  async getOne(
-    resource: string,
-    params: GetOneParams
-  ): Promise<GetOneResult<ItemFragment>> {
-    const result = await CLIENT.query<GetOneQuery>({
-      query: GET_ONE,
-      variables: {
-        type: resource,
-        id: params.id,
-      },
-    });
-    if (!result.data.item) {
-      throw new Error(`No item ${resource} ${params.id}`);
-    }
-    return {
-      data: stripTypename(result.data.item),
-    };
-  },
-  async update(
-    resource: string,
-    params: UpdateParams
-  ): Promise<UpdateResult<ItemFragment>> {
-    const result = await CLIENT.mutate<UpdateMutation>({
-      mutation: UPDATE,
-      variables: {
-        type: resource,
-        id: params.id,
-        updates: updateParamsToUpdateInput(params),
-      },
-    });
-    if (!result.data?.updateItem) {
-      throw new Error(`Failed update on ${resource} ${params.id}`);
-    }
-    return {
-      data: stripTypename(result.data.updateItem),
-    };
-  },
-  getMany: unsupported,
-  getManyReference: unsupported,
-  updateMany: unsupported,
+const FRAGMENTS = {
+  Book: loader("./book/Book.graphql"),
+  VideoGame: loader("./videogame/VideoGame.graphql"),
 };
 
-function updateParamsToUpdateInput({
-  data: { shelf, title },
-  previousData: { shelf: oldShelf, title: oldTitle },
-}: UpdateParams): UpdateItemInput {
-  return {
-    shelfId: shelf.id !== oldShelf.id ? shelf.id : null,
-    title: title !== oldTitle ? title : null,
-  };
+function lowerFirst(str: string): string {
+  return str.charAt(0).toLowerCase() + str.slice(1);
 }
 
-function stripTypename<T>(obj: T): T {
-  const copy = {};
-  Object.keys(obj)
-    .filter((key) => key !== "__typename")
-    .forEach((key) => {
-      if (typeof obj[key] === "object") {
-        copy[key] = stripTypename(obj[key]);
-      } else {
-        copy[key] = obj[key];
+const GET_ONE = (resourceName: string, queryName: string) => gql`
+  query ${queryName}($id: ID!) {
+    data: ${queryName}(id: $id) {
+      ...${resourceName}
+    }
+  }
+  ${FRAGMENTS[resourceName]}
+`;
+
+const GET_LIST = (resourceName: string, queryName: string) => gql`
+  query ${queryName}($first: Int!) {
+    data: ${queryName}(first: $first) {
+      total
+      data: items {
+        ...${resourceName}
       }
-    });
-  return copy as T;
-}
+    }
+  }
+  ${FRAGMENTS[resourceName]}
+`;
 
-export default dataProvider;
+const CREATE = (resourceName: string, queryName: string) => gql`
+  mutation ${queryName}($item: Add${resourceName}Input!) {
+    data: ${queryName}(item: $item) {
+      ...${resourceName}
+    }
+  }
+  ${FRAGMENTS[resourceName]}
+`;
+
+const UPDATE = (resourceName: string, queryName: string) => gql`
+  mutation ${queryName}($item: Update${resourceName}Input!) {
+    data: ${queryName}(item: $item) {
+      ...${resourceName}
+    }
+  }
+  ${FRAGMENTS[resourceName]}
+`;
+
+const DELETE = (resourceName: string, queryName: string) => gql`
+  mutation ${queryName}($item: DeleteItemInput!) {
+    data: ${queryName}(item: $item) {
+      id
+    }
+  }
+`;
+
+export default buildGraphQLProvider({
+  client,
+  introspection: {
+    operationNames: {
+      GET_LIST: (resource) => `${lowerFirst(resource.name)}s`,
+      GET_ONE: (resource) => `${lowerFirst(resource.name)}`,
+      CREATE: (resource) => `add${resource.name}`,
+      UPDATE: (resource) => `update${resource.name}`,
+      DELETE: (resource) => `delete${resource.name}`,
+    },
+  },
+  buildQuery: ({ types, resources }) => {
+    return (raFetchType, resourceName, params) => {
+      const resource = resources.find((r) => r.type.name === resourceName);
+
+      const queryName = resource[raFetchType].name;
+
+      switch (raFetchType) {
+        case "GET_ONE":
+          return {
+            query: GET_ONE(resourceName, queryName),
+            variables: params,
+            parseResponse: (response) => stripTypename(response.data),
+          };
+        case "GET_LIST":
+          return {
+            query: GET_LIST(resourceName, queryName),
+            variables: { first: params.pagination.perPage },
+            parseResponse: (response) => stripTypename(response.data.data),
+          };
+        case "CREATE": {
+          const { updatedAt, createdAt, shelf, ...rest } = params.data;
+          return {
+            query: CREATE(resourceName, queryName),
+            variables: {
+              item: {
+                id: params.id,
+                ...rest,
+                shelfId: shelf.id,
+              },
+            },
+            parseResponse: (response) => stripTypename(response.data),
+          };
+        }
+        case "UPDATE": {
+          const { updatedAt, createdAt, shelf, ...rest } = params.data;
+          return {
+            query: UPDATE(resourceName, queryName),
+            variables: {
+              item: {
+                id: params.id,
+                ...rest,
+                shelfId: shelf.id,
+              },
+            },
+            parseResponse: (response) => stripTypename(response.data),
+          };
+        }
+        case "DELETE":
+          return {
+            query: DELETE(resourceName, queryName),
+            variables: { item: { id: params.id } },
+            parseResponse: (response) => stripTypename(response.data),
+          };
+        default:
+          throw new Error("Unsupported");
+      }
+    };
+  },
+});

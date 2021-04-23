@@ -1,0 +1,11 @@
+fragment Book on Book {
+  id
+  title
+  author
+  shelf {
+    id
+    name
+  }
+  updatedAt
+  createdAt
+}
