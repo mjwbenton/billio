@@ -15,6 +15,7 @@ import {
   Item as DataItem,
 } from "@mattb.tech/billio-data";
 import { lowerFirst } from "./util";
+import { v4 as uuid } from "uuid";
 
 export default interface Item {
   id: string;
@@ -39,8 +40,6 @@ export abstract class AbstractItem {
 
 @InputType({ isAbstract: true })
 export abstract class AddItemInput {
-  @Field((type) => ID)
-  id: string;
   @Field()
   title: string;
   @Field((type) => ID)
@@ -91,6 +90,7 @@ export function ItemResolverFactory<
       @Arg("item", (type) => TAddItemInput) item: TAddItemInput
     ): Promise<TItem> {
       const outputItem = await DataMutate.createItem({
+        id: uuid(),
         type: TItem.name,
         ...transformAddItemInput(item),
       });
