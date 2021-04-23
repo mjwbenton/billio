@@ -27,7 +27,7 @@ export function ShelfTypeFactory<TItem extends Item, TShelfEnum extends object>(
   TPage: () => ClassType<Page<TItem>>,
   TShelfEnum: () => TShelfEnum
 ) {
-  @ObjectType(`${TItem.name}Shelf`)
+  @ObjectType(`${TItem().name}Shelf`)
   class ShelfImpl implements Shelf<TItem, TShelfEnum> {
     @Field((type) => TShelfEnum())
     id: StringKey<TShelfEnum>;

@@ -22,7 +22,7 @@ export default interface Page<TItem extends Item> {
 export function PageTypeFactory<TItem extends Item>(
   TItem: () => ClassType<TItem>
 ) {
-  @ObjectType(`${TItem.name}Page`)
+  @ObjectType(`${TItem().name}Page`)
   class PageImpl implements Page<TItem> {
     @Field((type) => Int)
     total: number;
