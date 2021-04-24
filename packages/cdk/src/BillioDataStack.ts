@@ -1,7 +1,14 @@
 import { Stack, StackProps, Construct } from "@aws-cdk/core";
-import { AttributeType, BillingMode, Table } from "@aws-cdk/aws-dynamodb";
+import {
+  AttributeType,
+  BillingMode,
+  ITable,
+  Table,
+} from "@aws-cdk/aws-dynamodb";
 
 export default class BillioDataStack extends Stack {
+  public readonly itemTable: ITable;
+
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
@@ -19,5 +26,7 @@ export default class BillioDataStack extends Stack {
       partitionKey: { name: "type:shelf", type: AttributeType.STRING },
       sortKey: { name: "updatedAt:type:id", type: AttributeType.STRING },
     });
+
+    this.itemTable = itemTable;
   }
 }
