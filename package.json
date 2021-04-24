@@ -14,6 +14,7 @@
     "build": "yarn workspaces run build",
     "clean": "yarn workspaces run clean && ./scripts/clean.sh",
     "check": "yarn workspaces run check",
-    "fix": "yarn workspaces run fix"
+    "fix": "yarn workspaces run fix",
+    "deploy": "yarn build && yarn workspace @mattb.tech/billio-cdk deploy"
   }
 }
