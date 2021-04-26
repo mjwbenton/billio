@@ -1,4 +1,4 @@
-import { App, Stack, Duration, CfnTrafficRoute } from "@aws-cdk/core";
+import { App, Stack } from "@aws-cdk/core";
 import { NodejsFunction } from "@aws-cdk/aws-lambda-nodejs";
 import { Runtime } from "@aws-cdk/aws-lambda";
 import {
