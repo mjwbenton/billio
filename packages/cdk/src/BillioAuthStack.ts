@@ -4,9 +4,13 @@ import {
   UserPoolClient,
   CfnIdentityPool,
   AccountRecovery,
+  CfnIdentityPoolRoleAttachment,
 } from "@aws-cdk/aws-cognito";
+import { Role, IRole, FederatedPrincipal } from "@aws-cdk/aws-iam";
 
 export default class BillioAuthStack extends Stack {
+  public readonly role: IRole;
+
   constructor(app: App, id: string) {
     super(app, id);
 
@@ -23,7 +27,7 @@ export default class BillioAuthStack extends Stack {
       generateSecret: false,
     });
 
-    new CfnIdentityPool(this, "IdentityPool", {
+    const identityPool = new CfnIdentityPool(this, "IdentityPool", {
       allowUnauthenticatedIdentities: false,
       cognitoIdentityProviders: [
         {
@@ -31,6 +35,35 @@ export default class BillioAuthStack extends Stack {
           providerName: userPool.userPoolProviderName,
         },
       ],
+    });
+
+    this.role = new Role(this, "AuthenticatedRole", {
+      assumedBy: new FederatedPrincipal(
+        "cognito-identity.amazonaws.com",
+        {
+          StringEquals: {
+            "cognito-identity.amazonaws.com:aud": identityPool.ref,
+          },
+          "ForAnyValue:StringLike": {
+            "cognito-identity.amazonaws.com:amr": "authenticated",
+          },
+        },
+        "sts:AssumeRoleWithWebIdentity"
+      ),
+    });
+
+    new CfnIdentityPoolRoleAttachment(this, "IdentityPoolRoleAttachment", {
+      identityPoolId: identityPool.ref,
+      roles: {
+        authenticated: this.role.roleArn,
+      },
+      roleMappings: {
+        mapping: {
+          type: "Token",
+          identityProvider: `cognito-idp.${this.region}.amazonaws.com/${userPool.userPoolId}:${userPoolClient.userPoolClientId}`,
+          ambiguousRoleResolution: "AuthenticatedRole",
+        },
+      },
     });
   }
 }

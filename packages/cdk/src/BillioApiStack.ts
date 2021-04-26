@@ -1,24 +1,18 @@
-import { App, Stack, Duration } from "@aws-cdk/core";
+import { App, Stack, Duration, CfnTrafficRoute } from "@aws-cdk/core";
 import { NodejsFunction } from "@aws-cdk/aws-lambda-nodejs";
 import { Runtime } from "@aws-cdk/aws-lambda";
 import {
   HttpApi,
+  HttpRoute,
   PayloadFormatVersion,
   CorsHttpMethod,
+  HttpRouteKey,
+  CfnRoute,
 } from "@aws-cdk/aws-apigatewayv2";
 import { LambdaProxyIntegration } from "@aws-cdk/aws-apigatewayv2-integrations";
-import {
-  CloudFrontWebDistribution,
-  CloudFrontAllowedMethods,
-  CloudFrontAllowedCachedMethods,
-  OriginProtocolPolicy,
-  ViewerCertificate,
-  ViewerProtocolPolicy,
-} from "@aws-cdk/aws-cloudfront";
 import path from "path";
 import BillioDataStack from "./BillioDataStack";
 import DomainConstruct from "./DomainConstruct";
-import { CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
 
 export const API_DOMAIN_NAME = "api.billio.mattb.tech";
 
@@ -44,55 +38,31 @@ export default class BillioApiStack extends Stack {
     });
     dataStack.itemTable.grantReadWriteData(lambdaFunction);
 
-    const api = new HttpApi(this, "Api", {
-      apiName: "BillioApi",
-      defaultIntegration: new LambdaProxyIntegration({
-        handler: lambdaFunction,
-        payloadFormatVersion: PayloadFormatVersion.VERSION_1_0,
-      }),
+    const domainName = new DomainConstruct(this, "Domain", {
+      domainName: API_DOMAIN_NAME,
+    }).apiDomainName();
+
+    const api = new HttpApi(this, "BillioGraphQl", {
       corsPreflight: {
         allowCredentials: false,
         allowOrigins: ["*"],
         allowMethods: [CorsHttpMethod.ANY],
         allowHeaders: ["Content-Type"],
       },
+      disableExecuteApiEndpoint: true,
+      defaultDomainMapping: {
+        domainName,
+      },
     });
 
-    const domain = new DomainConstruct(this, "Domain", {
-      domainName: API_DOMAIN_NAME,
-    });
-
-    const certificate = domain.createCertificate();
-
-    const distribution = new CloudFrontWebDistribution(this, "Distribution", {
-      originConfigs: [
-        {
-          behaviors: [
-            {
-              isDefaultBehavior: true,
-              defaultTtl: Duration.minutes(5),
-              compress: true,
-              allowedMethods: CloudFrontAllowedMethods.ALL,
-              forwardedValues: {
-                queryString: true,
-                headers: ["Accept", "Origin"],
-              },
-              cachedMethods: CloudFrontAllowedCachedMethods.GET_HEAD_OPTIONS,
-            },
-          ],
-          customOriginSource: {
-            domainName: `${api.apiId}.execute-api.${this.region}.amazonaws.com`,
-            httpsPort: 443,
-            originProtocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
-          },
-        },
-      ],
-      viewerCertificate: ViewerCertificate.fromAcmCertificate(certificate, {
-        aliases: [API_DOMAIN_NAME],
+    const graphqlRoute = new HttpRoute(this, "Route", {
+      httpApi: api,
+      integration: new LambdaProxyIntegration({
+        handler: lambdaFunction,
+        payloadFormatVersion: PayloadFormatVersion.VERSION_1_0,
       }),
-      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      routeKey: HttpRouteKey.DEFAULT,
     });
-
-    domain.pointAt(new CloudFrontTarget(distribution));
+    (graphqlRoute.node.defaultChild as CfnRoute).authorizationType = "AWS_IAM";
   }
 }
