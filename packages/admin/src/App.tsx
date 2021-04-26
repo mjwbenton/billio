@@ -7,12 +7,12 @@ import {
   DataProvider,
 } from "react-admin";
 import dataProviderPromise from "./dataProvider";
+import authProvider from "./authProvider";
 import GamesIcon from "@material-ui/icons/Games";
 import BookIcon from "@material-ui/icons/Book";
 import { useEffect, useState } from "react";
 import CreateBook from "./book/CreateBook";
 import CreateVideoGame from "./videogame/CreateVideoGame";
-import { AuthProvider, Login } from "ra-cognito";
 
 function App() {
   const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
@@ -28,7 +28,7 @@ function App() {
   }
 
   return (
-    <Admin dataProvider={dataProvider} authProvider={AuthProvider}>
+    <Admin dataProvider={dataProvider} authProvider={authProvider}>
       <Resource
         name="VideoGame"
         create={CreateVideoGame}
