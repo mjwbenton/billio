@@ -7,7 +7,7 @@ dynamoose.model.defaults.set({
   waitForActive: false,
 });
 
-const TABLE_NAME = process.env.BILLIO_TABLE;
+const TABLE_NAME = process.env.BILLIO_TABLE!;
 
 const TYPE_ID = ["type", "id"] as const;
 const TYPE_SHELF = ["type", "shelf"] as const;
