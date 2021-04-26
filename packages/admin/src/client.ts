@@ -1,5 +1,8 @@
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { Auth } from "@aws-amplify/auth";
+import aws4 from "aws4-tiny";
+
+const ENDPOINT = "https://api.billio.mattb.tech";
 
 const CLIENT = new ApolloClient({
   cache: new InMemoryCache(),
@@ -9,15 +12,18 @@ const CLIENT = new ApolloClient({
     },
   },
   link: new HttpLink({
-    uri: "http://localhost:4000",
+    uri: ENDPOINT,
     fetch: async (uri, options) => {
-      try {
-        const credentials = await Auth.currentCredentials();
-        console.log(credentials);
-      } catch (err) {
-        console.log(err);
-      }
-      return fetch(uri, options);
+      const credentials = await Auth.currentCredentials();
+      return aws4.fetch(
+        uri,
+        {
+          service: "execute-api",
+          region: "us-east-1",
+          ...options,
+        },
+        credentials
+      );
     },
   }),
 });
