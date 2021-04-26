@@ -15,6 +15,7 @@ export default class BillioDataStack extends Stack {
     const itemTable = new Table(this, "ItemTable", {
       partitionKey: { name: "type:id", type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,
+      pointInTimeRecovery: true,
     });
     itemTable.addGlobalSecondaryIndex({
       indexName: "type",
