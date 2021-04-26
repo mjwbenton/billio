@@ -35,6 +35,9 @@ export default class BillioApiStack extends Stack {
       },
       runtime: Runtime.NODEJS_14_X,
       memorySize: 1024,
+      environment: {
+        BILLIO_TABLE: dataStack.itemTable.tableName,
+      },
     });
     dataStack.itemTable.grantReadWriteData(lambdaFunction);
 
