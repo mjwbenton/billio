@@ -9,7 +9,7 @@ import {
 import { Role, IRole, FederatedPrincipal } from "@aws-cdk/aws-iam";
 
 export default class BillioAuthStack extends Stack {
-  public readonly role: IRole;
+  public readonly authenticatedUserRole: IRole;
 
   constructor(app: App, id: string) {
     super(app, id);
@@ -37,7 +37,7 @@ export default class BillioAuthStack extends Stack {
       ],
     });
 
-    this.role = new Role(this, "AuthenticatedRole", {
+    this.authenticatedUserRole = new Role(this, "AuthenticatedRole", {
       assumedBy: new FederatedPrincipal(
         "cognito-identity.amazonaws.com",
         {
@@ -55,7 +55,7 @@ export default class BillioAuthStack extends Stack {
     new CfnIdentityPoolRoleAttachment(this, "IdentityPoolRoleAttachment", {
       identityPoolId: identityPool.ref,
       roles: {
-        authenticated: this.role.roleArn,
+        authenticated: this.authenticatedUserRole.roleArn,
       },
       roleMappings: {
         mapping: {

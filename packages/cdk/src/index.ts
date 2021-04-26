@@ -5,5 +5,6 @@ import BillioDataStack from "./BillioDataStack";
 
 const app = new App();
 const dataStack = new BillioDataStack(app, "BillioData");
-new BillioAuthStack(app, "BillioAuth");
-new BillioApiStack(app, "BillioAPI", { dataStack });
+const authStack = new BillioAuthStack(app, "BillioAuth");
+const apiStack = new BillioApiStack(app, "BillioAPI", { dataStack });
+apiStack.grantCall(authStack.authenticatedUserRole);
