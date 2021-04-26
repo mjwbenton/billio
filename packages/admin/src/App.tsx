@@ -4,29 +4,15 @@ import {
   ListGuesser,
   ShowGuesser,
   EditGuesser,
-  DataProvider,
 } from "react-admin";
-import dataProviderPromise from "./dataProvider";
+import dataProvider from "./dataProvider";
 import authProvider from "./authProvider";
 import GamesIcon from "@material-ui/icons/Games";
 import BookIcon from "@material-ui/icons/Book";
-import { useEffect, useState } from "react";
 import CreateBook from "./book/CreateBook";
 import CreateVideoGame from "./videogame/CreateVideoGame";
 
 function App() {
-  const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
-
-  useEffect(() => {
-    dataProviderPromise.then((dataProvider: DataProvider) =>
-      setDataProvider(() => dataProvider)
-    );
-  });
-
-  if (!dataProvider) {
-    return <p>Loading...</p>;
-  }
-
   return (
     <Admin dataProvider={dataProvider} authProvider={authProvider}>
       <Resource
