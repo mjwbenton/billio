@@ -18,7 +18,7 @@ const HOSTED_ZONE = "mattb.tech";
 const HOSTED_ZONE_ID = "Z2GPSB1CDK86DH";
 
 export default class DomainConstruct extends Construct {
-  public readonly domainName: string;
+  public readonly name: string;
   public readonly certificate: ICertificate;
   private readonly hostedZone: IHostedZone;
 
@@ -28,20 +28,20 @@ export default class DomainConstruct extends Construct {
     { domainName }: { domainName: string }
   ) {
     super(scope, id);
-    this.domainName = domainName;
+    this.name = domainName;
     this.hostedZone = HostedZone.fromHostedZoneAttributes(scope, "HostedZone", {
       hostedZoneId: HOSTED_ZONE_ID,
       zoneName: HOSTED_ZONE,
     });
     this.certificate = new Certificate(this, "Certificate", {
-      domainName: this.domainName,
+      domainName: this.name,
       validation: CertificateValidation.fromDns(this.hostedZone),
     });
   }
 
   public apiDomainName() {
     const apiDomainName = new DomainName(this, "APIDomainName", {
-      domainName: this.domainName,
+      domainName: this.name,
       certificate: this.certificate,
     });
     this.pointAt(
@@ -57,7 +57,7 @@ export default class DomainConstruct extends Construct {
     return new ARecord(this, `ARecord`, {
       zone: this.hostedZone,
       ttl: Duration.minutes(5),
-      recordName: this.domainName,
+      recordName: this.name,
       target: RecordTarget.fromAlias(target),
     });
   }

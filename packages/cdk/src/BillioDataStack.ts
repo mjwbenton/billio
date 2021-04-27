@@ -9,8 +9,8 @@ import {
 export default class BillioDataStack extends Stack {
   public readonly itemTable: ITable;
 
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
 
     const itemTable = new Table(this, "ItemTable", {
       partitionKey: { name: "type:id", type: AttributeType.STRING },
