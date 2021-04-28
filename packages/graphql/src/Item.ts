@@ -16,6 +16,7 @@ import {
 } from "@mattb.tech/billio-data";
 import { lowerFirst } from "./util";
 import { v4 as uuid } from "uuid";
+import Rating from "./Rating";
 
 export default interface Item {
   id: string;
@@ -35,6 +36,8 @@ export abstract class AbstractItem {
   updatedAt: Date;
   @Field()
   title: string;
+  @Field((type) => Rating, { nullable: true })
+  rating: number;
   // Shelf not included. Gets added by all subclasses to avoid a circular dependency.
 }
 
@@ -44,6 +47,8 @@ export abstract class AddItemInput {
   title: string;
   @Field((type) => ID)
   shelfId: string;
+  @Field((type) => Rating, { nullable: true })
+  rating: number;
 }
 
 @InputType({ isAbstract: true })
@@ -54,6 +59,8 @@ export abstract class UpdateItemInput {
   title: string;
   @Field((type) => ID, { nullable: true })
   shelfId: string;
+  @Field((type) => Rating, { nullable: true })
+  rating: number;
 }
 
 @InputType()
