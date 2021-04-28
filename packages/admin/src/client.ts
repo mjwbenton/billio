@@ -3,6 +3,7 @@ import { Auth } from "@aws-amplify/auth";
 import aws4 from "aws4-tiny";
 
 const ENDPOINT = "https://api.billio.mattb.tech";
+const LOCAL_ENDPOINT = "http://localhost:4000";
 
 const CLIENT = new ApolloClient({
   cache: new InMemoryCache(),
@@ -12,7 +13,7 @@ const CLIENT = new ApolloClient({
     },
   },
   link: new HttpLink({
-    uri: ENDPOINT,
+    uri: process.env.USE_LOCAL_GRAPHQL ? LOCAL_ENDPOINT : ENDPOINT,
     fetch: async (uri, options) => {
       const credentials = await Auth.currentCredentials();
       return aws4.fetch(
