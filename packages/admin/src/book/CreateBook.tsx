@@ -1,4 +1,4 @@
-import { Create, SimpleForm, TextInput } from "react-admin";
+import { Create, NumberInput, SimpleForm, TextInput } from "react-admin";
 
 const CreateBook = (props) => (
   <Create {...props}>
@@ -6,6 +6,7 @@ const CreateBook = (props) => (
       <TextInput source="title" />
       <TextInput source="author" />
       <TextInput source="shelf.id" />
+      <NumberInput source="rating" />
     </SimpleForm>
   </Create>
 );

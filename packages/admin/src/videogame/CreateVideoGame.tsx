@@ -4,6 +4,7 @@ import {
   SimpleForm,
   SimpleFormIterator,
   TextInput,
+  NumberInput,
 } from "react-admin";
 
 const CreateVideoGame = (props) => (
@@ -16,6 +17,7 @@ const CreateVideoGame = (props) => (
         </SimpleFormIterator>
       </ArrayInput>
       <TextInput source="shelf.id" />
+      <NumberInput source="rating" />
     </SimpleForm>
   </Create>
 );
