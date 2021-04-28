@@ -17,6 +17,7 @@ import {
 import { lowerFirst } from "./util";
 import { v4 as uuid } from "uuid";
 import Rating from "./Rating";
+import Image from "./Image";
 
 export default interface Item {
   id: string;
@@ -37,7 +38,9 @@ export abstract class AbstractItem {
   @Field()
   title: string;
   @Field((type) => Rating, { nullable: true })
-  rating: number;
+  rating: number | null;
+  @Field((type) => Image, { nullable: true })
+  image: Image | null;
   // Shelf not included. Gets added by all subclasses to avoid a circular dependency.
 }
 
@@ -48,19 +51,23 @@ export abstract class AddItemInput {
   @Field((type) => ID)
   shelfId: string;
   @Field((type) => Rating, { nullable: true })
-  rating: number;
+  rating: number | null;
+  @Field((type) => Image, { nullable: true })
+  image: Image | null;
 }
 
 @InputType({ isAbstract: true })
 export abstract class UpdateItemInput {
   @Field((type) => ID)
   id: string;
-  @Field({ nullable: true })
-  title: string;
+  @Field((type) => String, { nullable: true })
+  title: string | null;
   @Field((type) => ID, { nullable: true })
-  shelfId: string;
+  shelfId: string | null;
   @Field((type) => Rating, { nullable: true })
-  rating: number;
+  rating: number | null;
+  @Field((type) => Image, { nullable: true })
+  image: Image | null;
 }
 
 @InputType()
