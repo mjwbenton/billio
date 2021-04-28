@@ -16,15 +16,23 @@ import path from "path";
 import BillioDataStack from "./BillioDataStack";
 import DomainConstruct from "./DomainConstruct";
 
-export const API_DOMAIN_NAME = "api.billio.mattb.tech";
-
 export default class BillioApiStack extends Stack {
   private readonly api: HttpApi;
 
   constructor(
     app: App,
     id: string,
-    { dataStack }: { dataStack: BillioDataStack }
+    {
+      dataStack,
+      enableMutations,
+      enableIam,
+      domainName,
+    }: {
+      dataStack: BillioDataStack;
+      enableMutations: boolean;
+      enableIam: boolean;
+      domainName: string;
+    }
   ) {
     super(app, id);
 
@@ -41,12 +49,15 @@ export default class BillioApiStack extends Stack {
       memorySize: 1024,
       environment: {
         BILLIO_TABLE: dataStack.itemTable.tableName,
+        ENABLE_MUTATIONS: enableMutations ? "1" : "0",
       },
     });
-    dataStack.itemTable.grantReadWriteData(lambdaFunction);
+    enableMutations
+      ? dataStack.itemTable.grantReadWriteData(lambdaFunction)
+      : dataStack.itemTable.grantReadData(lambdaFunction);
 
-    const domainName = new DomainConstruct(this, "Domain", {
-      domainName: API_DOMAIN_NAME,
+    const domainNameConstruct = new DomainConstruct(this, "Domain", {
+      domainName,
     }).apiDomainName();
 
     this.api = new HttpApi(this, "BillioGraphQl", {
@@ -66,7 +77,7 @@ export default class BillioApiStack extends Stack {
       },
       disableExecuteApiEndpoint: true,
       defaultDomainMapping: {
-        domainName,
+        domainName: domainNameConstruct,
       },
     });
 
@@ -78,7 +89,10 @@ export default class BillioApiStack extends Stack {
       }),
       routeKey: HttpRouteKey.with("/", HttpMethod.POST),
     });
-    (graphqlRoute.node.defaultChild as CfnRoute).authorizationType = "AWS_IAM";
+    if (enableIam) {
+      (graphqlRoute.node.defaultChild as CfnRoute).authorizationType =
+        "AWS_IAM";
+    }
   }
 
   public grantCall(to: IIdentity) {

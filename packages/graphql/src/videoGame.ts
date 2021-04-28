@@ -63,9 +63,10 @@ const ItemMutationResolver = ItemMutationResolverFactory(
 const ShelfResolver = ShelfResolverFactory(VideoGame, Shelf, ShelfId);
 const PageResolver = PageResolverFactory(VideoGame, Page);
 
-export const resolvers = [
+export const queryResolvers = [
   ItemResolver,
-  ItemMutationResolver,
   ShelfResolver,
   PageResolver,
 ] as const;
+
+export const mutationResolvers = [ItemMutationResolver] as const;

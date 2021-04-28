@@ -55,9 +55,10 @@ const ItemMutationResolver = ItemMutationResolverFactory(
 const ShelfResolver = ShelfResolverFactory(Book, Shelf, ShelfId);
 const PageResolver = PageResolverFactory(Book, Page);
 
-export const resolvers = [
+export const queryResolvers = [
   ItemResolver,
-  ItemMutationResolver,
   ShelfResolver,
   PageResolver,
 ] as const;
+
+export const mutationResolvers = [ItemMutationResolver] as const;
