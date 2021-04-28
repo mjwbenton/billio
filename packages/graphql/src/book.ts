@@ -1,10 +1,10 @@
 import { Field, InputType, ObjectType, registerEnumType } from "type-graphql";
+import { AbstractItem, ItemResolverFactory } from "./Item";
 import {
-  AbstractItem,
   AddItemInput,
-  ItemResolverFactory,
   UpdateItemInput,
-} from "./Item";
+  ItemMutationResolverFactory,
+} from "./ItemMutation";
 import { PageResolverFactory, PageTypeFactory } from "./Page";
 import { ShelfResolverFactory, ShelfTypeFactory } from "./Shelf";
 
@@ -46,8 +46,18 @@ class UpdateBookInput extends UpdateItemInput {
   author: string;
 }
 
-const ItemResolver = ItemResolverFactory(Book, AddBookInput, UpdateBookInput);
+const ItemResolver = ItemResolverFactory(Book);
+const ItemMutationResolver = ItemMutationResolverFactory(
+  Book,
+  AddBookInput,
+  UpdateBookInput
+);
 const ShelfResolver = ShelfResolverFactory(Book, Shelf, ShelfId);
 const PageResolver = PageResolverFactory(Book, Page);
 
-export const resolvers = [ItemResolver, ShelfResolver, PageResolver] as const;
+export const resolvers = [
+  ItemResolver,
+  ItemMutationResolver,
+  ShelfResolver,
+  PageResolver,
+] as const;
