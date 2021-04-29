@@ -1,2 +1,2 @@
-schema: "http://localhost:4000/"
+schema: "https://api-readonly.billio.mattb.tech/"
 include: "**/*.{ts,tsx,graphql}"
