@@ -11,6 +11,7 @@ import GamesIcon from "@material-ui/icons/Games";
 import BookIcon from "@material-ui/icons/Book";
 import CreateBook from "./book/CreateBook";
 import CreateVideoGame from "./videogame/CreateVideoGame";
+import VideoGameShow from "./videogame/VideoGameShow";
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
         name="VideoGame"
         create={CreateVideoGame}
         list={ListGuesser}
-        show={ShowGuesser}
+        show={VideoGameShow}
         edit={EditGuesser}
         options={{ label: "Video Games" }}
         icon={GamesIcon}
