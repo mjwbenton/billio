@@ -13,7 +13,7 @@ const CLIENT = new ApolloClient({
     },
   },
   link: new HttpLink({
-    uri: process.env.USE_LOCAL_GRAPHQL ? LOCAL_ENDPOINT : ENDPOINT,
+    uri: process.env.REACT_APP_USE_LOCAL_GRAPHQL ? LOCAL_ENDPOINT : ENDPOINT,
     fetch: async (uri, options) => {
       const credentials = await Auth.currentCredentials();
       return aws4.fetch(
