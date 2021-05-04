@@ -8,9 +8,10 @@ import {
   SimpleShowLayout,
   TextField,
 } from "react-admin";
+import Title from "../shared/Title";
 
 export const BookShow = (props) => (
-  <Show {...props}>
+  <Show {...props} title={<Title base="Book" />}>
     <SimpleShowLayout>
       <TextField source="title" />
       <TextField source="author" />

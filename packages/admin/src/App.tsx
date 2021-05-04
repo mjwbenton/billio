@@ -41,6 +41,7 @@ const THEME = createMuiTheme({
 function App() {
   return (
     <Admin
+      title="Billio"
       theme={THEME}
       dataProvider={dataProvider}
       authProvider={authProvider}

@@ -11,9 +11,10 @@ import {
   SingleFieldList,
   TextField,
 } from "react-admin";
+import Title from "../shared/Title";
 
 export const VideoGameShow = (props) => (
-  <Show {...props}>
+  <Show {...props} title={<Title base="Video Game" />}>
     <SimpleShowLayout>
       <TextField source="title" />
       <ArrayField source="platforms">

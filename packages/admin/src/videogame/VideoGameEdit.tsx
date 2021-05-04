@@ -9,6 +9,7 @@ import {
 } from "react-admin";
 import RatingInput from "../shared/RatingInput";
 import ShelfInput from "../shared/ShelfInput";
+import Title from "../shared/Title";
 import transform from "../shared/transform";
 
 const SHELVES = [
@@ -48,7 +49,7 @@ function PlatformsInput() {
 }
 
 export const VideoGameEdit = (props) => (
-  <Edit {...props} transform={TRANSFORM}>
+  <Edit {...props} transform={TRANSFORM} title={<Title base="Video Game" />}>
     <SimpleForm>
       <TextInput source="title" />
       <PlatformsInput />
@@ -59,7 +60,7 @@ export const VideoGameEdit = (props) => (
 );
 
 export const VideoGameCreate = (props) => (
-  <Create {...props} transform={TRANSFORM}>
+  <Create {...props} transform={TRANSFORM} title="Add Video Game">
     <SimpleForm>
       <TextInput source="title" />
       <PlatformsInput />
