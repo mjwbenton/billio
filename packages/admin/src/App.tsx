@@ -45,6 +45,7 @@ function App() {
       theme={THEME}
       dataProvider={dataProvider}
       authProvider={authProvider}
+      disableTelemetry
     >
       <Resource
         name="VideoGame"
