@@ -8,6 +8,7 @@ import {
   Root,
 } from "type-graphql";
 import { AbstractItem, ItemResolverFactory } from "./Item";
+import { FieldTransform } from "./transforms";
 import {
   AddItemInput,
   UpdateItemInput,
@@ -20,16 +21,29 @@ enum ShelfId {
   Playing = "Playing",
   Played = "Played",
   Completed = "Completed",
-  GaveUp = "Gave Up",
+  GaveUp = "GaveUp",
 }
 registerEnumType(ShelfId, { name: "VideoGameShelfId" });
 
+const SHELF_NAMES = {
+  Playing: "Playing",
+  Played: "Played",
+  Completed: "Completed",
+  GaveUp: "Gave Up",
+};
+
 enum PlatformId {
-  Playstation4 = "Playstation 4",
-  NintendoSwitch = "Nintendo Switch",
-  Nintendo3DS = "Nintendo 3DS",
+  Playstation4 = "Playstation4",
+  NintendoSwitch = "NintendoSwitch",
+  Nintendo3DS = "Nintendo3DS",
 }
 registerEnumType(PlatformId, { name: "VideoGamePlatform" });
+
+const PLATFORM_NAMES = {
+  Playstation4: "Playstation 4",
+  NintendoSwitch: "Nintendo Switch",
+  Nintendo3DS: "Nintendo 3DS",
+};
 
 @ObjectType()
 class Platform {
@@ -43,7 +57,7 @@ class Platform {
 class PlatformResolver {
   @FieldResolver()
   name(@Root() { id }: Pick<Platform, "id">) {
-    return id;
+    return PLATFORM_NAMES[id];
   }
 }
 
@@ -54,17 +68,6 @@ class VideoGame extends AbstractItem {
   @Field((type) => [Platform])
   platforms: Pick<Platform, "id">[];
 }
-
-const FIELD_TRANSFORMS = {
-  platforms: (ids: Array<PlatformId>) => ids.map((id) => ({ id })),
-};
-
-const Page = PageTypeFactory(() => VideoGame);
-const Shelf = ShelfTypeFactory(
-  () => VideoGame,
-  () => Page,
-  () => ShelfId
-);
 
 @InputType()
 class AddVideoGameInput extends AddItemInput {
@@ -82,19 +85,40 @@ class UpdateVideoGameInput extends UpdateItemInput {
   platformIds: PlatformId[];
 }
 
-const ItemResolver = ItemResolverFactory(VideoGame, FIELD_TRANSFORMS);
+const OUTPUT_TRANSFORM: FieldTransform<VideoGame> = ({ platforms }) => ({
+  platforms: platforms.map((id: PlatformId) => ({ id })),
+});
+
+const INPUT_TRANSFORMS: FieldTransform<
+  any,
+  AddVideoGameInput | UpdateVideoGameInput
+> = ({ platformIds }) => ({
+  platforms: platformIds,
+});
+
+const Page = PageTypeFactory(() => VideoGame);
+const Shelf = ShelfTypeFactory(
+  () => VideoGame,
+  () => Page,
+  () => ShelfId
+);
+
+const ItemResolver = ItemResolverFactory(VideoGame, OUTPUT_TRANSFORM);
 const ItemMutationResolver = ItemMutationResolverFactory(
   VideoGame,
   AddVideoGameInput,
-  UpdateVideoGameInput
+  UpdateVideoGameInput,
+  OUTPUT_TRANSFORM,
+  INPUT_TRANSFORMS
 );
 const ShelfResolver = ShelfResolverFactory(
   VideoGame,
   Shelf,
   ShelfId,
-  FIELD_TRANSFORMS
+  SHELF_NAMES,
+  OUTPUT_TRANSFORM
 );
-const PageResolver = PageResolverFactory(VideoGame, Page, FIELD_TRANSFORMS);
+const PageResolver = PageResolverFactory(VideoGame, Page, OUTPUT_TRANSFORM);
 
 export const queryResolvers = [
   ItemResolver,

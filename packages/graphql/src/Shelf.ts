@@ -12,9 +12,10 @@ import {
   Root,
 } from "type-graphql";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
-import Item, { FieldTransforms, transformItem } from "./Item";
+import Item from "./Item";
 import Page from "./Page";
 import { lowerFirst, StringKey } from "./util";
+import { FieldTransform, transformItem } from "./transforms";
 
 export default interface Shelf<TItem extends Item, TShelfEnum extends object> {
   id: StringKey<TShelfEnum>;
@@ -47,7 +48,8 @@ export function ShelfResolverFactory<
   TItem: ClassType<TItem>,
   TShelf: ClassType<Shelf<TItem, TShelfEnum>>,
   TShelfEnum: TShelfEnum,
-  fieldTransforms?: FieldTransforms<TItem>
+  shelfNames: { [Shelf in keyof TShelfEnum]: string },
+  fieldTransforms?: FieldTransform<TItem>
 ) {
   @Resolver(TShelf)
   class ShelfResolverImpl
@@ -66,7 +68,7 @@ export function ShelfResolverFactory<
 
     @FieldResolver()
     name(@Root() { id }: Pick<Shelf<TItem, TShelfEnum>, "id">) {
-      return id;
+      return shelfNames[id];
     }
 
     @FieldResolver()

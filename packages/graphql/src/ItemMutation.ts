@@ -10,7 +10,13 @@ import {
 } from "type-graphql";
 import { v4 as uuid } from "uuid";
 import Image from "./Image";
-import Item, { transformItem } from "./Item";
+import Item from "./Item";
+import {
+  FieldTransform,
+  transformAddItemInput,
+  transformItem,
+  transformUpdateItemInput,
+} from "./transforms";
 import Rating from "./Rating";
 import { Mutate as DataMutate } from "@mattb.tech/billio-data";
 
@@ -59,7 +65,9 @@ export function ItemMutationResolverFactory<
 >(
   TItem: ClassType<TItem>,
   TAddItemInput: ClassType<TAddItemInput>,
-  TUpdateItemInput: ClassType<TUpdateItemInput>
+  TUpdateItemInput: ClassType<TUpdateItemInput>,
+  outputTransform?: FieldTransform<TItem>,
+  inputTransform?: FieldTransform<any, TAddItemInput | TUpdateItemInput>
 ) {
   @Resolver(TItem)
   class ItemResolverImpl {
@@ -67,12 +75,13 @@ export function ItemMutationResolverFactory<
     async addItem(
       @Arg("item", (type) => TAddItemInput) item: TAddItemInput
     ): Promise<TItem> {
+      console.log(item);
       const outputItem = await DataMutate.createItem({
         id: uuid(),
         type: TItem.name,
-        ...transformAddItemInput(item),
+        ...transformAddItemInput(item, inputTransform),
       });
-      return transformItem<TItem>(outputItem);
+      return transformItem<TItem>(outputItem, outputTransform);
     }
 
     @Mutation((returns) => TItem, { name: `update${TItem.name}` })
@@ -81,9 +90,9 @@ export function ItemMutationResolverFactory<
     ) {
       const outputItem = await DataMutate.updateItem({
         type: TItem.name,
-        ...transformUpdateItemInput(inputItem),
+        ...transformUpdateItemInput(inputItem, inputTransform),
       });
-      return transformItem<TItem>(outputItem);
+      return transformItem<TItem>(outputItem, outputTransform);
     }
 
     @Mutation((returns) => DeleteItemOutput, {
@@ -97,20 +106,4 @@ export function ItemMutationResolverFactory<
     }
   }
   return ItemResolverImpl;
-}
-
-function transformAddItemInput<T extends AddItemInput>(input: T) {
-  const { shelfId, ...rest } = input;
-  return {
-    ...rest,
-    shelf: shelfId,
-  };
-}
-
-function transformUpdateItemInput<T extends UpdateItemInput>(input: T) {
-  const { shelfId, ...rest } = input;
-  return {
-    ...rest,
-    ...(shelfId ? { shelf: shelfId } : {}),
-  };
 }

@@ -11,9 +11,15 @@ import { ShelfResolverFactory, ShelfTypeFactory } from "./Shelf";
 enum ShelfId {
   Reading = "Reading",
   Read = "Read",
-  DidNotFinish = "Did Not Finish",
+  DidNotFinish = "DidNotFinish",
 }
 registerEnumType(ShelfId, { name: "BookShelfId" });
+
+const SHELF_NAMES = {
+  Reading: "Reading",
+  Read: "Read",
+  DidNotFinish: "Did Not Finish",
+};
 
 @ObjectType()
 class Book extends AbstractItem {
@@ -52,7 +58,7 @@ const ItemMutationResolver = ItemMutationResolverFactory(
   AddBookInput,
   UpdateBookInput
 );
-const ShelfResolver = ShelfResolverFactory(Book, Shelf, ShelfId);
+const ShelfResolver = ShelfResolverFactory(Book, Shelf, ShelfId, SHELF_NAMES);
 const PageResolver = PageResolverFactory(Book, Page);
 
 export const queryResolvers = [

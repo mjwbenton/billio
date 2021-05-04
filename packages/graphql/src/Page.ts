@@ -8,9 +8,10 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import Item, { FieldTransforms, transformItem } from "./Item";
+import Item from "./Item";
 import { lowerFirst } from "./util";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
+import { FieldTransform, transformItem } from "./transforms";
 
 export default interface Page<TItem extends Item> {
   total: number;
@@ -39,7 +40,7 @@ export function PageTypeFactory<TItem extends Item>(
 export function PageResolverFactory<TItem extends Item>(
   TItem: ClassType<TItem>,
   TPage: ClassType<Page<TItem>>,
-  fieldTransforms?: FieldTransforms<TItem>
+  fieldTransforms?: FieldTransform<TItem>
 ) {
   @Resolver()
   class PageResolverImpl {
