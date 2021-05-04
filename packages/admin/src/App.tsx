@@ -1,10 +1,4 @@
-import {
-  Admin,
-  Resource,
-  ListGuesser,
-  ShowGuesser,
-  EditGuesser,
-} from "react-admin";
+import { Admin, Resource, ListGuesser, EditGuesser } from "react-admin";
 import dataProvider from "./dataProvider";
 import authProvider from "./authProvider";
 import GamesIcon from "@material-ui/icons/Games";
@@ -12,6 +6,7 @@ import BookIcon from "@material-ui/icons/Book";
 import CreateBook from "./book/CreateBook";
 import CreateVideoGame from "./videogame/CreateVideoGame";
 import VideoGameShow from "./videogame/VideoGameShow";
+import BookShow from "./book/BookShow";
 
 function App() {
   return (
@@ -29,7 +24,7 @@ function App() {
         name="Book"
         create={CreateBook}
         list={ListGuesser}
-        show={ShowGuesser}
+        show={BookShow}
         edit={EditGuesser}
         options={{ label: "Books" }}
         icon={BookIcon}
