@@ -26,7 +26,6 @@ export const VideoGameShow = (props) => (
       <NumberField source="rating" />
       <DateField source="updatedAt" />
       <DateField source="createdAt" />
-      <TextField source="id" />
     </SimpleShowLayout>
   </Show>
 );
@@ -44,7 +43,6 @@ export const VideoGameList = (props) => (
       <NumberField source="rating" />
       <DateField source="updatedAt" />
       <DateField source="createdAt" />
-      <TextField source="id" />
     </Datagrid>
   </List>
 );

@@ -19,7 +19,6 @@ export const BookShow = (props) => (
       <NumberField source="rating" />
       <DateField source="updatedAt" />
       <DateField source="createdAt" />
-      <TextField source="id" />
     </SimpleShowLayout>
   </Show>
 );
@@ -33,7 +32,6 @@ export const BookList = (props) => (
       <NumberField source="rating" />
       <DateField source="updatedAt" />
       <DateField source="createdAt" />
-      <TextField source="id" />
     </Datagrid>
   </List>
 );
