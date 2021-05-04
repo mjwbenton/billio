@@ -1,7 +1,10 @@
 fragment VideoGame on VideoGame {
   id
   title
-  platforms
+  platforms {
+    id
+    name
+  }
   shelf {
     id
     name
