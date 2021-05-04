@@ -13,7 +13,7 @@ const PLATFORMS = [
 
 export default function PlatformsInput() {
   return (
-    <ArrayInput source="platforms">
+    <ArrayInput source="platformIds">
       <SimpleFormIterator>
         <SelectInput source="" label="" choices={PLATFORMS} />
       </SimpleFormIterator>

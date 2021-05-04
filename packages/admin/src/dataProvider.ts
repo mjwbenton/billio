@@ -81,14 +81,10 @@ const dataProvider: DataProvider = {
     };
   },
   async create(resourceName, params) {
-    const { updatedAt, createdAt, shelf, ...rest } = params.data;
     const result = await client.mutate({
       mutation: QUERIES.CREATE(resourceName),
       variables: {
-        item: {
-          shelfId: shelf.id,
-          ...rest,
-        },
+        item: params.data,
       },
     });
     return {
@@ -100,10 +96,7 @@ const dataProvider: DataProvider = {
     const result = await client.mutate({
       mutation: QUERIES.UPDATE(resourceName),
       variables: {
-        item: {
-          shelfId: shelf.id,
-          ...rest,
-        },
+        item: params.data,
       },
     });
     return {
