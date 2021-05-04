@@ -12,7 +12,7 @@ import {
   Root,
 } from "type-graphql";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
-import Item, { transformItem } from "./Item";
+import Item, { FieldTransforms, transformItem } from "./Item";
 import Page from "./Page";
 import { lowerFirst, StringKey } from "./util";
 
@@ -46,7 +46,8 @@ export function ShelfResolverFactory<
 >(
   TItem: ClassType<TItem>,
   TShelf: ClassType<Shelf<TItem, TShelfEnum>>,
-  TShelfEnum: TShelfEnum
+  TShelfEnum: TShelfEnum,
+  fieldTransforms?: FieldTransforms<TItem>
 ) {
   @Resolver(TShelf)
   class ShelfResolverImpl
@@ -85,7 +86,7 @@ export function ShelfResolverFactory<
         total: count,
         hasNextPage: !!lastKey,
         nextPageCursor: lastKey,
-        items: items.map((i) => transformItem<TItem>(i)),
+        items: items.map((i) => transformItem<TItem>(i, fieldTransforms)),
       };
     }
   }

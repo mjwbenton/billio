@@ -8,7 +8,7 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import Item, { transformItem } from "./Item";
+import Item, { FieldTransforms, transformItem } from "./Item";
 import { lowerFirst } from "./util";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
 
@@ -38,7 +38,8 @@ export function PageTypeFactory<TItem extends Item>(
 
 export function PageResolverFactory<TItem extends Item>(
   TItem: ClassType<TItem>,
-  TPage: ClassType<Page<TItem>>
+  TPage: ClassType<Page<TItem>>,
+  fieldTransforms?: FieldTransforms<TItem>
 ) {
   @Resolver()
   class PageResolverImpl {
@@ -58,7 +59,7 @@ export function PageResolverFactory<TItem extends Item>(
         total: count,
         hasNextPage: !!lastKey,
         nextPageCursor: lastKey,
-        items: items.map((i) => transformItem<TItem>(i)),
+        items: items.map((i) => transformItem<TItem>(i, fieldTransforms)),
       };
     }
   }
