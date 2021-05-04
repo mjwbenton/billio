@@ -3,29 +3,29 @@ import dataProvider from "./dataProvider";
 import authProvider from "./authProvider";
 import GamesIcon from "@material-ui/icons/Games";
 import BookIcon from "@material-ui/icons/Book";
-import CreateBook from "./book/CreateBook";
-import CreateVideoGame from "./videogame/CreateVideoGame";
-import VideoGameShow from "./videogame/VideoGameShow";
-import BookShow from "./book/BookShow";
+import { BookCreate, BookEdit } from "./book/BookEdit";
+import { VideoGameCreate, VideoGameEdit } from "./videogame/VideoGameEdit";
+import { VideoGameShow, VideoGameList } from "./videogame/VideoGameShow";
+import { BookShow, BookList } from "./book/BookShow";
 
 function App() {
   return (
     <Admin dataProvider={dataProvider} authProvider={authProvider}>
       <Resource
         name="VideoGame"
-        create={CreateVideoGame}
-        list={ListGuesser}
+        create={VideoGameCreate}
+        list={VideoGameList}
         show={VideoGameShow}
-        edit={EditGuesser}
+        edit={VideoGameEdit}
         options={{ label: "Video Games" }}
         icon={GamesIcon}
       />
       <Resource
         name="Book"
-        create={CreateBook}
-        list={ListGuesser}
+        create={BookCreate}
+        list={BookList}
         show={BookShow}
-        edit={EditGuesser}
+        edit={BookEdit}
         options={{ label: "Books" }}
         icon={BookIcon}
       />

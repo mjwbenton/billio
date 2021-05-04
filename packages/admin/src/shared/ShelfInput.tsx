@@ -5,5 +5,5 @@ export default function ShelfInput({
 }: {
   shelves: Array<{ id: string; name: string }>;
 }) {
-  return <SelectInput source="shelfId" label="Shelf" choices={shelves} />;
+  return <SelectInput source="shelf.id" label="Shelf" choices={shelves} />;
 }

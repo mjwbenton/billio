@@ -92,7 +92,6 @@ const dataProvider: DataProvider = {
     };
   },
   async update(resourceName, params) {
-    const { updatedAt, createdAt, shelf, ...rest } = params.data;
     const result = await client.mutate({
       mutation: QUERIES.UPDATE(resourceName),
       variables: {
