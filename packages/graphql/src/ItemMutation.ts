@@ -8,6 +8,7 @@ import {
   ObjectType,
   Resolver,
 } from "type-graphql";
+import { Service } from "typedi";
 import { v4 as uuid } from "uuid";
 import Image from "./Image";
 import Item from "./Item";
@@ -69,6 +70,7 @@ export function ItemMutationResolverFactory<
   outputTransform?: FieldTransform<TItem>,
   inputTransform?: FieldTransform<any, TAddItemInput | TUpdateItemInput>
 ) {
+  @Service()
   @Resolver(TItem)
   class ItemResolverImpl {
     @Mutation((returns) => TItem, { name: `add${TItem.name}` })

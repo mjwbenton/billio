@@ -16,6 +16,7 @@ import {
 } from "./ItemMutation";
 import { PageResolverFactory, PageTypeFactory } from "./Page";
 import { ShelfResolverFactory, ShelfTypeFactory } from "./Shelf";
+import { Service } from "typedi";
 
 enum ShelfId {
   Playing = "Playing",
@@ -53,6 +54,7 @@ class Platform {
   name: string;
 }
 
+@Service()
 @Resolver(Platform)
 class PlatformResolver {
   @FieldResolver()

@@ -11,6 +11,7 @@ import {
   ResolverInterface,
   Root,
 } from "type-graphql";
+import { Service } from "typedi";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
 import Item from "./Item";
 import Page from "./Page";
@@ -51,6 +52,7 @@ export function ShelfResolverFactory<
   shelfNames: { [Shelf in keyof TShelfEnum]: string },
   fieldTransforms?: FieldTransform<TItem>
 ) {
+  @Service()
   @Resolver(TShelf)
   class ShelfResolverImpl
     implements ResolverInterface<Shelf<TItem, TShelfEnum>> {

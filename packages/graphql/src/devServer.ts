@@ -3,6 +3,7 @@ process.env.AWS_REGION = "us-east-1";
 process.env.BILLIO_TABLE = "BillioData-ItemTable276B2AC8-1HIYN64N2BKA1";
 process.env.ENABLE_MUTATIONS = "1";
 
+import "reflect-metadata";
 import schema from "./schema";
 import { ApolloServer } from "apollo-server";
 

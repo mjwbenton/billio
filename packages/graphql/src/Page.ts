@@ -12,6 +12,7 @@ import Item from "./Item";
 import { lowerFirst } from "./util";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
 import { FieldTransform, transformItem } from "./transforms";
+import { Service } from "typedi";
 
 export default interface Page<TItem extends Item> {
   total: number;
@@ -42,6 +43,7 @@ export function PageResolverFactory<TItem extends Item>(
   TPage: ClassType<Page<TItem>>,
   fieldTransforms?: FieldTransform<TItem>
 ) {
+  @Service()
   @Resolver()
   class PageResolverImpl {
     @Query((returns) => TPage, { name: `${lowerFirst(TItem.name)}s` })
