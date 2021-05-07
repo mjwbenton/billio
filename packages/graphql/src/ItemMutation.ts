@@ -77,7 +77,6 @@ export function ItemMutationResolverFactory<
     async addItem(
       @Arg("item", (type) => TAddItemInput) item: TAddItemInput
     ): Promise<TItem> {
-      console.log(item);
       const outputItem = await DataMutate.createItem({
         id: uuid(),
         type: TItem.name,
