@@ -16,7 +16,10 @@ import {
 } from "./ItemMutation";
 import { PageResolverFactory, PageTypeFactory } from "./Page";
 import { ShelfResolverFactory, ShelfTypeFactory } from "./Shelf";
-import { Service } from "typedi";
+import Container, { Service } from "typedi";
+import { StringKey } from "./util";
+import { ExternalImportResolverFactory } from "./external/ExternalImport";
+import { ExternalVideoGame, IgdbApi } from "./external/IgdbApi";
 
 enum ShelfId {
   Playing = "Playing",
@@ -74,7 +77,7 @@ class VideoGame extends AbstractItem {
 @InputType()
 class AddVideoGameInput extends AddItemInput {
   @Field((type) => ShelfId)
-  shelfId: ShelfId;
+  shelfId: StringKey<typeof ShelfId>;
   @Field((type) => [PlatformId])
   platformIds: PlatformId[];
 }
@@ -82,7 +85,7 @@ class AddVideoGameInput extends AddItemInput {
 @InputType()
 class UpdateVideoGameInput extends UpdateItemInput {
   @Field((type) => ShelfId, { nullable: true })
-  shelfId: ShelfId;
+  shelfId: StringKey<typeof ShelfId>;
   @Field((type) => [PlatformId], { nullable: true })
   platformIds: PlatformId[];
 }
@@ -122,6 +125,24 @@ const ShelfResolver = ShelfResolverFactory(
 );
 const PageResolver = PageResolverFactory(VideoGame, Page, OUTPUT_TRANSFORM);
 
+const ExternalImportResolver = ExternalImportResolverFactory(
+  ExternalVideoGame,
+  VideoGame,
+  ShelfId,
+  AddVideoGameInput,
+  Container.get(IgdbApi),
+  Container.get(ItemMutationResolver),
+  (input, shelfId) => {
+    return {
+      title: input.title,
+      shelfId,
+      rating: null,
+      image: null,
+      platformIds: [],
+    };
+  }
+);
+
 export const queryResolvers = [
   ItemResolver,
   ShelfResolver,
@@ -129,4 +150,7 @@ export const queryResolvers = [
   PlatformResolver,
 ] as const;
 
-export const mutationResolvers = [ItemMutationResolver] as const;
+export const mutationResolvers = [
+  ItemMutationResolver,
+  ExternalImportResolver,
+] as const;

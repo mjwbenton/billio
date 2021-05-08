@@ -1,4 +1,17 @@
-import { Field, InputType, ObjectType, registerEnumType } from "type-graphql";
+import {
+  Arg,
+  Field,
+  ID,
+  InputType,
+  Mutation,
+  ObjectType,
+  Query,
+  registerEnumType,
+  Resolver,
+} from "type-graphql";
+import Container from "typedi";
+import { ExternalImportResolverFactory } from "./external/ExternalImport";
+import { GoogleBooksApi, ExternalBook } from "./external/GoogleBooksApi";
 import { AbstractItem, ItemResolverFactory } from "./Item";
 import {
   AddItemInput,
@@ -7,13 +20,14 @@ import {
 } from "./ItemMutation";
 import { PageResolverFactory, PageTypeFactory } from "./Page";
 import { ShelfResolverFactory, ShelfTypeFactory } from "./Shelf";
+import { StringKey } from "./util";
 
-enum ShelfId {
+export enum BookShelfId {
   Reading = "Reading",
   Read = "Read",
   DidNotFinish = "DidNotFinish",
 }
-registerEnumType(ShelfId, { name: "BookShelfId" });
+registerEnumType(BookShelfId, { name: "BookShelfId" });
 
 const SHELF_NAMES = {
   Reading: "Reading",
@@ -22,9 +36,9 @@ const SHELF_NAMES = {
 };
 
 @ObjectType()
-class Book extends AbstractItem {
+export class Book extends AbstractItem {
   @Field((type) => Shelf)
-  shelf: { id: ShelfId };
+  shelf: { id: BookShelfId };
   @Field()
   author: string;
 }
@@ -33,21 +47,21 @@ const Page = PageTypeFactory(() => Book);
 const Shelf = ShelfTypeFactory(
   () => Book,
   () => Page,
-  () => ShelfId
+  () => BookShelfId
 );
 
 @InputType()
 class AddBookInput extends AddItemInput {
-  @Field((type) => ShelfId)
-  shelfId: ShelfId;
+  @Field((type) => BookShelfId)
+  shelfId: StringKey<typeof BookShelfId>;
   @Field()
   author: string;
 }
 
 @InputType()
 class UpdateBookInput extends UpdateItemInput {
-  @Field((type) => ShelfId, { nullable: true })
-  shelfId: ShelfId;
+  @Field((type) => BookShelfId, { nullable: true })
+  shelfId: StringKey<typeof BookShelfId>;
   @Field({ nullable: true })
   author: string;
 }
@@ -58,8 +72,37 @@ const ItemMutationResolver = ItemMutationResolverFactory(
   AddBookInput,
   UpdateBookInput
 );
-const ShelfResolver = ShelfResolverFactory(Book, Shelf, ShelfId, SHELF_NAMES);
+const ShelfResolver = ShelfResolverFactory(
+  Book,
+  Shelf,
+  BookShelfId,
+  SHELF_NAMES
+);
 const PageResolver = PageResolverFactory(Book, Page);
+
+const ExternalImportResolver = ExternalImportResolverFactory(
+  ExternalBook,
+  Book,
+  BookShelfId,
+  AddBookInput,
+  Container.get(GoogleBooksApi),
+  Container.get(ItemMutationResolver),
+  (input: ExternalBook, shelfId: StringKey<typeof BookShelfId>) => {
+    return {
+      title: input.title,
+      author: input.author,
+      shelfId,
+      rating: null,
+      image: input.imageUrl
+        ? {
+            url: input.imageUrl,
+            width: null,
+            height: null,
+          }
+        : null,
+    };
+  }
+);
 
 export const queryResolvers = [
   ItemResolver,
@@ -67,4 +110,7 @@ export const queryResolvers = [
   PageResolver,
 ] as const;
 
-export const mutationResolvers = [ItemMutationResolver] as const;
+export const mutationResolvers = [
+  ItemMutationResolver,
+  ExternalImportResolver,
+] as const;

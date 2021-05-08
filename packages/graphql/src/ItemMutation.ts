@@ -59,6 +59,16 @@ export class DeleteItemOutput {
   id: string;
 }
 
+export interface ItemMutationResolver<
+  TItem extends Item,
+  TAddItemInput extends AddItemInput,
+  TUpdateItemInput extends UpdateItemInput
+> {
+  addItem(item: TAddItemInput): Promise<TItem>;
+  updateItem(item: TUpdateItemInput): Promise<TItem>;
+  deleteItem(input: DeleteItemInput): Promise<DeleteItemOutput>;
+}
+
 export function ItemMutationResolverFactory<
   TItem extends Item,
   TAddItemInput extends AddItemInput,
@@ -72,7 +82,8 @@ export function ItemMutationResolverFactory<
 ) {
   @Service()
   @Resolver(TItem)
-  class ItemResolverImpl {
+  class ItemMutationResolverImpl
+    implements ItemMutationResolver<TItem, TAddItemInput, TUpdateItemInput> {
     @Mutation((returns) => TItem, { name: `add${TItem.name}` })
     async addItem(
       @Arg("item", (type) => TAddItemInput) item: TAddItemInput
@@ -88,7 +99,7 @@ export function ItemMutationResolverFactory<
     @Mutation((returns) => TItem, { name: `update${TItem.name}` })
     async updateItem(
       @Arg("item", (type) => TUpdateItemInput) inputItem: TUpdateItemInput
-    ) {
+    ): Promise<TItem> {
       const outputItem = await DataMutate.updateItem({
         type: TItem.name,
         ...transformUpdateItemInput(inputItem, inputTransform),
@@ -106,5 +117,5 @@ export function ItemMutationResolverFactory<
       return { id };
     }
   }
-  return ItemResolverImpl;
+  return ItemMutationResolverImpl;
 }
