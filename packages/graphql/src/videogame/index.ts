@@ -16,7 +16,6 @@ import {
 } from "../ItemMutation";
 import { PageResolverFactory, PageTypeFactory } from "../Page";
 import { ShelfResolverFactory, ShelfTypeFactory } from "../Shelf";
-import Container, { Service } from "typedi";
 import StringKey from "../util/StringKey";
 import { ExternalImportResolverFactory } from "../external/ExternalImport";
 import { ExternalVideoGame, IgdbApi } from "./IgdbApi";
@@ -57,7 +56,6 @@ class Platform {
   name: string;
 }
 
-@Service()
 @Resolver(Platform)
 class PlatformResolver {
   @FieldResolver()
@@ -130,8 +128,8 @@ const ExternalImportResolver = ExternalImportResolverFactory(
   VideoGame,
   ShelfId,
   AddVideoGameInput,
-  Container.get(IgdbApi),
-  Container.get(ItemMutationResolver),
+  new IgdbApi(),
+  new ItemMutationResolver(),
   (input, shelfId) => {
     return {
       title: input.title,

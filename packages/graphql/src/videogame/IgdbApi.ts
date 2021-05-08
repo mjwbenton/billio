@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Service } from "typedi";
 import qs from "querystring";
 import { Field, ID, ObjectType } from "type-graphql";
 import ExternalApi from "../external/ExternalApi";
@@ -20,7 +19,6 @@ export class ExternalVideoGame {
   title: string;
 }
 
-@Service()
 export class IgdbApi implements ExternalApi<ExternalVideoGame> {
   private accessToken: string | undefined;
   public async search({

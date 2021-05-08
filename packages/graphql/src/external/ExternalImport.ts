@@ -1,5 +1,4 @@
 import { Resolver, ClassType, Query, Mutation, Arg } from "type-graphql";
-import { Service } from "typedi";
 import Item from "../Item";
 import { AddItemInput, ItemMutationResolver } from "../ItemMutation";
 import StringKey from "../util/StringKey";
@@ -24,7 +23,6 @@ export function ExternalImportResolverFactory<
     shelfId: StringKey<TShelfEnum>
   ) => TAddItemInput
 ) {
-  @Service()
   @Resolver()
   class ExternalResolverImpl {
     @Query((returns) => [TExternalItem], {

@@ -1,5 +1,4 @@
 import { buildSchema } from "type-graphql";
-import { Container } from "typedi";
 
 import {
   queryResolvers as videoGameQueries,
@@ -17,5 +16,4 @@ export default buildSchema({
   resolvers: parseInt(process.env.ENABLE_MUTATIONS!)
     ? [...queries, ...mutations]
     : queries,
-  container: Container,
 });

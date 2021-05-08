@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Service } from "typedi";
 import qs from "querystring";
 import ExternalApi from "../external/ExternalApi";
 import { Field, ID, ObjectType } from "type-graphql";
@@ -25,7 +24,6 @@ export class ExternalBook {
   imageUrl: string | null;
 }
 
-@Service()
 export class GoogleBooksApi implements ExternalApi<ExternalBook> {
   public async search({
     term,

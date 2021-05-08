@@ -1,5 +1,4 @@
 import { Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import Container from "typedi";
 import { ExternalImportResolverFactory } from "../external/ExternalImport";
 import { GoogleBooksApi, ExternalBook } from "./GoogleBooksApi";
 import { AbstractItem, ItemResolverFactory } from "../Item";
@@ -75,8 +74,8 @@ const ExternalImportResolver = ExternalImportResolverFactory(
   Book,
   BookShelfId,
   AddBookInput,
-  Container.get(GoogleBooksApi),
-  Container.get(ItemMutationResolver),
+  new GoogleBooksApi(),
+  new ItemMutationResolver(),
   (input: ExternalBook, shelfId: StringKey<typeof BookShelfId>) => {
     return {
       title: input.title,

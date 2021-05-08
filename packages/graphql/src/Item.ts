@@ -7,7 +7,6 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { Service } from "typedi";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
 import lowerFirst from "./util/lowerFirst";
 import Rating from "./shared/Rating";
@@ -43,7 +42,6 @@ export function ItemResolverFactory<TItem extends Item>(
   TItem: ClassType<TItem>,
   fieldTransforms?: FieldTransform<TItem>
 ) {
-  @Service()
   @Resolver(TItem)
   class ItemResolverImpl {
     @Query((returns) => TItem, { nullable: true, name: lowerFirst(TItem.name) })
