@@ -9,13 +9,6 @@ const parseValue = (value: unknown) => {
   ) {
     return value;
   }
-  console.log(
-    typeof value,
-    value,
-    Math.floor(value as number) === value,
-    (value as number) >= 1,
-    (value as number) >= 10
-  );
   throw new GraphQLError(`Invalid rating: ${value}`);
 };
 

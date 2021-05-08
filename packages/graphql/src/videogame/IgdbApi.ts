@@ -44,7 +44,6 @@ export class IgdbApi implements ExternalApi<ExternalVideoGame> {
       `fields name; where id = ${id.split(":")[1]};`,
       { headers: await this.buildHeaders() }
     );
-    console.log(result.data);
     return result.data ? transform(result.data[0]) : null;
   }
 
