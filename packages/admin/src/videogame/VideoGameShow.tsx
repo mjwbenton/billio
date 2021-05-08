@@ -35,7 +35,7 @@ export const VideoGameShow = (props) => (
 
 export const VideoGameList = (props) => {
   return (
-    <List {...props}>
+    <List {...props} exporter={false}>
       <Datagrid rowClick="show">{fields()}</Datagrid>
     </List>
   );

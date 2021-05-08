@@ -28,7 +28,7 @@ export const BookShow = (props) => (
 );
 
 export const BookList = (props) => (
-  <List {...props}>
+  <List {...props} exporter={false}>
     <Datagrid rowClick="show">{fields()}</Datagrid>
   </List>
 );
