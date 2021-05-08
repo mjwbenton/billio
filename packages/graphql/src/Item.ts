@@ -10,8 +10,8 @@ import {
 import { Service } from "typedi";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
 import lowerFirst from "./util/lowerFirst";
-import Rating from "./Rating";
-import Image from "./Image";
+import Rating from "./shared/Rating";
+import Image from "./shared/Image";
 import { FieldTransform, transformItem } from "./transforms";
 
 export default interface Item {

@@ -10,10 +10,10 @@ import {
 } from "type-graphql";
 import { Service } from "typedi";
 import { v4 as uuid } from "uuid";
-import Image from "./Image";
+import Image from "./shared/Image";
 import Item from "./Item";
 import { FieldTransform, transformItem } from "./transforms";
-import Rating from "./Rating";
+import Rating from "./shared/Rating";
 import { Mutate as DataMutate } from "@mattb.tech/billio-data";
 
 @InputType({ isAbstract: true })
