@@ -2,7 +2,7 @@ import { Resolver, ClassType, Query, Mutation, Arg } from "type-graphql";
 import { Service } from "typedi";
 import Item from "../Item";
 import { AddItemInput, ItemMutationResolver } from "../ItemMutation";
-import { StringKey } from "../util";
+import StringKey from "../util/StringKey";
 import ExternalApi from "./ExternalApi";
 
 export function ExternalImportResolverFactory<

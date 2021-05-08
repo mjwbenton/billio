@@ -15,7 +15,8 @@ import { Service } from "typedi";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
 import Item from "./Item";
 import Page from "./Page";
-import { lowerFirst, StringKey } from "./util";
+import StringKey from "./util/StringKey";
+import lowerFirst from "./util/lowerFirst";
 import { FieldTransform, transformItem } from "./transforms";
 
 export default interface Shelf<TItem extends Item, TShelfEnum extends object> {

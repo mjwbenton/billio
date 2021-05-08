@@ -1,26 +1,16 @@
-import {
-  Arg,
-  Field,
-  ID,
-  InputType,
-  Mutation,
-  ObjectType,
-  Query,
-  registerEnumType,
-  Resolver,
-} from "type-graphql";
+import { Field, InputType, ObjectType, registerEnumType } from "type-graphql";
 import Container from "typedi";
-import { ExternalImportResolverFactory } from "./external/ExternalImport";
-import { GoogleBooksApi, ExternalBook } from "./external/GoogleBooksApi";
-import { AbstractItem, ItemResolverFactory } from "./Item";
+import { ExternalImportResolverFactory } from "../external/ExternalImport";
+import { GoogleBooksApi, ExternalBook } from "./GoogleBooksApi";
+import { AbstractItem, ItemResolverFactory } from "../Item";
 import {
   AddItemInput,
   UpdateItemInput,
   ItemMutationResolverFactory,
-} from "./ItemMutation";
-import { PageResolverFactory, PageTypeFactory } from "./Page";
-import { ShelfResolverFactory, ShelfTypeFactory } from "./Shelf";
-import { StringKey } from "./util";
+} from "../ItemMutation";
+import { PageResolverFactory, PageTypeFactory } from "../Page";
+import { ShelfResolverFactory, ShelfTypeFactory } from "../Shelf";
+import StringKey from "../util/StringKey";
 
 export enum BookShelfId {
   Reading = "Reading",

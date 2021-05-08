@@ -4,7 +4,7 @@ import { Container } from "typedi";
 import {
   queryResolvers as videoGameQueries,
   mutationResolvers as videoGameMutations,
-} from "./videoGame";
+} from "./videogame";
 import {
   queryResolvers as bookQueries,
   mutationResolvers as bookMutations,

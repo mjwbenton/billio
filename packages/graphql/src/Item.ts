@@ -9,7 +9,7 @@ import {
 } from "type-graphql";
 import { Service } from "typedi";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
-import { lowerFirst } from "./util";
+import lowerFirst from "./util/lowerFirst";
 import Rating from "./Rating";
 import Image from "./Image";
 import { FieldTransform, transformItem } from "./transforms";

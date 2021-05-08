@@ -7,19 +7,19 @@ import {
   Resolver,
   Root,
 } from "type-graphql";
-import { AbstractItem, ItemResolverFactory } from "./Item";
-import { FieldTransform } from "./transforms";
+import { AbstractItem, ItemResolverFactory } from "../Item";
+import { FieldTransform } from "../transforms";
 import {
   AddItemInput,
   UpdateItemInput,
   ItemMutationResolverFactory,
-} from "./ItemMutation";
-import { PageResolverFactory, PageTypeFactory } from "./Page";
-import { ShelfResolverFactory, ShelfTypeFactory } from "./Shelf";
+} from "../ItemMutation";
+import { PageResolverFactory, PageTypeFactory } from "../Page";
+import { ShelfResolverFactory, ShelfTypeFactory } from "../Shelf";
 import Container, { Service } from "typedi";
-import { StringKey } from "./util";
-import { ExternalImportResolverFactory } from "./external/ExternalImport";
-import { ExternalVideoGame, IgdbApi } from "./external/IgdbApi";
+import StringKey from "../util/StringKey";
+import { ExternalImportResolverFactory } from "../external/ExternalImport";
+import { ExternalVideoGame, IgdbApi } from "./IgdbApi";
 
 enum ShelfId {
   Playing = "Playing",

@@ -2,7 +2,7 @@ import axios from "axios";
 import { Service } from "typedi";
 import qs from "querystring";
 import { Field, ID, ObjectType } from "type-graphql";
-import ExternalApi from "./ExternalApi";
+import ExternalApi from "../external/ExternalApi";
 
 const ID_BASE = "igdb";
 

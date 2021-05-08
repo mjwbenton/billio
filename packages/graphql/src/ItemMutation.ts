@@ -12,12 +12,7 @@ import { Service } from "typedi";
 import { v4 as uuid } from "uuid";
 import Image from "./Image";
 import Item from "./Item";
-import {
-  FieldTransform,
-  transformAddItemInput,
-  transformItem,
-  transformUpdateItemInput,
-} from "./transforms";
+import { FieldTransform, transformItem } from "./transforms";
 import Rating from "./Rating";
 import { Mutate as DataMutate } from "@mattb.tech/billio-data";
 
@@ -118,4 +113,30 @@ export function ItemMutationResolverFactory<
     }
   }
   return ItemMutationResolverImpl;
+}
+
+export function transformAddItemInput<T extends AddItemInput>(
+  input: T,
+  fieldTransform: FieldTransform<any, T> = () => ({})
+) {
+  const { shelfId, ...rest } = input;
+  const transformed = fieldTransform(input);
+  return {
+    ...rest,
+    ...transformed,
+    shelf: shelfId,
+  };
+}
+
+export function transformUpdateItemInput<T extends UpdateItemInput>(
+  input: T,
+  fieldTransform: FieldTransform<any, T> = () => ({})
+) {
+  const { shelfId, ...rest } = input;
+  const transformed = fieldTransform(input);
+  return {
+    ...rest,
+    ...transformed,
+    ...(shelfId ? { shelf: shelfId } : {}),
+  };
 }
