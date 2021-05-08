@@ -123,7 +123,19 @@ const dataProvider: DataProvider = {
     throw new Error("UPDATE_MANY Unsupported");
   },
   async deleteMany(resourceName, params) {
-    throw new Error("DELETE_MANY Unsupported");
+    const results = await Promise.all(
+      params.ids.map((id) =>
+        client.mutate({
+          mutation: QUERIES.DELETE(resourceName),
+          variables: {
+            item: { id },
+          },
+        })
+      )
+    );
+    return {
+      data: results.map((result) => stripTypename(result.data.item)),
+    };
   },
 };
 
