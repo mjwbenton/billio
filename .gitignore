@@ -4,3 +4,4 @@ cdk.out
 *.log
 generated
 build
+.env
