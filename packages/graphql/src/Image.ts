@@ -1,21 +1,12 @@
 import { Field, InputType, ObjectType } from "type-graphql";
 
-@InputType("ImageSourceInput")
-@ObjectType()
-export class ImageSource {
-  @Field()
-  url: string;
-  @Field()
-  width: number;
-  @Field()
-  height: number;
-}
-
 @InputType("ImageInput")
 @ObjectType()
 export default class Image {
-  @Field((type) => ImageSource)
-  mainSource: ImageSource;
-  @Field((type) => [ImageSource])
-  sources: ImageSource[];
+  @Field()
+  url: string;
+  @Field((type) => Number, { nullable: true })
+  width: number | null;
+  @Field((type) => Number, { nullable: true })
+  height: number | null;
 }
