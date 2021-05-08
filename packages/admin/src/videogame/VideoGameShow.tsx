@@ -1,4 +1,3 @@
-import React from "react";
 import {
   ArrayField,
   ChipField,
@@ -13,36 +12,31 @@ import {
 } from "react-admin";
 import Title from "../shared/Title";
 
+function fields() {
+  return [
+    <TextField source="title" sortable={false} />,
+    <ArrayField source="platforms" sortable={false}>
+      <SingleFieldList linkType={false}>
+        <ChipField source="name" />
+      </SingleFieldList>
+    </ArrayField>,
+    <ChipField source="shelf.name" label="Shelf" sortable={false} />,
+    <NumberField source="rating" sortable={false} />,
+    <DateField source="updatedAt" sortable={false} />,
+    <DateField source="createdAt" sortable={false} />,
+  ];
+}
+
 export const VideoGameShow = (props) => (
   <Show {...props} title={<Title base="Video Game" />}>
-    <SimpleShowLayout>
-      <TextField source="title" />
-      <ArrayField source="platforms">
-        <SingleFieldList>
-          <ChipField source="name" />
-        </SingleFieldList>
-      </ArrayField>
-      <ChipField source="shelf.name" label="Shelf" />
-      <NumberField source="rating" />
-      <DateField source="updatedAt" />
-      <DateField source="createdAt" />
-    </SimpleShowLayout>
+    <SimpleShowLayout>{fields()}</SimpleShowLayout>
   </Show>
 );
 
-export const VideoGameList = (props) => (
-  <List {...props}>
-    <Datagrid rowClick="show">
-      <TextField source="title" />
-      <ArrayField source="platforms">
-        <SingleFieldList>
-          <ChipField source="name" />
-        </SingleFieldList>
-      </ArrayField>
-      <ChipField source="shelf.name" label="Shelf" />
-      <NumberField source="rating" />
-      <DateField source="updatedAt" />
-      <DateField source="createdAt" />
-    </Datagrid>
-  </List>
-);
+export const VideoGameList = (props) => {
+  return (
+    <List {...props}>
+      <Datagrid rowClick="show">{fields()}</Datagrid>
+    </List>
+  );
+};
