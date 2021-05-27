@@ -1,4 +1,4 @@
-import { Resolver, ClassType, Query, Mutation, Arg } from "type-graphql";
+import { Resolver, ClassType, Query, Mutation, Arg, ID } from "type-graphql";
 import Item from "../Item";
 import { AddItemInput, ItemMutationResolver } from "../ItemMutation";
 import StringKey from "../util/StringKey";
@@ -34,7 +34,7 @@ export function ExternalImportResolverFactory<
 
     @Mutation((returns) => TItem, { name: `importExternal${TItem.name}` })
     async importExternal(
-      @Arg("id") id: string,
+      @Arg("id", (type) => ID) id: string,
       @Arg("shelfId", (type) => TShelfEnum) shelfId: StringKey<TShelfEnum>
     ): Promise<TItem> {
       const externalItem = await externalApi.get({ id });
