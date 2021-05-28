@@ -44,6 +44,13 @@ export default class BillioApiStack extends Stack {
         environment: {
           NODE_ENV: "production",
         },
+        commandHooks: {
+          beforeBundling: () => [],
+          beforeInstall: () => [],
+          afterBundling: (inputDir: string, outputDir: string): string[] => {
+            return [`cp ${inputDir}/packages/graphql/.env ${outputDir}`];
+          },
+        },
       },
       runtime: Runtime.NODEJS_14_X,
       memorySize: 1024,
