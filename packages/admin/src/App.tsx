@@ -1,4 +1,4 @@
-import { Admin, Resource } from "react-admin";
+import { Admin, Resource, ResourceContextProvider } from "react-admin";
 import dataProvider from "./dataProvider";
 import authProvider from "./authProvider";
 import GamesIcon from "@material-ui/icons/Games";
@@ -8,6 +8,10 @@ import { VideoGameCreate, VideoGameEdit } from "./videogame/VideoGameEdit";
 import { VideoGameShow, VideoGameList } from "./videogame/VideoGameShow";
 import { BookShow, BookList } from "./book/BookShow";
 import { createMuiTheme } from "@material-ui/core/styles";
+import { Route } from "react-router-dom";
+import ImportPage from "./import/ImportPage";
+import VideoGameImport from "./videogame/VideoGameImport";
+import BookImport from "./book/BookImport";
 
 const THEME = createMuiTheme({
   palette: {
@@ -38,6 +42,31 @@ const THEME = createMuiTheme({
   },
 });
 
+const CUSTOM_ROUTES = [
+  <Route
+    exact
+    path="/VideoGame/import"
+    component={(renderProps) => (
+      <ResourceContextProvider value="VideoGame">
+        <ImportPage>
+          <VideoGameImport />
+        </ImportPage>
+      </ResourceContextProvider>
+    )}
+  />,
+  <Route
+    exact
+    path="/Book/import"
+    component={(renderProps) => (
+      <ResourceContextProvider value="Book">
+        <ImportPage>
+          <BookImport />
+        </ImportPage>
+      </ResourceContextProvider>
+    )}
+  />,
+];
+
 function App() {
   return (
     <Admin
@@ -45,6 +74,7 @@ function App() {
       theme={THEME}
       dataProvider={dataProvider}
       authProvider={authProvider}
+      customRoutes={CUSTOM_ROUTES}
       disableTelemetry
     >
       <Resource

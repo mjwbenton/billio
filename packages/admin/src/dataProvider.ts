@@ -52,6 +52,14 @@ const QUERIES = {
       }
     }
 `,
+  IMPORT: (resourceName: string) => gql`
+    mutation IMPORT_${resourceName}($id: ID!, $shelfId: ${resourceName}ShelfId!) {
+      item: importExternal${resourceName}(id: $id, shelfId: $shelfId) {
+        ...${resourceName}
+      }
+    }
+    ${FRAGMENTS[resourceName]}
+  `,
 };
 
 function lowerFirst(str: string): string {
@@ -135,6 +143,18 @@ const dataProvider: DataProvider = {
     );
     return {
       data: results.map((result) => stripTypename(result.data.item)),
+    };
+  },
+  async import(resourceName, params) {
+    const result = await client.mutate({
+      mutation: QUERIES.IMPORT(resourceName),
+      variables: {
+        id: params.id,
+        shelfId: params.shelf.id,
+      },
+    });
+    return {
+      data: stripTypename(result.data.item),
     };
   },
 };

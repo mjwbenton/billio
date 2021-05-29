@@ -3,12 +3,7 @@ import RatingInput from "../shared/RatingInput";
 import ShelfInput from "../shared/ShelfInput";
 import Title from "../shared/Title";
 import transform from "../shared/transform";
-
-const SHELVES = [
-  { id: "Reading", name: "Reading" },
-  { id: "Read", name: "Read" },
-  { id: "DidNotFinish", name: "Did Not Finish" },
-];
+import SHELVES from "./BookShelves";
 
 const TRANSFORM = transform();
 

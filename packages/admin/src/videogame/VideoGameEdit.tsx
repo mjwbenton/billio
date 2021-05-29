@@ -11,13 +11,7 @@ import RatingInput from "../shared/RatingInput";
 import ShelfInput from "../shared/ShelfInput";
 import Title from "../shared/Title";
 import transform from "../shared/transform";
-
-const SHELVES = [
-  { id: "Played", name: "Played" },
-  { id: "Playing", name: "Playing" },
-  { id: "GaveUp", name: "Gave Up" },
-  { id: "Completed", name: "Completed" },
-];
+import SHELVES from "./VideoGameShelves";
 
 const PLATFORMS = [
   {
@@ -69,5 +63,3 @@ export const VideoGameCreate = (props) => (
     </SimpleForm>
   </Create>
 );
-
-export default VideoGameEdit;
