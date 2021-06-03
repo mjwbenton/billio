@@ -51,7 +51,7 @@ export default function Import({ children }: { children: ReactElement }) {
   const saveContext = useMemo(
     () => ({
       save: handleSave,
-      setOnFailure: (onFailure) => {
+      setOnFailure: () => {
         throw new Error("UNSUPPORTED setOnFailure");
       },
       saving,
