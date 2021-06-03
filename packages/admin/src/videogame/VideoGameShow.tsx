@@ -10,6 +10,7 @@ import {
   SingleFieldList,
   TextField,
 } from "react-admin";
+import EmptyPage from "../shared/EmptyPage";
 import ListActions from "../shared/ListActions";
 import Title from "../shared/Title";
 
@@ -36,7 +37,12 @@ export const VideoGameShow = (props) => (
 
 export const VideoGameList = (props) => {
   return (
-    <List {...props} exporter={false} actions={<ListActions />}>
+    <List
+      {...props}
+      exporter={false}
+      actions={<ListActions />}
+      empty={<EmptyPage />}
+    >
       <Datagrid rowClick="show">{fields()}</Datagrid>
     </List>
   );
