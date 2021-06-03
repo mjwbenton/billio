@@ -15,11 +15,11 @@ import {
   useRedirect,
   useResourceContext,
 } from "react-admin";
-import AddIcon from "@material-ui/icons/Add";
+import Icon from "@material-ui/icons/Input";
 
-const ImportToolbar = (props) => (
+const ImportToolbar = (props: any) => (
   <Toolbar {...props}>
-    <SaveButton label="Import" icon={<AddIcon />} />
+    <SaveButton label="Import" icon={<Icon />} />
   </Toolbar>
 );
 
