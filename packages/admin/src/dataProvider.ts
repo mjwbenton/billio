@@ -9,6 +9,11 @@ const FRAGMENTS = {
   VideoGame: loader("./videogame/VideoGame.graphql"),
 };
 
+const EXTERNAL_FRAGMENTS = {
+  Book: loader("./book/ExternalBook.graphql"),
+  VideoGame: loader("./videogame/ExternalVideoGame.graphql"),
+};
+
 const QUERIES = {
   GET_ONE: (resourceName: string) => gql`
     query GET_ONE_${resourceName}($id: ID!) {
@@ -16,8 +21,8 @@ const QUERIES = {
         ...${resourceName}
       }
     }
-    ${FRAGMENTS[resourceName]}
-`,
+    ${FRAGMENTS[resourceName]}`,
+
   GET_LIST: (resourceName: string) => gql`
     query GET_LIST_${resourceName}($first: Int!) {
       page: ${lowerFirst(resourceName)}s(first: $first) {
@@ -27,39 +32,46 @@ const QUERIES = {
         }
       }
     }
-    ${FRAGMENTS[resourceName]}
-`,
+    ${FRAGMENTS[resourceName]}`,
+
   CREATE: (resourceName: string) => gql`
     mutation CREATE_${resourceName}($item: Add${resourceName}Input!) {
       item: add${resourceName}(item: $item) {
         ...${resourceName}
       }
     }
-    ${FRAGMENTS[resourceName]}
-`,
+    ${FRAGMENTS[resourceName]}`,
+
   UPDATE: (resourceName: string) => gql`
     mutation UPDATE_${resourceName}($item: Update${resourceName}Input!) {
       item: update${resourceName}(item: $item) {
         ...${resourceName}
       }
     }
-    ${FRAGMENTS[resourceName]}
-`,
+    ${FRAGMENTS[resourceName]}`,
+
   DELETE: (resourceName: string) => gql`
     mutation DELETE_${resourceName}($item: DeleteItemInput!) {
       item: delete${resourceName}(item: $item) {
         id
       }
-    }
-`,
+    }`,
+
   IMPORT: (resourceName: string) => gql`
     mutation IMPORT_${resourceName}($id: ID!, $shelfId: ${resourceName}ShelfId!) {
       item: importExternal${resourceName}(id: $id, shelfId: $shelfId) {
         ...${resourceName}
       }
     }
-    ${FRAGMENTS[resourceName]}
-  `,
+    ${FRAGMENTS[resourceName]}`,
+
+  SEARCH_EXTERNAL: (resourceName: string) => gql`
+    query SEARCH_EXTERNAL_${resourceName}($term: String!) {
+      items: searchExternal${resourceName}(term: $term) {
+        ...External${resourceName}
+      }
+    }
+    ${EXTERNAL_FRAGMENTS[resourceName]}`,
 };
 
 function lowerFirst(str: string): string {
@@ -155,6 +167,17 @@ const dataProvider: DataProvider = {
     });
     return {
       data: stripTypename(result.data.item),
+    };
+  },
+  async searchExternal(resourceName, params) {
+    const result = await client.query({
+      query: QUERIES.SEARCH_EXTERNAL(resourceName),
+      variables: {
+        term: params.term,
+      },
+    });
+    return {
+      data: stripTypename(result.data.items),
     };
   },
 };

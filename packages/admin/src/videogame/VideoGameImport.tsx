@@ -1,12 +1,13 @@
-import { SimpleForm, TextInput } from "react-admin";
+import { SimpleForm } from "react-admin";
 import Import from "../import/Import";
+import SearchExternalInput from "../import/SearchExternalInput";
 import ShelfInput from "../shared/ShelfInput";
 import SHELVES from "./VideoGameShelves";
 
-const VideoGameImport = (props) => (
+const VideoGameImport = () => (
   <Import>
     <SimpleForm>
-      <TextInput source="id" />
+      <SearchExternalInput source="id" />
       <ShelfInput shelves={SHELVES} />
     </SimpleForm>
   </Import>

@@ -1,12 +1,13 @@
-import { SimpleForm, TextInput } from "react-admin";
+import { SimpleForm } from "react-admin";
 import Import from "../import/Import";
+import SearchExternalInput from "../import/SearchExternalInput";
 import ShelfInput from "../shared/ShelfInput";
 import SHELVES from "./BookShelves";
 
-const BookImport = (props) => (
+const BookImport = () => (
   <Import>
     <SimpleForm>
-      <TextInput source="id" />
+      <SearchExternalInput source="id" />
       <ShelfInput shelves={SHELVES} />
     </SimpleForm>
   </Import>

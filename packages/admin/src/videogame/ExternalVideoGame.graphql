@@ -1,0 +1,4 @@
+fragment ExternalVideoGame on ExternalVideoGame {
+  id
+  title
+}

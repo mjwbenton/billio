@@ -1,0 +1,6 @@
+fragment ExternalBook on ExternalBook {
+  id
+  title
+  author
+  imageUrl
+}
