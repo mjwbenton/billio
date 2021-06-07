@@ -17,7 +17,13 @@ interface Option {
   readonly title: string;
 }
 
-export default function SearchExternalInput(props: any) {
+export default function SearchExternalInput({
+  source,
+  option: OptionComponent = DefaultOptionDisplay,
+}: {
+  source: string;
+  option?: React.ComponentType<Option>;
+}) {
   const dataProvider = useDataProvider();
   const notify = useNotify();
   const resource = useResourceContext();
@@ -26,7 +32,7 @@ export default function SearchExternalInput(props: any) {
   const {
     input: { name, onChange },
     meta: { touched, error },
-  } = useInput(props);
+  } = useInput({ source });
 
   const throttledFetch = useMemo(
     () =>
@@ -78,15 +84,15 @@ export default function SearchExternalInput(props: any) {
         />
       )}
       getOptionLabel={(option) => option.title}
-      renderOption={(option) => {
-        return (
-          <Grid container alignItems="center">
-            <Grid item xs>
-              {option.title}
-            </Grid>
-          </Grid>
-        );
-      }}
+      renderOption={(option) => <OptionComponent {...option} />}
     />
+  );
+}
+
+function DefaultOptionDisplay({ title }: { title: string }) {
+  return (
+    <Grid container>
+      <Grid item>{title}</Grid>
+    </Grid>
   );
 }
