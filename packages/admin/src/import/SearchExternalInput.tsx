@@ -17,18 +17,18 @@ interface Option {
   readonly title: string;
 }
 
-export default function SearchExternalInput({
+export default function SearchExternalInput<TOption extends Option>({
   source,
   option: OptionComponent = DefaultOptionDisplay,
 }: {
   source: string;
-  option?: React.ComponentType<Option>;
+  option?: React.ComponentType<TOption>;
 }) {
   const dataProvider = useDataProvider();
   const notify = useNotify();
   const resource = useResourceContext();
   const [inputValue, setInputValue] = useState("");
-  const [options, setOptions] = useState<Option[]>([]);
+  const [options, setOptions] = useState<TOption[]>([]);
   const {
     input: { name, onChange },
     meta: { touched, error },
@@ -64,7 +64,7 @@ export default function SearchExternalInput({
   }, [inputValue, notify, throttledFetch]);
 
   return (
-    <Autocomplete<Option>
+    <Autocomplete<TOption>
       options={options}
       autoComplete
       filterSelectedOptions
