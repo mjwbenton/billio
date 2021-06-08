@@ -1,6 +1,6 @@
 overwrite: true
-schema: "https://api-readonly.billio.mattb.tech"
-documents: "src/**/*.{ts,tsx}"
+schema: "http://localhost:4000"
+documents: "src/**/*.graphql"
 generates:
   src/generated/graphql.ts:
     plugins:
