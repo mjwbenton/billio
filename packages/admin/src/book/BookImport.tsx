@@ -17,10 +17,18 @@ const ExternalBookOption = ({
   imageUrl?: string | null;
 }) => (
   <Grid container alignItems="center" spacing={2}>
-    <Grid item xs={3}>
-      {imageUrl ? <img src={imageUrl} alt={title} /> : <BookIcon />}
+    <Grid item xs={4}>
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          alt={title}
+          style={{ maxWidth: "75px", width: "100%;" }}
+        />
+      ) : (
+        <BookIcon />
+      )}
     </Grid>
-    <Grid item container direction="column" spacing={2} xs={9}>
+    <Grid item xs={8} container direction="column" spacing={2}>
       <Grid item>{title}</Grid>
       <Grid item>
         <Typography variant="body2">{author}</Typography>
