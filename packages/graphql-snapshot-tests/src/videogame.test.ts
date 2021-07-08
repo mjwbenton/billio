@@ -25,3 +25,30 @@ test("can query single video game", async () => {
   });
   expect(data).toMatchSnapshot();
 });
+
+test("can fetch second page of video games", async () => {
+  const query = gql`
+    query VideoGamesPagination($after: ID) {
+      videoGames(first: 1, after: $after) {
+        items {
+          title
+          id
+        }
+        hasNextPage
+        nextPageCursor
+      }
+    }
+  `;
+  const { data: first } = await client.query({
+    query,
+  });
+  expect(first).toMatchSnapshot();
+
+  const { data: second } = await client.query({
+    query,
+    variables: {
+      after: first.videoGames.nextPageCursor,
+    },
+  });
+  expect(second).toMatchSnapshot();
+});

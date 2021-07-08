@@ -1,5 +1,39 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`can fetch second page of video games 1`] = `
+Object {
+  "videoGames": Object {
+    "__typename": "VideoGamePage",
+    "hasNextPage": true,
+    "items": Array [
+      Object {
+        "__typename": "VideoGame",
+        "id": "531f6e1e-8ed4-464b-96f9-a74c1eb751fd",
+        "title": "Dark Souls",
+      },
+    ],
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6NTMxZjZlMWUtOGVkNC00NjRiLTk2ZjktYTc0YzFlYjc1MWZkIiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyMzA4MTQ4MjYyMjpWaWRlb0dhbWU6NTMxZjZlMWUtOGVkNC00NjRiLTk2ZjktYTc0YzFlYjc1MWZkIn19",
+  },
+}
+`;
+
+exports[`can fetch second page of video games 2`] = `
+Object {
+  "videoGames": Object {
+    "__typename": "VideoGamePage",
+    "hasNextPage": false,
+    "items": Array [
+      Object {
+        "__typename": "VideoGame",
+        "id": "4d0b6bce-96e9-41a6-a666-623528778168",
+        "title": "Ori and the Blind Forest",
+      },
+    ],
+    "nextPageCursor": null,
+  },
+}
+`;
+
 exports[`can query single video game 1`] = `
 Object {
   "videoGame": Object {
