@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`can query single video game 1`] = `
+Object {
+  "videoGame": Object {
+    "__typename": "VideoGame",
+    "createdAt": "2021-06-07T15:58:02.622Z",
+    "id": "531f6e1e-8ed4-464b-96f9-a74c1eb751fd",
+    "platforms": Array [],
+    "rating": null,
+    "shelf": Object {
+      "__typename": "VideoGameShelf",
+      "id": "Played",
+      "name": "Played",
+    },
+    "title": "Dark Souls",
+    "updatedAt": "2021-06-07T15:58:02.622Z",
+  },
+}
+`;

@@ -1,0 +1,30 @@
+{
+  "name": "@mattb.tech/billio-graphql-snapshot-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Snapshot tests for Billio GraphQL layer",
+  "main": "dist/index.js",
+  "author": "Matt Benton <m@mattb.tech>",
+  "license": "MIT",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "clean": "../../scripts/clean.sh",
+    "fix": "../../scripts/fix.sh",
+    "check": "../../scripts/check.sh",
+    "watch": "../../scripts/watch.sh",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@apollo/client": "^3.3.21",
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "@babel/preset-typescript": "^7.14.5",
+    "@types/jest": "^26.0.24",
+    "babel-jest": "^27.0.6",
+    "cross-fetch": "^3.1.4",
+    "jest": "^27.0.6",
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {}
+}
