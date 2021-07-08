@@ -25,10 +25,8 @@ export interface Item {
 type TypeKey = Pick<Item, "type">;
 type ItemKey = TypeKey & Pick<Item, "id">;
 type ShelfKey = TypeKey & Pick<Item, "shelf">;
-type UpdateItem = ItemKey & Omit<Partial<Item>, "updatedAt" | "createdAt">;
-type CreateItem = ItemKey &
-  ShelfKey &
-  Omit<Partial<Item>, "updatedAt" | "createdAt">;
+type UpdateItem = ItemKey & Partial<Item>;
+type CreateItem = ItemKey & ShelfKey & Partial<Item>;
 
 class ItemDocument extends Document implements Item {
   type: string;
@@ -168,9 +166,9 @@ export const Mutate = {
     const withTimestamps = {
       id,
       type,
-      ...rest,
       updatedAt: date,
       createdAt: date,
+      ...rest,
     };
     await ItemModel.create({
       ...withTimestamps,
@@ -186,8 +184,8 @@ export const Mutate = {
   async updateItem({ id, type, ...updates }: UpdateItem) {
     const date = new Date();
     await ItemModel.update(combinedKey({ type, id }, TYPE_ID), {
-      ...updates,
       updatedAt: date,
+      ...updates,
       ...(updates.shelf
         ? combinedKey({ type, shelf: updates.shelf }, TYPE_SHELF)
         : {}),
