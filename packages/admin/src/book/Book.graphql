@@ -6,6 +6,9 @@ fragment Book on Book {
     id
     name
   }
+  image {
+    url
+  }
   rating
   updatedAt
   createdAt

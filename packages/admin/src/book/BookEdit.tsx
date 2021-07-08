@@ -21,6 +21,7 @@ export const BookCreate = (props) => (
 export const BookEdit = (props) => (
   <Edit {...props} transform={TRANSFORM} title={<Title base="Book" />}>
     <SimpleForm>
+      <BookInfo />
       <TextInput source="title" />
       <TextInput source="author" />
       <ShelfInput shelves={SHELVES} />
@@ -28,3 +29,8 @@ export const BookEdit = (props) => (
     </SimpleForm>
   </Edit>
 );
+
+const BookInfo = ({ record }: { record?: any }) =>
+  record?.image?.url ? (
+    <img src={record.image.url} alt={record.title} title={record.image.url} />
+  ) : null;
