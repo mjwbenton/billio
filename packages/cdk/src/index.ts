@@ -5,6 +5,8 @@ import BillioAuthStack from "./BillioAuthStack";
 import BillioDataStack from "./BillioDataStack";
 
 const app = new App();
+
+// Production Stacks
 const dataStack = new BillioDataStack(app, "BillioData");
 const authStack = new BillioAuthStack(app, "BillioAuth");
 const apiStack = new BillioApiStack(app, "BillioAPI", {
@@ -21,6 +23,12 @@ new BillioApiStack(app, "BillioReadonlyAPI", {
   enableIam: false,
   enableMutations: false,
 });
-// Create a second data stack to use in tests.
-// Table currently hardcoded into devServer.
-new BillioDataStack(app, "BillioTestData");
+
+// Integration test stacks
+const integrationDataStack = new BillioDataStack(app, "BillioTestData");
+new BillioApiStack(app, "BillioTestAPI", {
+  dataStack: integrationDataStack,
+  domainName: "api-test.billio.mattb.tech",
+  enableIam: false,
+  enableMutations: true,
+});
