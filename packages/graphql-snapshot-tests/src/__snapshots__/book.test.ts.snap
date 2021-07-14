@@ -1,0 +1,153 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`can fetch books by shelf 1`] = `
+Object {
+  "bookShelf": Object {
+    "__typename": "BookShelf",
+    "items": Object {
+      "__typename": "BookPage",
+      "items": Array [
+        Object {
+          "__typename": "Book",
+          "title": "The Damned Utd",
+        },
+      ],
+    },
+    "name": "Reading",
+  },
+}
+`;
+
+exports[`can fetch second page of books 1`] = `
+Object {
+  "books": Object {
+    "__typename": "BookPage",
+    "hasNextPage": true,
+    "items": Array [
+      Object {
+        "__typename": "Book",
+        "title": "The Damned Utd",
+      },
+    ],
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJCb29rOjkzOTcxODVhLTc3OTItNGIwOC05YTZkLTlkOTBhODczYjQ1YSIsInR5cGUiOiJCb29rIiwidXBkYXRlZEF0OnR5cGU6aWQiOiIxNjI2MjY5MjIyMDIxOkJvb2s6OTM5NzE4NWEtNzc5Mi00YjA4LTlhNmQtOWQ5MGE4NzNiNDVhIn19",
+  },
+}
+`;
+
+exports[`can fetch second page of books 2`] = `
+Object {
+  "books": Object {
+    "__typename": "BookPage",
+    "hasNextPage": true,
+    "items": Array [
+      Object {
+        "__typename": "Book",
+        "title": "ogihx",
+      },
+    ],
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJCb29rOmZlZDRmZmI1LTczZGMtNDdlNS1iMWU3LTI4ZGU2OTExZDYzOCIsInR5cGUiOiJCb29rIiwidXBkYXRlZEF0OnR5cGU6aWQiOiIxNjI2MjY5MjY3ODgyOkJvb2s6ZmVkNGZmYjUtNzNkYy00N2U1LWIxZTctMjhkZTY5MTFkNjM4In19",
+  },
+}
+`;
+
+exports[`can import external book 1`] = `
+Object {
+  "importExternalBook": Object {
+    "__typename": "Book",
+    "author": "David Peace",
+    "id": Any<String>,
+    "shelf": Object {
+      "__typename": "BookShelf",
+      "id": "Reading",
+    },
+    "title": "The Damned Utd",
+  },
+}
+`;
+
+exports[`can move book between shelves 1`] = `
+Object {
+  "updateBook": Object {
+    "__typename": "Book",
+    "shelf": Object {
+      "__typename": "BookShelf",
+      "id": "Read",
+      "name": "Read",
+    },
+  },
+}
+`;
+
+exports[`can query single book 1`] = `
+Object {
+  "book": Object {
+    "__typename": "Book",
+    "author": "David Peace",
+    "id": Any<String>,
+    "rating": null,
+    "shelf": Object {
+      "__typename": "BookShelf",
+      "id": "Reading",
+      "name": "Reading",
+    },
+    "title": "The Damned Utd",
+  },
+}
+`;
+
+exports[`can search for external books 1`] = `
+Object {
+  "searchExternalBook": Array [
+    Object {
+      "__typename": "ExternalBook",
+      "id": "googlebooks:CkVF9cg8daMC",
+      "title": "The Damned Utd",
+    },
+    Object {
+      "__typename": "ExternalBook",
+      "id": "googlebooks:j6G6CwAAQBAJ",
+      "title": "The Damned United",
+    },
+    Object {
+      "__typename": "ExternalBook",
+      "id": "googlebooks:t2Wh7cRuuNYC",
+      "title": "We Are the Damned United",
+    },
+    Object {
+      "__typename": "ExternalBook",
+      "id": "googlebooks:ohOTR9KdDEIC",
+      "title": "Clough and Revie",
+    },
+    Object {
+      "__typename": "ExternalBook",
+      "id": "googlebooks:RTZA4iaEoKYC",
+      "title": "Red or Dead",
+    },
+    Object {
+      "__typename": "ExternalBook",
+      "id": "googlebooks:o5O4AwAAQBAJ",
+      "title": "Voyage of the Damned",
+    },
+    Object {
+      "__typename": "ExternalBook",
+      "id": "googlebooks:dnTRzl3Uoe4C",
+      "title": "John Giles: A Football Man - My Autobiography",
+    },
+    Object {
+      "__typename": "ExternalBook",
+      "id": "googlebooks:OACpgHtTr8gC",
+      "title": "Provided You Don't Kiss Me",
+    },
+    Object {
+      "__typename": "ExternalBook",
+      "id": "googlebooks:X8px8pqeyCEC",
+      "title": "The Book of the Damned",
+    },
+    Object {
+      "__typename": "ExternalBook",
+      "id": "googlebooks:GXMhl6mgmYEC",
+      "title": "Clough The Autobiography",
+    },
+  ],
+}
+`;
