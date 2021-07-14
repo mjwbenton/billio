@@ -1,7 +1,11 @@
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import fetch from "cross-fetch";
 
-const ENDPOINT = "http://localhost:4000";
+const ENDPOINT = process.env.BILLIO_ENDPOINT;
+
+if (!ENDPOINT) {
+  throw new Error("Please configure BILLIO_ENDPOINT for tests");
+}
 
 const CLIENT = new ApolloClient({
   cache: new InMemoryCache(),
