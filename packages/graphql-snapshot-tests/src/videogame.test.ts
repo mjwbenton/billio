@@ -148,6 +148,25 @@ test("can mutate title on video game", async () => {
   expect(data.updateVideoGame.title).toEqual(randomTitle);
 });
 
+test("Can add platform to video game", async () => {
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_MutatePlatform($id: ID!) {
+        updateVideoGame(item: { id: $id, platformIds: [Playstation4] }) {
+          platforms {
+            id
+            name
+          }
+        }
+      }
+    `,
+    variables: {
+      id: TEST_VIDEO_GAME,
+    },
+  });
+  expect(data).toMatchSnapshot();
+});
+
 test("can move video game between shelves", async () => {
   const { data } = await client.mutate({
     mutation: gql`

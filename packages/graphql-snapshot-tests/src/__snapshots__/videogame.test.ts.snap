@@ -1,5 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Can add platform to video game 1`] = `
+Object {
+  "updateVideoGame": Object {
+    "__typename": "VideoGame",
+    "platforms": Array [
+      Object {
+        "__typename": "Platform",
+        "id": "Playstation4",
+        "name": "Playstation 4",
+      },
+    ],
+  },
+}
+`;
+
 exports[`can fetch second page of video games 1`] = `
 Object {
   "videoGames": Object {
@@ -8,10 +23,10 @@ Object {
     "items": Array [
       Object {
         "__typename": "VideoGame",
-        "title": "Ori and the Blind Forest: Definitive Edition",
+        "title": "hyzfi",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6NGFjNGIzYjYtNmE2NS00Y2UzLWE1ZGEtMzk0ZmRhYmM2NmViIiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyNjI2NzIwNzY1NTpWaWRlb0dhbWU6NGFjNGIzYjYtNmE2NS00Y2UzLWE1ZGEtMzk0ZmRhYmM2NmViIn19",
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6M2M1MGNiNmMtMTYyZi00MjYxLThjZmMtMDcxNWI3OWQ0MmUxIiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyNjI2NzIxMjE1NTpWaWRlb0dhbWU6M2M1MGNiNmMtMTYyZi00MjYxLThjZmMtMDcxNWI3OWQ0MmUxIn19",
   },
 }
 `;
@@ -24,10 +39,10 @@ Object {
     "items": Array [
       Object {
         "__typename": "VideoGame",
-        "title": "hyzfi",
+        "title": "Ori and the Blind Forest: Definitive Edition",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6M2M1MGNiNmMtMTYyZi00MjYxLThjZmMtMDcxNWI3OWQ0MmUxIiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyNjI2NzIxMjE1NTpWaWRlb0dhbWU6M2M1MGNiNmMtMTYyZi00MjYxLThjZmMtMDcxNWI3OWQ0MmUxIn19",
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6ZjE1MGRmMGItNmM5Yi00ZTRiLWIyYjgtOTNjNjY3YzhkNGQ3IiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyNjI2NzI1NTM3NDpWaWRlb0dhbWU6ZjE1MGRmMGItNmM5Yi00ZTRiLWIyYjgtOTNjNjY3YzhkNGQ3In19",
   },
 }
 `;
