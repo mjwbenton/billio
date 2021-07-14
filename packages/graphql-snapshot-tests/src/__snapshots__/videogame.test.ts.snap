@@ -8,11 +8,10 @@ Object {
     "items": Array [
       Object {
         "__typename": "VideoGame",
-        "id": "531f6e1e-8ed4-464b-96f9-a74c1eb751fd",
-        "title": "Dark Souls",
+        "title": "Ori and the Blind Forest: Definitive Edition",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6NTMxZjZlMWUtOGVkNC00NjRiLTk2ZjktYTc0YzFlYjc1MWZkIiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyMzA4MTQ4MjYyMjpWaWRlb0dhbWU6NTMxZjZlMWUtOGVkNC00NjRiLTk2ZjktYTc0YzFlYjc1MWZkIn19",
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6NGFjNGIzYjYtNmE2NS00Y2UzLWE1ZGEtMzk0ZmRhYmM2NmViIiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyNjI2NzIwNzY1NTpWaWRlb0dhbWU6NGFjNGIzYjYtNmE2NS00Y2UzLWE1ZGEtMzk0ZmRhYmM2NmViIn19",
   },
 }
 `;
@@ -21,15 +20,68 @@ exports[`can fetch second page of video games 2`] = `
 Object {
   "videoGames": Object {
     "__typename": "VideoGamePage",
-    "hasNextPage": false,
+    "hasNextPage": true,
     "items": Array [
       Object {
         "__typename": "VideoGame",
-        "id": "4d0b6bce-96e9-41a6-a666-623528778168",
-        "title": "Ori and the Blind Forest",
+        "title": "hyzfi",
       },
     ],
-    "nextPageCursor": null,
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6M2M1MGNiNmMtMTYyZi00MjYxLThjZmMtMDcxNWI3OWQ0MmUxIiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyNjI2NzIxMjE1NTpWaWRlb0dhbWU6M2M1MGNiNmMtMTYyZi00MjYxLThjZmMtMDcxNWI3OWQ0MmUxIn19",
+  },
+}
+`;
+
+exports[`can fetch video games by shelf 1`] = `
+Object {
+  "videoGameShelf": Object {
+    "__typename": "VideoGameShelf",
+    "items": Object {
+      "__typename": "VideoGamePage",
+      "items": Array [
+        Object {
+          "__typename": "VideoGame",
+          "title": "Ori and the Will of the Wisps: Collector's Edition",
+        },
+      ],
+    },
+    "name": "Completed",
+  },
+}
+`;
+
+exports[`can import external video game 1`] = `
+Object {
+  "firstImport": Object {
+    "__typename": "VideoGame",
+    "id": Any<String>,
+    "shelf": Object {
+      "__typename": "VideoGameShelf",
+      "id": "Completed",
+    },
+    "title": "Ori and the Will of the Wisps: Collector's Edition",
+  },
+  "secondImport": Object {
+    "__typename": "VideoGame",
+    "id": Any<String>,
+    "shelf": Object {
+      "__typename": "VideoGameShelf",
+      "id": "Playing",
+    },
+    "title": "Ori and the Blind Forest: Definitive Edition",
+  },
+}
+`;
+
+exports[`can move video game between shelves 1`] = `
+Object {
+  "updateVideoGame": Object {
+    "__typename": "VideoGame",
+    "shelf": Object {
+      "__typename": "VideoGameShelf",
+      "id": "Played",
+      "name": "Played",
+    },
   },
 }
 `;
@@ -38,17 +90,72 @@ exports[`can query single video game 1`] = `
 Object {
   "videoGame": Object {
     "__typename": "VideoGame",
-    "createdAt": "2021-06-07T15:58:02.622Z",
-    "id": "531f6e1e-8ed4-464b-96f9-a74c1eb751fd",
+    "id": Any<String>,
     "platforms": Array [],
     "rating": null,
     "shelf": Object {
       "__typename": "VideoGameShelf",
-      "id": "Played",
-      "name": "Played",
+      "id": "Completed",
+      "name": "Completed",
     },
-    "title": "Dark Souls",
-    "updatedAt": "2021-06-07T15:58:02.622Z",
+    "title": "Ori and the Will of the Wisps: Collector's Edition",
   },
+}
+`;
+
+exports[`can search for external video games 1`] = `
+Object {
+  "searchExternalVideoGame": Array [
+    Object {
+      "__typename": "ExternalVideoGame",
+      "id": "igdb:26192",
+      "title": "The Last of Us Part II",
+    },
+    Object {
+      "__typename": "ExternalVideoGame",
+      "id": "igdb:1009",
+      "title": "The Last of Us",
+    },
+    Object {
+      "__typename": "ExternalVideoGame",
+      "id": "igdb:6036",
+      "title": "The Last of Us Remastered",
+    },
+    Object {
+      "__typename": "ExternalVideoGame",
+      "id": "igdb:11790",
+      "title": "The Last of Us: Left Behind",
+    },
+    Object {
+      "__typename": "ExternalVideoGame",
+      "id": "igdb:101462",
+      "title": "The Last of Us Ellie Edition",
+    },
+    Object {
+      "__typename": "ExternalVideoGame",
+      "id": "igdb:102081",
+      "title": "The Last of Us Joel Edition",
+    },
+    Object {
+      "__typename": "ExternalVideoGame",
+      "id": "igdb:102082",
+      "title": "The Last of Us Survival Edition",
+    },
+    Object {
+      "__typename": "ExternalVideoGame",
+      "id": "igdb:102083",
+      "title": "The Last of Us Post-Pandemic Edition",
+    },
+    Object {
+      "__typename": "ExternalVideoGame",
+      "id": "igdb:135986",
+      "title": "The Last of Us Part II: Ellie Edition",
+    },
+    Object {
+      "__typename": "ExternalVideoGame",
+      "id": "igdb:135956",
+      "title": "The Last of Us Part II: Special Edition",
+    },
+  ],
 }
 `;
