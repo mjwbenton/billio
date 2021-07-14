@@ -21,3 +21,6 @@ new BillioApiStack(app, "BillioReadonlyAPI", {
   enableIam: false,
   enableMutations: false,
 });
+// Create a second data stack to use in tests.
+// Table currently hardcoded into devServer.
+new BillioDataStack(app, "BillioTestData");
