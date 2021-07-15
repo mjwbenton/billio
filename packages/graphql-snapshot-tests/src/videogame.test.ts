@@ -113,7 +113,7 @@ test("can fetch video games by shelf", async () => {
   expect(data).toMatchSnapshot();
 });
 
-test("can search for external video games", async () => {
+test("can search external video games", async () => {
   const { data } = await client.query({
     query: gql`
       {
@@ -124,7 +124,13 @@ test("can search for external video games", async () => {
       }
     `,
   });
-  expect(data).toMatchSnapshot();
+  expect(data.searchExternalVideoGame.length).toBeGreaterThan(0);
+  data.searchExternalVideoGame.forEach((result: unknown) => {
+    expect(result).toMatchSnapshot({
+      id: expect.stringMatching(/^igdb:/),
+      title: expect.any(String),
+    });
+  });
 });
 
 test("can mutate title on video game", async () => {

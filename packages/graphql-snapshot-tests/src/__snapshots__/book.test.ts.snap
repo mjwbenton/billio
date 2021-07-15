@@ -97,57 +97,80 @@ Object {
 
 exports[`can search for external books 1`] = `
 Object {
-  "searchExternalBook": Array [
-    Object {
-      "__typename": "ExternalBook",
-      "id": "googlebooks:CkVF9cg8daMC",
-      "title": "The Damned Utd",
-    },
-    Object {
-      "__typename": "ExternalBook",
-      "id": "googlebooks:j6G6CwAAQBAJ",
-      "title": "The Damned United",
-    },
-    Object {
-      "__typename": "ExternalBook",
-      "id": "googlebooks:t2Wh7cRuuNYC",
-      "title": "We Are the Damned United",
-    },
-    Object {
-      "__typename": "ExternalBook",
-      "id": "googlebooks:ohOTR9KdDEIC",
-      "title": "Clough and Revie",
-    },
-    Object {
-      "__typename": "ExternalBook",
-      "id": "googlebooks:RTZA4iaEoKYC",
-      "title": "Red or Dead",
-    },
-    Object {
-      "__typename": "ExternalBook",
-      "id": "googlebooks:o5O4AwAAQBAJ",
-      "title": "Voyage of the Damned",
-    },
-    Object {
-      "__typename": "ExternalBook",
-      "id": "googlebooks:dnTRzl3Uoe4C",
-      "title": "John Giles: A Football Man - My Autobiography",
-    },
-    Object {
-      "__typename": "ExternalBook",
-      "id": "googlebooks:OACpgHtTr8gC",
-      "title": "Provided You Don't Kiss Me",
-    },
-    Object {
-      "__typename": "ExternalBook",
-      "id": "googlebooks:X8px8pqeyCEC",
-      "title": "The Book of the Damned",
-    },
-    Object {
-      "__typename": "ExternalBook",
-      "id": "googlebooks:GXMhl6mgmYEC",
-      "title": "Clough The Autobiography",
-    },
-  ],
+  "__typename": "ExternalBook",
+  "id": StringMatching /\\^googlebooks:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external books 2`] = `
+Object {
+  "__typename": "ExternalBook",
+  "id": StringMatching /\\^googlebooks:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external books 3`] = `
+Object {
+  "__typename": "ExternalBook",
+  "id": StringMatching /\\^googlebooks:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external books 4`] = `
+Object {
+  "__typename": "ExternalBook",
+  "id": StringMatching /\\^googlebooks:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external books 5`] = `
+Object {
+  "__typename": "ExternalBook",
+  "id": StringMatching /\\^googlebooks:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external books 6`] = `
+Object {
+  "__typename": "ExternalBook",
+  "id": StringMatching /\\^googlebooks:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external books 7`] = `
+Object {
+  "__typename": "ExternalBook",
+  "id": StringMatching /\\^googlebooks:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external books 8`] = `
+Object {
+  "__typename": "ExternalBook",
+  "id": StringMatching /\\^googlebooks:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external books 9`] = `
+Object {
+  "__typename": "ExternalBook",
+  "id": StringMatching /\\^googlebooks:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external books 10`] = `
+Object {
+  "__typename": "ExternalBook",
+  "id": StringMatching /\\^googlebooks:/,
+  "title": Any<String>,
 }
 `;

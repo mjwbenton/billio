@@ -118,59 +118,82 @@ Object {
 }
 `;
 
-exports[`can search for external video games 1`] = `
+exports[`can search external video games 1`] = `
 Object {
-  "searchExternalVideoGame": Array [
-    Object {
-      "__typename": "ExternalVideoGame",
-      "id": "igdb:26192",
-      "title": "The Last of Us Part II",
-    },
-    Object {
-      "__typename": "ExternalVideoGame",
-      "id": "igdb:1009",
-      "title": "The Last of Us",
-    },
-    Object {
-      "__typename": "ExternalVideoGame",
-      "id": "igdb:6036",
-      "title": "The Last of Us Remastered",
-    },
-    Object {
-      "__typename": "ExternalVideoGame",
-      "id": "igdb:11790",
-      "title": "The Last of Us: Left Behind",
-    },
-    Object {
-      "__typename": "ExternalVideoGame",
-      "id": "igdb:101462",
-      "title": "The Last of Us Ellie Edition",
-    },
-    Object {
-      "__typename": "ExternalVideoGame",
-      "id": "igdb:102081",
-      "title": "The Last of Us Joel Edition",
-    },
-    Object {
-      "__typename": "ExternalVideoGame",
-      "id": "igdb:102082",
-      "title": "The Last of Us Survival Edition",
-    },
-    Object {
-      "__typename": "ExternalVideoGame",
-      "id": "igdb:102083",
-      "title": "The Last of Us Post-Pandemic Edition",
-    },
-    Object {
-      "__typename": "ExternalVideoGame",
-      "id": "igdb:135986",
-      "title": "The Last of Us Part II: Ellie Edition",
-    },
-    Object {
-      "__typename": "ExternalVideoGame",
-      "id": "igdb:135956",
-      "title": "The Last of Us Part II: Special Edition",
-    },
-  ],
+  "__typename": "ExternalVideoGame",
+  "id": StringMatching /\\^igdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search external video games 2`] = `
+Object {
+  "__typename": "ExternalVideoGame",
+  "id": StringMatching /\\^igdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search external video games 3`] = `
+Object {
+  "__typename": "ExternalVideoGame",
+  "id": StringMatching /\\^igdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search external video games 4`] = `
+Object {
+  "__typename": "ExternalVideoGame",
+  "id": StringMatching /\\^igdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search external video games 5`] = `
+Object {
+  "__typename": "ExternalVideoGame",
+  "id": StringMatching /\\^igdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search external video games 6`] = `
+Object {
+  "__typename": "ExternalVideoGame",
+  "id": StringMatching /\\^igdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search external video games 7`] = `
+Object {
+  "__typename": "ExternalVideoGame",
+  "id": StringMatching /\\^igdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search external video games 8`] = `
+Object {
+  "__typename": "ExternalVideoGame",
+  "id": StringMatching /\\^igdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search external video games 9`] = `
+Object {
+  "__typename": "ExternalVideoGame",
+  "id": StringMatching /\\^igdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search external video games 10`] = `
+Object {
+  "__typename": "ExternalVideoGame",
+  "id": StringMatching /\\^igdb:/,
+  "title": Any<String>,
 }
 `;

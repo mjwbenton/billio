@@ -108,7 +108,13 @@ test("can search for external books", async () => {
       }
     `,
   });
-  expect(data).toMatchSnapshot();
+  expect(data.searchExternalBook.length).toBeGreaterThan(0);
+  data.searchExternalBook.forEach((result: unknown) => {
+    expect(result).toMatchSnapshot({
+      id: expect.stringMatching(/^googlebooks:/),
+      title: expect.any(String),
+    });
+  });
 });
 
 test("can mutate title on book", async () => {
