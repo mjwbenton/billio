@@ -1,19 +1,14 @@
-import { buildSchema } from "type-graphql";
-
+import { makeExecutableSchema } from "apollo-server";
+import sharedTypeDefs from "./shared/schema";
 import {
-  queryResolvers as videoGameQueries,
-  mutationResolvers as videoGameMutations,
+  typeDefs as videoGameTypeDefs,
+  resolvers as videoGameResolvers,
 } from "./videogame";
-import {
-  queryResolvers as bookQueries,
-  mutationResolvers as bookMutations,
-} from "./book";
+import { typeDefs as bookTypeDefs, resolvers as bookResolvers } from "./book";
+import merge from "lodash.merge";
 
-const queries = [...videoGameQueries, ...bookQueries] as const;
-const mutations = [...videoGameMutations, ...bookMutations] as const;
-
-export default buildSchema({
-  resolvers: parseInt(process.env.ENABLE_MUTATIONS!)
-    ? [...queries, ...mutations]
-    : queries,
+// TODO: Reintroduce ENABLE_MUTATIONS
+export default makeExecutableSchema({
+  typeDefs: [sharedTypeDefs, videoGameTypeDefs, bookTypeDefs],
+  resolvers: merge(videoGameResolvers, bookResolvers),
 });

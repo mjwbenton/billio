@@ -1,105 +1,154 @@
-import { Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import { ExternalImportResolverFactory } from "../external/ExternalImport";
-import { GoogleBooksApi, ExternalBook } from "./GoogleBooksApi";
-import { AbstractItem, ItemResolverFactory } from "../Item";
+import { gql } from "apollo-server";
 import {
-  AddItemInput,
-  UpdateItemInput,
-  ItemMutationResolverFactory,
-} from "../ItemMutation";
-import { PageResolverFactory, PageTypeFactory } from "../Page";
-import { ShelfResolverFactory, ShelfTypeFactory } from "../Shelf";
-import StringKey from "../util/StringKey";
+  AddBookInput,
+  Book,
+  BookShelfId,
+  ExternalBook,
+  Resolvers,
+  UpdateBookInput,
+} from "../generated/graphql";
+import { Item as DataItem } from "@mattb.tech/billio-data";
+import resolveAddItem from "../shared/resolveAddItem";
+import resolveDeleteItem from "../shared/resolveDeleteItem";
+import resolveExternal from "../shared/resolveExternal";
+import resolveForId from "../shared/resolveForId";
+import resolveForType from "../shared/resolveForType";
+import resolveImportExternal from "../shared/resolveImportExternal";
+import resolveShelf from "../shared/resolveShelf";
+import resolveShelfItems from "../shared/resolveShelfItems";
+import resolveShelfName from "../shared/resolveShelfName";
+import resolveUpdateItem from "../shared/resolveUpdateItem";
+import { GoogleBooksApi } from "./GoogleBooksApi";
+import { FieldTransform } from "../transforms";
 
-export enum BookShelfId {
-  Reading = "Reading",
-  Read = "Read",
-  DidNotFinish = "DidNotFinish",
-}
-registerEnumType(BookShelfId, { name: "BookShelfId" });
+export const typeDefs = gql`
+  extend type Query {
+    book(id: ID!): Book
+    bookShelf(id: BookShelfId!): BookShelf
+    books(after: ID, first: Int!): BookPage!
+    searchExternalBook(term: String!): [ExternalBook!]!
+  }
 
-const SHELF_NAMES = {
+  type Book {
+    id: ID!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    title: String!
+    rating: Rating
+    image: Image
+    shelf: BookShelf!
+    author: String!
+  }
+
+  type BookShelf {
+    id: BookShelfId!
+    name: String!
+    items(after: ID, first: Int!): BookPage!
+  }
+
+  enum BookShelfId {
+    Reading
+    Read
+    DidNotFinish
+  }
+
+  type BookPage {
+    total: Int!
+    items: [Book!]!
+    hasNextPage: Boolean!
+    nextPageCursor: ID
+  }
+
+  type ExternalBook {
+    id: ID!
+    title: String!
+    author: String!
+    imageUrl: String
+  }
+
+  extend type Mutation {
+    addBook(item: AddBookInput!): Book!
+    updateBook(item: UpdateBookInput!): Book!
+    deleteBook(item: DeleteItemInput!): DeleteItemOutput!
+    importExternalBook(shelfId: BookShelfId!, id: ID!): Book!
+  }
+
+  input AddBookInput {
+    title: String!
+    shelfId: BookShelfId!
+    rating: Rating
+    image: ImageInput
+    author: String!
+  }
+
+  input UpdateBookInput {
+    id: ID!
+    title: String
+    shelfId: BookShelfId
+    rating: Rating
+    image: ImageInput
+    author: String
+  }
+`;
+
+const TYPE = "Book";
+
+const SHELF_NAMES: { [key in BookShelfId]: string } = {
   Reading: "Reading",
   Read: "Read",
   DidNotFinish: "Did Not Finish",
 };
 
-@ObjectType()
-export class Book extends AbstractItem {
-  @Field((type) => Shelf)
-  shelf: { id: BookShelfId };
-  @Field()
-  author: string;
-}
+const INPUT_TRANSFORM: FieldTransform<
+  DataItem,
+  AddBookInput | UpdateBookInput
+> = () => ({});
 
-const Page = PageTypeFactory(() => Book);
-const Shelf = ShelfTypeFactory(
-  () => Book,
-  () => Page,
-  () => BookShelfId
-);
+const OUTPUT_TRANSFORM: FieldTransform<Book, DataItem> = () => ({});
 
-@InputType()
-class AddBookInput extends AddItemInput {
-  @Field((type) => BookShelfId)
-  shelfId: StringKey<typeof BookShelfId>;
-  @Field()
-  author: string;
-}
+const EXTERNAL_TRANSFORM: FieldTransform<AddBookInput, ExternalBook> = ({
+  imageUrl,
+}: any) => ({
+  image: imageUrl ? { url: imageUrl, width: null, height: null } : null,
+  rating: null,
+});
 
-@InputType()
-class UpdateBookInput extends UpdateItemInput {
-  @Field((type) => BookShelfId, { nullable: true })
-  shelfId: StringKey<typeof BookShelfId>;
-  @Field({ nullable: true })
-  author: string;
-}
+const GOOGLEBOOKS_API = new GoogleBooksApi();
 
-const ItemResolver = ItemResolverFactory(Book);
-const ItemMutationResolver = ItemMutationResolverFactory(
-  Book,
-  AddBookInput,
-  UpdateBookInput
-);
-const ShelfResolver = ShelfResolverFactory(
-  Book,
-  Shelf,
-  BookShelfId,
-  SHELF_NAMES
-);
-const PageResolver = PageResolverFactory(Book, Page);
-
-const ExternalImportResolver = ExternalImportResolverFactory(
-  ExternalBook,
-  Book,
-  BookShelfId,
-  AddBookInput,
-  new GoogleBooksApi(),
-  new ItemMutationResolver(),
-  (input: ExternalBook, shelfId: StringKey<typeof BookShelfId>) => {
-    return {
-      title: input.title,
-      author: input.author,
-      shelfId,
-      rating: null,
-      image: input.imageUrl
-        ? {
-            url: input.imageUrl,
-            width: null,
-            height: null,
-          }
-        : null,
-    };
-  }
-);
-
-export const queryResolvers = [
-  ItemResolver,
-  ShelfResolver,
-  PageResolver,
-] as const;
-
-export const mutationResolvers = [
-  ItemMutationResolver,
-  ExternalImportResolver,
-] as const;
+export const resolvers: Resolvers = {
+  Query: {
+    book: resolveForId<Book>(TYPE, OUTPUT_TRANSFORM),
+    books: resolveForType<Book>(TYPE, OUTPUT_TRANSFORM),
+    bookShelf: resolveShelf<BookShelfId>(SHELF_NAMES),
+    searchExternalBook: resolveExternal<ExternalBook>(GOOGLEBOOKS_API),
+  },
+  BookShelf: {
+    name: resolveShelfName<BookShelfId>(SHELF_NAMES),
+    items: resolveShelfItems<Book, BookShelfId>(TYPE, OUTPUT_TRANSFORM),
+  },
+  Mutation: {
+    importExternalBook: resolveImportExternal<
+      Book,
+      BookShelfId,
+      AddBookInput,
+      ExternalBook
+    >(
+      TYPE,
+      OUTPUT_TRANSFORM,
+      INPUT_TRANSFORM,
+      EXTERNAL_TRANSFORM,
+      GOOGLEBOOKS_API
+    ),
+    addBook: resolveAddItem<Book, AddBookInput>(
+      TYPE,
+      INPUT_TRANSFORM,
+      OUTPUT_TRANSFORM
+    ),
+    updateBook: resolveUpdateItem<Book, UpdateBookInput>(
+      TYPE,
+      INPUT_TRANSFORM,
+      OUTPUT_TRANSFORM
+    ),
+    deleteBook: resolveDeleteItem(TYPE),
+  },
+};

@@ -1,5 +1,5 @@
 import { Resolver, ClassType, Query, Mutation, Arg, ID } from "type-graphql";
-import Item from "../Item";
+import Item from "../shared/Item";
 import { AddItemInput, ItemMutationResolver } from "../ItemMutation";
 import StringKey from "../util/StringKey";
 import ExternalApi from "./ExternalApi";

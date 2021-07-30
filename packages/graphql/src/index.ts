@@ -8,7 +8,7 @@ let innerHandler: any;
 
 export const handler: APIGatewayProxyHandler = async (event, context) => {
   if (!innerHandler) {
-    const server = new ApolloServer({ schema: await schema });
+    const server = new ApolloServer({ schema });
     innerHandler = server.createHandler();
   }
   return innerHandler(event, context);

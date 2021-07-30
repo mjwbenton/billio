@@ -7,15 +7,21 @@
   "author": "Matt Benton <m@mattb.tech>",
   "license": "MIT",
   "scripts": {
-    "build": "../../scripts/build.sh",
+    "build": "yarn codegen && ../../scripts/build.sh",
     "clean": "../../scripts/clean.sh",
     "fix": "../../scripts/fix.sh",
     "check": "../../scripts/check.sh",
-    "watch": "../../scripts/watch.sh",
-    "start": "yarn watch & nodemon ./dist/devServer.js"
+    "watch": "yarn codegen --watch & ../../scripts/watch.sh",
+    "start": "yarn watch & nodemon ./dist/devServer.js",
+    "codegen": "graphql-codegen --config codegen.yml"
   },
   "devDependencies": {
+    "@graphql-codegen/add": "^2.0.2",
+    "@graphql-codegen/cli": "^1.21.7",
+    "@graphql-codegen/typescript": "^1.23.0",
+    "@graphql-codegen/typescript-resolvers": "^1.20.0",
     "@types/aws-lambda": "^8.10.75",
+    "@types/lodash.merge": "^4.6.6",
     "@types/uuid": "^8.3.0",
     "apollo-server": "^2.22.2",
     "nodemon": "^2.0.7",
@@ -29,7 +35,9 @@
     "class-validator": "^0.13.1",
     "dotenv": "^9.0.0",
     "graphql": "^15.5.0",
+    "lodash.merge": "^4.6.2",
     "reflect-metadata": "^0.1.13",
+    "type-fest": "^1.2.2",
     "type-graphql": "^1.1.1",
     "uuid": "^8.3.2"
   }

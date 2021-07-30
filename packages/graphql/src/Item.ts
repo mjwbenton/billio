@@ -12,14 +12,7 @@ import lowerFirst from "./util/lowerFirst";
 import Rating from "./shared/Rating";
 import Image from "./shared/Image";
 import { FieldTransform, transformItem } from "./transforms";
-
-export default interface Item {
-  id: string;
-  shelf: { id: string };
-  createdAt: Date;
-  updatedAt: Date;
-  title: string;
-}
+import Item from "./shared/Item";
 
 @ObjectType({ isAbstract: true })
 export abstract class AbstractItem {

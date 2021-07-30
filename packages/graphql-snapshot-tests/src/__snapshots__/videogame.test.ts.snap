@@ -6,7 +6,7 @@ Object {
     "__typename": "VideoGame",
     "platforms": Array [
       Object {
-        "__typename": "Platform",
+        "__typename": "VideoGamePlatform",
         "id": "Playstation4",
         "name": "Playstation 4",
       },

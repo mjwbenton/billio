@@ -10,7 +10,7 @@ import {
 } from "type-graphql";
 import { v4 as uuid } from "uuid";
 import Image from "./shared/Image";
-import Item from "./Item";
+import Item from "./shared/Item";
 import { FieldTransform, transformItem } from "./transforms";
 import Rating from "./shared/Rating";
 import { Mutate as DataMutate } from "@mattb.tech/billio-data";
@@ -22,9 +22,9 @@ export abstract class AddItemInput {
   @Field((type) => ID)
   shelfId: string;
   @Field((type) => Rating, { nullable: true })
-  rating: number | null;
+  rating?: number | null;
   @Field((type) => Image, { nullable: true })
-  image: Image | null;
+  image?: Image | null;
 }
 
 @InputType({ isAbstract: true })
@@ -76,7 +76,8 @@ export function ItemMutationResolverFactory<
 ) {
   @Resolver(TItem)
   class ItemMutationResolverImpl
-    implements ItemMutationResolver<TItem, TAddItemInput, TUpdateItemInput> {
+    implements ItemMutationResolver<TItem, TAddItemInput, TUpdateItemInput>
+  {
     @Mutation((returns) => TItem, { name: `add${TItem.name}` })
     async addItem(
       @Arg("item", (type) => TAddItemInput) item: TAddItemInput

@@ -12,7 +12,7 @@ import {
   Root,
 } from "type-graphql";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
-import Item from "./Item";
+import Item from "./shared/Item";
 import Page from "./Page";
 import StringKey from "./util/StringKey";
 import lowerFirst from "./util/lowerFirst";
@@ -54,7 +54,8 @@ export function ShelfResolverFactory<
 ) {
   @Resolver(TShelf)
   class ShelfResolverImpl
-    implements ResolverInterface<Shelf<TItem, TShelfEnum>> {
+    implements ResolverInterface<Shelf<TItem, TShelfEnum>>
+  {
     @Query((returns) => TShelf, {
       nullable: true,
       name: `${lowerFirst(TItem.name)}Shelf`,

@@ -11,7 +11,7 @@ import schema from "./schema";
 import { ApolloServer } from "apollo-server";
 
 (async () => {
-  const server = new ApolloServer({ schema: await schema });
+  const server = new ApolloServer({ schema });
   const { url } = await server.listen(4000);
   console.log(`Server running on ${url}`);
 })();
