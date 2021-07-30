@@ -1,5 +1,4 @@
 require("dotenv").config();
-import "reflect-metadata";
 import schema from "./schema";
 import { ApolloServer } from "apollo-server-lambda";
 import { APIGatewayProxyHandler } from "aws-lambda";

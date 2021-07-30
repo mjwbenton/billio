@@ -6,7 +6,6 @@ process.env.BILLIO_TABLE = process.env.USE_PROD_TABLE
   : "BillioTestData-ItemTable276B2AC8-1L7WY9SA7KB61";
 process.env.ENABLE_MUTATIONS = "1";
 
-import "reflect-metadata";
 import schema from "./schema";
 import { ApolloServer } from "apollo-server";
 

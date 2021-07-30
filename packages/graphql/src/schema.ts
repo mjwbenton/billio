@@ -1,4 +1,4 @@
-import { makeExecutableSchema } from "apollo-server";
+import { makeExecutableSchema } from "apollo-server-lambda";
 import sharedTypeDefs from "./shared/schema";
 import {
   typeDefs as videoGameTypeDefs,

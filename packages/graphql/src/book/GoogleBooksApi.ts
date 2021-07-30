@@ -1,7 +1,7 @@
 import axios from "axios";
 import qs from "querystring";
 import ExternalApi from "../external/ExternalApi";
-import { Field, ID, ObjectType } from "type-graphql";
+import { ExternalBook } from "../generated/graphql";
 
 const ID_BASE = "googlebooks";
 
@@ -11,18 +11,6 @@ const BASE_PARAMS = {
   maxResults: 10,
   langRestrict: "en",
 };
-
-@ObjectType()
-export class ExternalBook {
-  @Field((type) => ID)
-  id: string;
-  @Field()
-  title: string;
-  @Field()
-  author: string;
-  @Field((type) => String, { nullable: true })
-  imageUrl: string | null;
-}
 
 export class GoogleBooksApi implements ExternalApi<ExternalBook> {
   public async search({

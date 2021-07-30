@@ -1,7 +1,7 @@
 import axios from "axios";
 import qs from "querystring";
-import { Field, ID, ObjectType } from "type-graphql";
 import ExternalApi from "../external/ExternalApi";
+import { ExternalVideoGame } from "../generated/graphql";
 
 const ID_BASE = "igdb";
 
@@ -10,14 +10,6 @@ const CLIENT_SECRET = process.env.IGDB_CLIENT_SECRET!;
 
 const AUTH_URL = "https://id.twitch.tv/oauth2/token";
 const GAMES_URL = "https://api.igdb.com/v4/games/";
-
-@ObjectType()
-export class ExternalVideoGame {
-  @Field((type) => ID)
-  id: string;
-  @Field()
-  title: string;
-}
 
 export class IgdbApi implements ExternalApi<ExternalVideoGame> {
   private accessToken: string | undefined;
