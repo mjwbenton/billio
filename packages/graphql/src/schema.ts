@@ -1,5 +1,8 @@
 import { makeExecutableSchema } from "apollo-server-lambda";
-import sharedTypeDefs from "./shared/schema";
+import {
+  typeDefs as sharedTypeDefs,
+  resolvers as sharedResolvers,
+} from "./shared/schema";
 import {
   typeDefs as videoGameTypeDefs,
   resolvers as videoGameResolvers,
@@ -10,5 +13,5 @@ import merge from "lodash.merge";
 // TODO: Reintroduce ENABLE_MUTATIONS
 export default makeExecutableSchema({
   typeDefs: [sharedTypeDefs, videoGameTypeDefs, bookTypeDefs],
-  resolvers: merge(videoGameResolvers, bookResolvers),
+  resolvers: merge(sharedResolvers, videoGameResolvers, bookResolvers),
 });

@@ -1,6 +1,7 @@
 import { gql } from "apollo-server-lambda";
+import Rating from "./Rating";
 
-export default gql`
+export const typeDefs = gql`
   type Query
 
   type Mutation
@@ -29,3 +30,7 @@ export default gql`
     id: ID!
   }
 `;
+
+export const resolvers = {
+  Rating,
+};

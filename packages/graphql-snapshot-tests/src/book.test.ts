@@ -156,3 +156,25 @@ test("can move book between shelves", async () => {
   });
   expect(data).toMatchSnapshot();
 });
+
+test("cannot rate book more than 10", async () => {
+  expect.assertions(1);
+  try {
+    await client.mutate({
+      mutation: gql`
+        mutation Test_InvalidRating($id: ID!) {
+          updateBook(item: { id: $id, rating: 11 }) {
+            id
+          }
+        }
+      `,
+      variables: {
+        id: TEST_ID,
+      },
+    });
+  } catch (e) {
+    expect(e.networkError.result.errors[0].message).toEqual(
+      "Invalid rating: 11"
+    );
+  }
+});
