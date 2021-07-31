@@ -26,8 +26,8 @@
     "apollo-server": "^2.22.2",
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1",
-    "typescript": "^4.2.4",
-    "type-fest": "^1.2.2"
+    "type-fest": "^1.2.2",
+    "typescript": "^4.2.4"
   },
   "dependencies": {
     "@mattb.tech/billio-data": "1.0.0",
