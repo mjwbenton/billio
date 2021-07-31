@@ -8,9 +8,13 @@ process.env.ENABLE_MUTATIONS = "1";
 
 import schema from "./schema";
 import { ApolloServer } from "apollo-server";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 
 (async () => {
-  const server = new ApolloServer({ schema });
+  const server = new ApolloServer({
+    schema,
+    plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+  });
   const { url } = await server.listen(4000);
   console.log(`Server running on ${url}`);
 })();

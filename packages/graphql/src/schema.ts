@@ -1,8 +1,5 @@
-import {
-  makeExecutableSchema,
-  transformSchema,
-  FilterRootFields,
-} from "apollo-server-lambda";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { wrapSchema, FilterRootFields, PruneSchema } from "@graphql-tools/wrap";
 import {
   typeDefs as sharedTypeDefs,
   resolvers as sharedResolvers,
@@ -19,12 +16,16 @@ const schema = makeExecutableSchema({
   resolvers: merge(sharedResolvers, videoGameResolvers, bookResolvers),
 });
 
-export default transformSchema(schema, [
-  new FilterRootFields((operationName, rootFieldName) => {
-    return (
-      !!parseInt(process.env.ENABLE_MUTATIONS ?? "0") ||
-      (operationName !== "Mutation" &&
-        !rootFieldName.startsWith("searchExternal"))
-    );
-  }),
-]);
+export default wrapSchema({
+  schema,
+  transforms: [
+    new FilterRootFields((operationName, rootFieldName) => {
+      return (
+        !!parseInt(process.env.ENABLE_MUTATIONS ?? "0") ||
+        (operationName !== "Mutation" &&
+          !(rootFieldName ?? "").startsWith("searchExternal"))
+      );
+    }),
+    new PruneSchema(),
+  ],
+});

@@ -11,7 +11,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "aws4-tiny": "^1.0.0",
-    "graphql": "^15.5.0",
+    "graphql": "^15.5.1",
     "graphql.macro": "^1.4.2",
     "lodash.throttle": "^4.1.1",
     "react": "^17.0.2",
