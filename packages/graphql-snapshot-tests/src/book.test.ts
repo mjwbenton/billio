@@ -173,8 +173,6 @@ test("cannot rate book more than 10", async () => {
       },
     });
   } catch (e) {
-    expect(e.networkError.result.errors[0].message).toEqual(
-      "Invalid rating: 11"
-    );
+    expect(JSON.stringify(e)).toMatch("Invalid rating: 11");
   }
 });
