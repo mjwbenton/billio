@@ -1,5 +1,5 @@
 import { Item as DataItem } from "@mattb.tech/billio-data";
-import Item, { AddItemInput, UpdateItemInput } from "./shared/Item";
+import Item, { AddItemInput, UpdateItemInput } from "./Item";
 
 export type FieldTransform<OutType, InType = any> = (
   given: InType

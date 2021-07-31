@@ -1,6 +1,6 @@
 import { Item as DataItem, Query as DataQuery } from "@mattb.tech/billio-data";
-import Item from "./Item";
-import { FieldTransform, transformItem } from "../transforms";
+import Item from "../shared/Item";
+import { FieldTransform, transformItem } from "../shared/transforms";
 
 export default function resolveForType<TItem extends Item>(
   type: string,

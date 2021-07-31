@@ -1,9 +1,9 @@
-import Item, { UpdateItemInput } from "./Item";
+import Item, { UpdateItemInput } from "../shared/Item";
 import {
   FieldTransform,
   transformItem,
   transformUpdateItemInput,
-} from "../transforms";
+} from "../shared/transforms";
 import {
   Mutate as DataMutate,
   Item as DataItem,

@@ -10,17 +10,17 @@ import {
 } from "../generated/graphql";
 import { Item as DataItem } from "@mattb.tech/billio-data";
 import { IgdbApi } from "./IgdbApi";
-import { FieldTransform } from "../transforms";
-import resolveForId from "../shared/resolveForId";
-import resolveForType from "../shared/resolveForType";
-import resolveShelf from "../shared/resolveShelf";
-import resolveExternal from "../shared/resolveExternal";
-import resolveShelfItems from "../shared/resolveShelfItems";
-import resolveImportExternal from "../shared/resolveImportExternal";
-import resolveDeleteItem from "../shared/resolveDeleteItem";
-import resolveAddItem from "../shared/resolveAddItem";
-import resolveUpdateItem from "../shared/resolveUpdateItem";
-import resolveShelfName from "../shared/resolveShelfName";
+import { FieldTransform } from "../shared/transforms";
+import resolveForId from "../resolvers/resolveForId";
+import resolveForType from "../resolvers/resolveForType";
+import resolveShelf from "../resolvers/resolveShelf";
+import resolveExternal from "../resolvers/resolveExternal";
+import resolveShelfItems from "../resolvers/resolveShelfItems";
+import resolveImportExternal from "../resolvers/resolveImportExternal";
+import resolveDeleteItem from "../resolvers/resolveDeleteItem";
+import resolveAddItem from "../resolvers/resolveAddItem";
+import resolveUpdateItem from "../resolvers/resolveUpdateItem";
+import resolveShelfName from "../resolvers/resolveShelfName";
 
 export const typeDefs = gql`
   extend type Query {

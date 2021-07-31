@@ -1,6 +1,6 @@
-import Item from "./Item";
+import Item from "../shared/Item";
 import { Item as DataItem, Query as DataQuery } from "@mattb.tech/billio-data";
-import { FieldTransform, transformItem } from "../transforms";
+import { FieldTransform, transformItem } from "../shared/transforms";
 
 export default function resolveShelfItems<
   TItem extends Item,

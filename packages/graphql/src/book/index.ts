@@ -8,18 +8,18 @@ import {
   UpdateBookInput,
 } from "../generated/graphql";
 import { Item as DataItem } from "@mattb.tech/billio-data";
-import resolveAddItem from "../shared/resolveAddItem";
-import resolveDeleteItem from "../shared/resolveDeleteItem";
-import resolveExternal from "../shared/resolveExternal";
-import resolveForId from "../shared/resolveForId";
-import resolveForType from "../shared/resolveForType";
-import resolveImportExternal from "../shared/resolveImportExternal";
-import resolveShelf from "../shared/resolveShelf";
-import resolveShelfItems from "../shared/resolveShelfItems";
-import resolveShelfName from "../shared/resolveShelfName";
-import resolveUpdateItem from "../shared/resolveUpdateItem";
+import resolveAddItem from "../resolvers/resolveAddItem";
+import resolveDeleteItem from "../resolvers/resolveDeleteItem";
+import resolveExternal from "../resolvers/resolveExternal";
+import resolveForId from "../resolvers/resolveForId";
+import resolveForType from "../resolvers/resolveForType";
+import resolveImportExternal from "../resolvers/resolveImportExternal";
+import resolveShelf from "../resolvers/resolveShelf";
+import resolveShelfItems from "../resolvers/resolveShelfItems";
+import resolveShelfName from "../resolvers/resolveShelfName";
+import resolveUpdateItem from "../resolvers/resolveUpdateItem";
 import { GoogleBooksApi } from "./GoogleBooksApi";
-import { FieldTransform } from "../transforms";
+import { FieldTransform } from "../shared/transforms";
 
 export const typeDefs = gql`
   extend type Query {

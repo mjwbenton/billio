@@ -1,4 +1,4 @@
-import Item, { AddItemInput } from "./Item";
+import Item, { AddItemInput } from "../shared/Item";
 import {
   Item as DataItem,
   Mutate as DataMutate,
@@ -9,7 +9,7 @@ import {
   transformAddItemInput,
   transformExternalItem,
   transformItem,
-} from "../transforms";
+} from "../shared/transforms";
 import ExternalApi from "../external/ExternalApi";
 
 export default function resolveImportExternal<
