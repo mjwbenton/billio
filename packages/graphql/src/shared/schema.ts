@@ -1,5 +1,6 @@
 import { gql } from "apollo-server-lambda";
 import Rating from "./Rating";
+import { DateTimeResolver as DateTime } from "graphql-scalars";
 
 export const typeDefs = gql`
   type Query
@@ -33,4 +34,5 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Rating,
+  DateTime,
 };
