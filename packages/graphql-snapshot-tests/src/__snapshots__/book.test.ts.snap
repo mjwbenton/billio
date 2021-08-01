@@ -65,19 +65,6 @@ Object {
 }
 `;
 
-exports[`can move book between shelves 1`] = `
-Object {
-  "updateBook": Object {
-    "__typename": "Book",
-    "shelf": Object {
-      "__typename": "BookShelf",
-      "id": "Read",
-      "name": "Read",
-    },
-  },
-}
-`;
-
 exports[`can query single book 1`] = `
 Object {
   "book": Object {

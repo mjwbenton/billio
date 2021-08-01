@@ -138,7 +138,51 @@ test("can mutate title on book", async () => {
   expect(data.updateBook.title).toEqual(randomTitle);
 });
 
-test("can move book between shelves", async () => {
+test("movedAt doesn't change on rating", async () => {
+  const {
+    data: {
+      book: { movedAt },
+    },
+  } = await client.query<any>({
+    query: gql`
+      query Test_FetchMovedAt($id: ID!) {
+        book(id: $id) {
+          id
+          movedAt
+        }
+      }
+    `,
+    variables: { id: TEST_ID },
+  });
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_MutateRating($id: ID!) {
+        updateBook(item: { id: $id, rating: 10 }) {
+          movedAt
+          rating
+        }
+      }
+    `,
+    variables: { id: TEST_ID },
+  });
+  expect(data.updateBook.rating).toEqual(10);
+  expect(data.updateBook.movedAt).toEqual(movedAt);
+});
+
+test("moving between shelves updates movedAt", async () => {
+  const {
+    data: { movedAt },
+  } = await client.query({
+    query: gql`
+      query Test_FetchMovedAt($id: ID!) {
+        book(id: $id) {
+          id
+          movedAt
+        }
+      }
+    `,
+    variables: { id: TEST_ID },
+  });
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_MoveShelf($id: ID!) {
@@ -147,6 +191,7 @@ test("can move book between shelves", async () => {
             id
             name
           }
+          movedAt
         }
       }
     `,
@@ -154,7 +199,8 @@ test("can move book between shelves", async () => {
       id: TEST_ID,
     },
   });
-  expect(data).toMatchSnapshot();
+  expect(data.updateBook.shelf.id).toEqual("Read");
+  expect(data.updateBook.movedAt).not.toEqual(movedAt);
 });
 
 test("cannot rate book more than 10", async () => {
