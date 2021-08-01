@@ -3,8 +3,8 @@ import { ImageInput } from "../generated/graphql";
 export default interface Item {
   id: string;
   shelf: { id: string };
-  createdAt: Date;
-  updatedAt: Date;
+  addedAt: Date;
+  movedAt: Date;
   title: string;
 }
 
@@ -14,8 +14,8 @@ export interface UpdateItemInput {
   shelfId?: string | null;
   rating?: number | null;
   image?: ImageInput | null;
-  updatedAt?: Date;
-  createdAt?: Date;
+  addedAt?: Date;
+  movedAt?: Date;
 }
 
 export interface AddItemInput {
@@ -23,6 +23,6 @@ export interface AddItemInput {
   shelfId: string;
   rating?: number | null;
   image?: ImageInput | null;
-  updatedAt?: Date;
-  createdAt?: Date;
+  addedAt?: Date;
+  movedAt?: Date;
 }

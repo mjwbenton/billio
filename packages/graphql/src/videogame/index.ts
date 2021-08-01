@@ -32,8 +32,8 @@ export const typeDefs = gql`
 
   type VideoGame {
     id: ID!
-    createdAt: DateTime!
-    updatedAt: DateTime!
+    addedAt: DateTime!
+    movedAt: DateTime!
     title: String!
     rating: Rating
     image: Image
@@ -90,8 +90,8 @@ export const typeDefs = gql`
     rating: Rating
     image: ImageInput
     platformIds: [VideoGamePlatformId!]!
-    createdAt: DateTime
-    updatedAt: DateTime
+    addedAt: DateTime
+    movedAt: DateTime
   }
 
   input UpdateVideoGameInput {
@@ -101,8 +101,8 @@ export const typeDefs = gql`
     rating: Rating
     image: ImageInput
     platformIds: [VideoGamePlatformId!]
-    createdAt: DateTime
-    updatedAt: DateTime
+    addedAt: DateTime
+    movedAt: DateTime
   }
 
   type DeleteVideoGameOutput {

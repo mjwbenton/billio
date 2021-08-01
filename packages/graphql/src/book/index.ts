@@ -31,8 +31,8 @@ export const typeDefs = gql`
 
   type Book {
     id: ID!
-    createdAt: DateTime!
-    updatedAt: DateTime!
+    addedAt: DateTime!
+    movedAt: DateTime!
     title: String!
     rating: Rating
     image: Image
@@ -79,8 +79,8 @@ export const typeDefs = gql`
     rating: Rating
     image: ImageInput
     author: String!
-    createdAt: DateTime
-    updatedAt: DateTime
+    addedAt: DateTime
+    movedAt: DateTime
   }
 
   input UpdateBookInput {
@@ -90,8 +90,8 @@ export const typeDefs = gql`
     rating: Rating
     image: ImageInput
     author: String
-    createdAt: DateTime
-    updatedAt: DateTime
+    addedAt: DateTime
+    movedAt: DateTime
   }
 `;
 
