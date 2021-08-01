@@ -14,6 +14,8 @@ export interface UpdateItemInput {
   shelfId?: string | null;
   rating?: number | null;
   image?: ImageInput | null;
+  updatedAt?: Date;
+  createdAt?: Date;
 }
 
 export interface AddItemInput {
@@ -21,4 +23,6 @@ export interface AddItemInput {
   shelfId: string;
   rating?: number | null;
   image?: ImageInput | null;
+  updatedAt?: Date;
+  createdAt?: Date;
 }

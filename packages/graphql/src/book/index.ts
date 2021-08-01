@@ -79,6 +79,8 @@ export const typeDefs = gql`
     rating: Rating
     image: ImageInput
     author: String!
+    createdAt: DateTime
+    updatedAt: DateTime
   }
 
   input UpdateBookInput {
@@ -88,6 +90,8 @@ export const typeDefs = gql`
     rating: Rating
     image: ImageInput
     author: String
+    createdAt: DateTime
+    updatedAt: DateTime
   }
 `;
 

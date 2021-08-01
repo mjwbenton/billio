@@ -90,6 +90,8 @@ export const typeDefs = gql`
     rating: Rating
     image: ImageInput
     platformIds: [VideoGamePlatformId!]!
+    createdAt: DateTime
+    updatedAt: DateTime
   }
 
   input UpdateVideoGameInput {
@@ -99,6 +101,8 @@ export const typeDefs = gql`
     rating: Rating
     image: ImageInput
     platformIds: [VideoGamePlatformId!]
+    createdAt: DateTime
+    updatedAt: DateTime
   }
 
   type DeleteVideoGameOutput {
