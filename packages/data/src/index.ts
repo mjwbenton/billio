@@ -11,14 +11,14 @@ const TABLE_NAME = process.env.BILLIO_TABLE!;
 
 const TYPE_ID = ["type", "id"] as const;
 const TYPE_SHELF = ["type", "shelf"] as const;
-const UPDATED_AT_TYPE_ID = ["updatedAt", "type", "id"] as const;
+const MOVED_AT_TYPE_ID = ["movedAt", "type", "id"] as const;
 
 export interface Item {
   type: string;
   id: string;
   shelf: string;
-  updatedAt: Date;
-  createdAt: Date;
+  movedAt: Date;
+  addedAt: Date;
   [additional: string]: any;
 }
 
@@ -32,8 +32,8 @@ class ItemDocument extends Document implements Item {
   type: string;
   id: string;
   shelf: string;
-  updatedAt: Date;
-  createdAt: Date;
+  movedAt: Date;
+  addedAt: Date;
   [additional: string]: any;
 }
 
@@ -46,24 +46,24 @@ const ItemModel = dynamoose.model<ItemDocument>(
         type: String,
         index: {
           name: "type",
-          rangeKey: "updatedAt:type:id",
+          rangeKey: "movedAt:type:id",
         },
       },
       shelf: String,
-      createdAt: Date,
-      updatedAt: Date,
+      addedAt: Date,
+      movedAt: Date,
       "type:id": {
         type: String,
         hashKey: true,
       },
-      "updatedAt:type:id": {
+      "movedAt:type:id": {
         type: String,
       },
       "type:shelf": {
         type: String,
         index: {
           name: "shelf",
-          rangeKey: "updatedAt:type:id",
+          rangeKey: "movedAt:type:id",
         },
       },
     },
@@ -166,15 +166,15 @@ export const Mutate = {
     const withTimestamps = {
       id,
       type,
-      updatedAt: date,
-      createdAt: date,
+      movedAt: date,
+      addedAt: date,
       ...rest,
     };
     await ItemModel.create({
       ...withTimestamps,
       ...combinedKey(withTimestamps, TYPE_ID),
       ...combinedKey(withTimestamps, TYPE_SHELF),
-      ...combinedKey(withTimestamps, UPDATED_AT_TYPE_ID),
+      ...combinedKey(withTimestamps, MOVED_AT_TYPE_ID),
     });
     return Query.withId({ type, id }, { consistent: true });
   },
@@ -184,12 +184,12 @@ export const Mutate = {
   async updateItem({ id, type, ...updates }: UpdateItem) {
     const date = new Date();
     await ItemModel.update(combinedKey({ type, id }, TYPE_ID), {
-      updatedAt: date,
+      movedAt: date,
       ...updates,
       ...(updates.shelf
         ? combinedKey({ type, shelf: updates.shelf }, TYPE_SHELF)
         : {}),
-      ...combinedKey({ updatedAt: date, type, id }, UPDATED_AT_TYPE_ID),
+      ...combinedKey({ movedAt: date, type, id }, MOVED_AT_TYPE_ID),
     });
     return await Query.withId({ type, id }, { consistent: true });
   },
