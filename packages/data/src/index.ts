@@ -168,6 +168,7 @@ export const Mutate = {
       type,
       movedAt: date,
       addedAt: date,
+      // movedAt and addedAt will be overriden if provided
       ...rest,
     };
     await ItemModel.create({
@@ -182,14 +183,27 @@ export const Mutate = {
     await ItemModel.delete(combinedKey({ id, type }, TYPE_ID));
   },
   async updateItem({ id, type, ...updates }: UpdateItem) {
-    const date = new Date();
+    const now = new Date();
     await ItemModel.update(combinedKey({ type, id }, TYPE_ID), {
-      movedAt: date,
-      ...updates,
+      // If the shelf is updated, update the movedAt timestamp
       ...(updates.shelf
-        ? combinedKey({ type, shelf: updates.shelf }, TYPE_SHELF)
+        ? {
+            movedAt: now,
+            ...combinedKey({ type, shelf: updates.shelf }, TYPE_SHELF),
+            ...combinedKey({ movedAt: now, type, id }, MOVED_AT_TYPE_ID),
+          }
         : {}),
-      ...combinedKey({ movedAt: date, type, id }, MOVED_AT_TYPE_ID),
+      // If movedAt is overridden, update the related combinedKey
+      ...(updates.movedAt
+        ? {
+            movedAt: updates.movedAt,
+            ...combinedKey(
+              { movedAt: updates.movedAt, type, id },
+              MOVED_AT_TYPE_ID
+            ),
+          }
+        : {}),
+      ...updates,
     });
     return await Query.withId({ type, id }, { consistent: true });
   },
