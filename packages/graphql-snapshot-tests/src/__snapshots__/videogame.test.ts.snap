@@ -39,10 +39,10 @@ Object {
     "items": Array [
       Object {
         "__typename": "VideoGame",
-        "title": "tmaaw",
+        "title": "Ori and the Blind Forest: Definitive Edition",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6NzdhODg5MDktZDAyMy00MmNhLWI0NzQtODlhZDU4OTM5OThhIiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyNjI2NzI1OTY2NTpWaWRlb0dhbWU6NzdhODg5MDktZDAyMy00MmNhLWI0NzQtODlhZDU4OTM5OThhIn19",
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6MGQzODNiOGMtMjg4Yy00MWVjLWE1MDctMmQyYWViOTQwMGVlIiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyNjI2NzI3MTU1MzpWaWRlb0dhbWU6MGQzODNiOGMtMjg4Yy00MWVjLWE1MDctMmQyYWViOTQwMGVlIn19",
   },
 }
 `;
