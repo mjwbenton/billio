@@ -24,8 +24,8 @@ function fields() {
     </ArrayField>,
     <ChipField source="shelf.name" label="Shelf" sortable={false} />,
     <NumberField source="rating" sortable={false} />,
-    <DateField source="updatedAt" sortable={false} />,
-    <DateField source="createdAt" sortable={false} />,
+    <DateField source="movedAt" sortable={false} />,
+    <DateField source="addedAt" sortable={false} />,
   ];
 }
 

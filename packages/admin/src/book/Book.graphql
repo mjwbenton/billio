@@ -10,6 +10,6 @@ fragment Book on Book {
     url
   }
   rating
-  updatedAt
-  createdAt
+  movedAt
+  addedAt
 }
