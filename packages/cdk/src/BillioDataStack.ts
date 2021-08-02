@@ -18,11 +18,6 @@ export default class BillioDataStack extends Stack {
       pointInTimeRecovery: true,
     });
     itemTable.addGlobalSecondaryIndex({
-      indexName: "type",
-      partitionKey: { name: "type", type: AttributeType.STRING },
-      sortKey: { name: "updatedAt:type:id", type: AttributeType.STRING },
-    });
-    itemTable.addGlobalSecondaryIndex({
       indexName: "shelf",
       partitionKey: { name: "type:shelf", type: AttributeType.STRING },
       sortKey: { name: "updatedAt:type:id", type: AttributeType.STRING },
