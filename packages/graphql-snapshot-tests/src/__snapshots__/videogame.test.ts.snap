@@ -26,7 +26,7 @@ Object {
         "title": "Ori and the Blind Forest: Definitive Edition",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6ZjE1MGRmMGItNmM5Yi00ZTRiLWIyYjgtOTNjNjY3YzhkNGQ3IiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyNjI2NzI1NTM3NDpWaWRlb0dhbWU6ZjE1MGRmMGItNmM5Yi00ZTRiLWIyYjgtOTNjNjY3YzhkNGQ3In19",
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6ZjcyZjgwNGUtOGRiNy00MTM2LWE3YmItNjk1NjA2MTM0YzJjIiwibW92ZWRBdDp0eXBlOmlkIjoiMTYyNzkzNTAzMTgxNTpWaWRlb0dhbWU6ZjcyZjgwNGUtOGRiNy00MTM2LWE3YmItNjk1NjA2MTM0YzJjIiwidHlwZSI6IlZpZGVvR2FtZSJ9fQ==",
   },
 }
 `;
@@ -39,10 +39,10 @@ Object {
     "items": Array [
       Object {
         "__typename": "VideoGame",
-        "title": "Ori and the Blind Forest: Definitive Edition",
+        "title": "thcgf",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6MGQzODNiOGMtMjg4Yy00MWVjLWE1MDctMmQyYWViOTQwMGVlIiwidHlwZSI6IlZpZGVvR2FtZSIsInVwZGF0ZWRBdDp0eXBlOmlkIjoiMTYyNjI2NzI3MTU1MzpWaWRlb0dhbWU6MGQzODNiOGMtMjg4Yy00MWVjLWE1MDctMmQyYWViOTQwMGVlIn19",
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6MDNhYjQ0OTMtYzJjZi00YTRmLTg5NGMtYmM3NWMyMWJjNzYzIiwibW92ZWRBdDp0eXBlOmlkIjoiMTYyNzkzNTAzNjYyODpWaWRlb0dhbWU6MDNhYjQ0OTMtYzJjZi00YTRmLTg5NGMtYmM3NWMyMWJjNzYzIiwidHlwZSI6IlZpZGVvR2FtZSJ9fQ==",
   },
 }
 `;
