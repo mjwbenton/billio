@@ -11,6 +11,16 @@ export const typeDefs = gql`
 
   scalar Rating
 
+  interface Item {
+    id: ID!
+    addedAt: DateTime!
+    movedAt: DateTime!
+    notes: String
+    title: String!
+    rating: Rating
+    image: Image
+  }
+
   type Image {
     url: String!
     width: Float

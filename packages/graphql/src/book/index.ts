@@ -29,10 +29,11 @@ export const typeDefs = gql`
     searchExternalBook(term: String!): [ExternalBook!]!
   }
 
-  type Book {
+  type Book implements Item {
     id: ID!
     addedAt: DateTime!
     movedAt: DateTime!
+    notes: String
     title: String!
     rating: Rating
     image: Image
@@ -81,6 +82,7 @@ export const typeDefs = gql`
     author: String!
     addedAt: DateTime
     movedAt: DateTime
+    notes: String
   }
 
   input UpdateBookInput {
@@ -92,6 +94,7 @@ export const typeDefs = gql`
     author: String
     addedAt: DateTime
     movedAt: DateTime
+    notes: String
   }
 `;
 

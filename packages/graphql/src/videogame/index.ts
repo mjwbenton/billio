@@ -30,10 +30,11 @@ export const typeDefs = gql`
     searchExternalVideoGame(term: String!): [ExternalVideoGame!]!
   }
 
-  type VideoGame {
+  type VideoGame implements Item {
     id: ID!
     addedAt: DateTime!
     movedAt: DateTime!
+    notes: String
     title: String!
     rating: Rating
     image: Image
@@ -92,6 +93,7 @@ export const typeDefs = gql`
     platformIds: [VideoGamePlatformId!]!
     addedAt: DateTime
     movedAt: DateTime
+    notes: String
   }
 
   input UpdateVideoGameInput {
@@ -103,6 +105,7 @@ export const typeDefs = gql`
     platformIds: [VideoGamePlatformId!]
     addedAt: DateTime
     movedAt: DateTime
+    notes: String
   }
 
   type DeleteVideoGameOutput {
