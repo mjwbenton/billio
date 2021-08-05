@@ -30,8 +30,8 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@graphql-tools/schema": "^7.0.0",
-    "@graphql-tools/wrap": "^7.0.0",
+    "@graphql-tools/schema": "^8.0.3",
+    "@graphql-tools/wrap": "^8.0.6",
     "@mattb.tech/billio-data": "1.0.0",
     "apollo-server-lambda": "^3.1.1",
     "axios": "^0.21.1",
