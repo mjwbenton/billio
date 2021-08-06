@@ -223,3 +223,21 @@ test("cannot rate book more than 10", async () => {
     expect(JSON.stringify(e)).toMatch("Invalid rating: 11");
   }
 });
+
+test("can add note to a book", async () => {
+  const NOTE = "Test Note";
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_AddNote($id: ID!, $note: String!) {
+        updateBook(item: { id: $id, notes: $note }) {
+          notes
+        }
+      }
+    `,
+    variables: {
+      id: TEST_ID,
+      note: NOTE,
+    },
+  });
+  expect(data.updateBook.notes).toEqual(NOTE);
+});
