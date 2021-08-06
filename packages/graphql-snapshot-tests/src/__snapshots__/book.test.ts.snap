@@ -55,6 +55,7 @@ Object {
   "importExternalBook": Object {
     "__typename": "Book",
     "author": "David Peace",
+    "externalId": "googlebooks:CkVF9cg8daMC",
     "id": Any<String>,
     "shelf": Object {
       "__typename": "BookShelf",

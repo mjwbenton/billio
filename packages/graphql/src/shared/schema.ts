@@ -17,6 +17,7 @@ export const typeDefs = gql`
     movedAt: DateTime!
     notes: String
     title: String!
+    externalId: ID
     rating: Rating
     image: Image
   }

@@ -13,6 +13,7 @@ test("can import external book", async () => {
       mutation Test {
         importExternalBook(id: "googlebooks:CkVF9cg8daMC", shelfId: Reading) {
           id
+          externalId
           title
           author
           shelf {

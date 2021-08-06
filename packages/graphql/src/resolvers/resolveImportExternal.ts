@@ -38,6 +38,7 @@ export default function resolveImportExternal<
         inputTransform
       ),
       id: uuid(),
+      externalId: id,
       type,
     });
     return transformItem(outputItem, outputTransform);

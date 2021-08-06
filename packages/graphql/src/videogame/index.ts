@@ -32,6 +32,7 @@ export const typeDefs = gql`
 
   type VideoGame implements Item {
     id: ID!
+    externalId: ID
     addedAt: DateTime!
     movedAt: DateTime!
     notes: String

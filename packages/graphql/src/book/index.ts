@@ -31,6 +31,7 @@ export const typeDefs = gql`
 
   type Book implements Item {
     id: ID!
+    externalId: ID
     addedAt: DateTime!
     movedAt: DateTime!
     notes: String
