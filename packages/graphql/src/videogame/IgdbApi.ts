@@ -29,9 +29,14 @@ export class IgdbApi implements ExternalApi<ExternalVideoGame> {
   }
 
   public async get({ id }: { id: string }): Promise<ExternalVideoGame | null> {
+    const innerId = id.split(":")[1];
+    if (!innerId) {
+      throw new Error(`Invalid igdb id "${id}"`);
+    }
+
     const result = await axios.post(
       GAMES_URL,
-      `fields name; where id = ${id.split(":")[1]};`,
+      `fields name; where id = ${innerId};`,
       { headers: await this.buildHeaders() }
     );
     return result.data ? transform(result.data[0]) : null;

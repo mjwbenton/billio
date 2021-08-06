@@ -29,7 +29,12 @@ export class GoogleBooksApi implements ExternalApi<ExternalBook> {
   }
 
   public async get({ id }: { id: string }): Promise<ExternalBook | null> {
-    const url = BASE_URL.concat(`/${id.split(":")[1]}`);
+    const innerId = id.split(":")[1];
+    if (!innerId) {
+      throw new Error(`Invalid googlebooks id "${id}"`);
+    }
+
+    const url = BASE_URL.concat(`/${innerId}`);
     const result = (await axios.get(url)).data;
     if (result.error) {
       return null;
