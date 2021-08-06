@@ -1,8 +1,9 @@
-import Item, { AddItemInput } from "../shared/Item";
+import { AddItemInput } from "../shared/Item";
 import {
   Item as DataItem,
   Mutate as DataMutate,
 } from "@mattb.tech/billio-data";
+import { Item } from "../generated/graphql";
 import { v4 as uuid } from "uuid";
 import {
   FieldTransform,

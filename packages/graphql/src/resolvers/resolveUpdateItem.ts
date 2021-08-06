@@ -1,4 +1,5 @@
-import Item, { UpdateItemInput } from "../shared/Item";
+import { UpdateItemInput } from "../shared/Item";
+import { Item } from "../generated/graphql";
 import {
   FieldTransform,
   transformItem,

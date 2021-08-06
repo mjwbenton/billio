@@ -1,5 +1,5 @@
-import Item from "../shared/Item";
 import { Item as DataItem, Query as DataQuery } from "@mattb.tech/billio-data";
+import { Item } from "../generated/graphql";
 import { FieldTransform, transformItem } from "../shared/transforms";
 
 export default function resolveShelfItems<

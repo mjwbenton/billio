@@ -1,13 +1,5 @@
 import { ImageInput } from "../generated/graphql";
 
-export default interface Item {
-  id: string;
-  shelf: { id: string };
-  addedAt: Date;
-  movedAt: Date;
-  title: string;
-}
-
 export interface UpdateItemInput {
   id: string;
   title?: string | null;

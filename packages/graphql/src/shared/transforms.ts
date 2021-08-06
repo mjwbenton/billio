@@ -1,5 +1,6 @@
 import { Item as DataItem } from "@mattb.tech/billio-data";
-import Item, { AddItemInput, UpdateItemInput } from "./Item";
+import { AddItemInput, UpdateItemInput } from "./Item";
+import { Item } from "../generated/graphql";
 
 export type FieldTransform<OutType, InType = any> = (
   given: InType
@@ -35,7 +36,7 @@ export function transformItem<TItem extends Item>(
     shelf: {
       id: input.shelf,
     },
-  }) as TItem;
+  }) as unknown as TItem;
 }
 
 export function transformUpdateItemInput<T extends UpdateItemInput>(
