@@ -7,8 +7,8 @@ export interface UpdateItemInput {
   rating?: number | null;
   image?: ImageInput | null;
   notes?: string | null;
-  addedAt?: Date;
-  movedAt?: Date;
+  addedAt?: Date | null;
+  movedAt?: Date | null;
 }
 
 export interface AddItemInput {
@@ -17,6 +17,6 @@ export interface AddItemInput {
   rating?: number | null;
   image?: ImageInput | null;
   notes?: string | null;
-  addedAt?: Date;
-  movedAt?: Date;
+  addedAt?: Date | null;
+  movedAt?: Date | null;
 }

@@ -15,3 +15,5 @@ generates:
       useIndexSignature: true
       defaultMapper: PartialDeep<{T}>
       enumsAsTypes: true
+      scalars:
+        DateTime: Date
