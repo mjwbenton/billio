@@ -55,8 +55,8 @@ export const source: Source = {
             title,
             shelf: read ? "Read" : "Reading",
             notes: "Imported from Goodreads.",
-            addedAt: started_at,
-            movedAt: read_at ?? started_at,
+            addedAt: `${started_at}T00:00:00Z`,
+            movedAt: `${read_at ?? started_at}T00:00:00Z`,
             rating: rating ? rating * 2 : null,
           };
         }
@@ -67,11 +67,20 @@ export const source: Source = {
 
 export const importer: Importer = {
   async importItem(item: ImportItem) {
+    const { id, shelf, title, ...overrides } = item;
     try {
       const { data } = await billioClient.mutate({
         mutation: gql`
-          mutation BulkImportBook($id: ID!, $shelf: BookShelfId!) {
-            importExternalBook(id: $id, shelfId: $shelf) {
+          mutation BulkImportBook(
+            $id: ID!
+            $shelf: BookShelfId!
+            $overrides: OverrideBookInput!
+          ) {
+            importExternalBook(
+              id: $id
+              shelfId: $shelf
+              overrides: $overrides
+            ) {
               id
             }
           }
@@ -79,6 +88,7 @@ export const importer: Importer = {
         variables: {
           id: item.id,
           shelf: item.shelf,
+          overrides,
         },
       });
       console.log(`Imported ${item.title} as ${data.importExternalBook.id}`);
