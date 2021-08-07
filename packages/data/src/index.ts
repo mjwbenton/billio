@@ -1,5 +1,6 @@
 import * as dynamoose from "dynamoose";
 import { Document } from "dynamoose/dist/Document";
+import { SortOrder } from "dynamoose/dist/General";
 
 dynamoose.model.defaults.set({
   create: false,
@@ -105,6 +106,7 @@ export const Query = {
       .exec();
     const baseQuery = ItemModel.query("type")
       .eq(type)
+      .sort(SortOrder.descending)
       .using("type")
       .limit(first);
     const { lastKey, countSoFar }: After = after
@@ -138,6 +140,7 @@ export const Query = {
       .exec();
     const baseQuery = ItemModel.query(combineKey(TYPE_SHELF))
       .eq(key)
+      .sort(SortOrder.descending)
       .using("shelf")
       .limit(first);
     const { lastKey, countSoFar }: After = after
