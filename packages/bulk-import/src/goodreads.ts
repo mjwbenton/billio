@@ -18,6 +18,18 @@ const billioClient = new ApolloClient({
   }),
 });
 
+const OVERRIDE_GOODREADS_TO_GOOGLEBOOKS: { [key: string]: string } = {
+  "14497": "D7UlOLjDl8QC", // Neverwhere
+  "89937": "bfBkmwEACAAJ", // Principa Discordia
+  "960": "BxpxwgEACAAJ", // Angels and Demons
+  "11": "gZU1swEACAAJ", // Hitchikers guide to the galaxy
+  "5470": "kotPYEqx7kMC", // 1984
+  "285092": "yXbkAF7w4twC", // High fidelity
+  "16902": "yoDC8r-lZ68C", // Walden
+  "13496": "PNZIdRZ-W28C", // A Game of thrones
+  "16081012": "B2Jfqm58x_8C", // Back Story
+};
+
 export const source: Source = {
   async fetch(): Promise<ImportItem[]> {
     const apiResult = await apiClient.query({
@@ -25,6 +37,7 @@ export const source: Source = {
         {
           books: recentGoodreadsBooks(first: 200) {
             items {
+              goodreadsId: id
               googleBooksId
               title
               rating
@@ -39,6 +52,7 @@ export const source: Source = {
     return apiResult.data.books.items
       .map(
         ({
+          goodreadsId,
           googleBooksId,
           title,
           rating,
@@ -46,12 +60,13 @@ export const source: Source = {
           started_at,
           read_at,
         }: any): ImportItem | null => {
-          if (!googleBooksId) {
-            console.error(`No googleBooksId for "${title}"`);
-            return null;
+          const resolvedId =
+            OVERRIDE_GOODREADS_TO_GOOGLEBOOKS[goodreadsId] ?? googleBooksId;
+          if (!resolvedId) {
+            throw new Error(`No googleBooksId for "${title}" (${goodreadsId})`);
           }
           return {
-            id: `googlebooks:${googleBooksId}`,
+            id: `googlebooks:${resolvedId}`,
             title,
             shelf: read ? "Read" : "Reading",
             notes: "Imported from Goodreads.",
@@ -93,6 +108,7 @@ export const importer: Importer = {
       });
       console.log(`Imported ${item.title} as ${data.importExternalBook.id}`);
     } catch (e) {
+      console.log(`Failed importing ${title} with id ${id}`);
       console.log(JSON.stringify(e, null, 2));
     }
   },
