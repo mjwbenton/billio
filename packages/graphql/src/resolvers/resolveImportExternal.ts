@@ -1,4 +1,4 @@
-import { AddItemInput } from "../shared/Item";
+import { AddItemInput, ItemOverrides } from "../shared/Item";
 import {
   Item as DataItem,
   Mutate as DataMutate,
@@ -27,7 +27,15 @@ export default function resolveImportExternal<
 ) {
   return async (
     _: unknown,
-    { shelfId, id }: { shelfId: TShelfId; id: string }
+    {
+      shelfId,
+      id,
+      overrides,
+    }: {
+      shelfId: TShelfId;
+      id: string;
+      overrides?: ItemOverrides<TInputType> | null;
+    }
   ) => {
     const externalItem = await api.get({ id });
     if (!externalItem) {
@@ -35,7 +43,14 @@ export default function resolveImportExternal<
     }
     const outputItem = await DataMutate.createItem({
       ...transformAddItemInput(
-        transformExternalItem(externalItem, shelfId, externalItemTransform),
+        {
+          ...transformExternalItem(
+            externalItem,
+            shelfId,
+            externalItemTransform
+          ),
+          ...overrides,
+        },
         inputTransform
       ),
       id: uuid(),

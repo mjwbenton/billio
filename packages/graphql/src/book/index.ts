@@ -72,7 +72,11 @@ export const typeDefs = gql`
     addBook(item: AddBookInput!): Book!
     updateBook(item: UpdateBookInput!): Book!
     deleteBook(item: DeleteItemInput!): DeleteItemOutput!
-    importExternalBook(shelfId: BookShelfId!, id: ID!): Book!
+    importExternalBook(
+      id: ID!
+      shelfId: BookShelfId!
+      overrides: OverrideBookInput
+    ): Book!
   }
 
   input AddBookInput {
@@ -90,6 +94,16 @@ export const typeDefs = gql`
     id: ID!
     title: String
     shelfId: BookShelfId
+    rating: Rating
+    image: ImageInput
+    author: String
+    addedAt: DateTime
+    movedAt: DateTime
+    notes: String
+  }
+
+  input OverrideBookInput {
+    title: String
     rating: Rating
     image: ImageInput
     author: String

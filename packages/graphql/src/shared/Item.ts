@@ -20,3 +20,7 @@ export interface AddItemInput {
   addedAt?: Date | null;
   movedAt?: Date | null;
 }
+
+export type ItemOverrides<T> = {
+  [P in keyof T]?: T[P] | null;
+};
