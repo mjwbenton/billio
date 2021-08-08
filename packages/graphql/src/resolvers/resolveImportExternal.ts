@@ -28,18 +28,18 @@ export default function resolveImportExternal<
   return async (
     _: unknown,
     {
+      externalId,
       shelfId,
-      id,
       overrides,
     }: {
       shelfId: TShelfId;
-      id: string;
+      externalId: string;
       overrides?: ItemOverrides<TInputType> | null;
     }
   ) => {
-    const externalItem = await api.get({ id });
+    const externalItem = await api.get({ id: externalId });
     if (!externalItem) {
-      throw new Error(`Cannot find item for id ${id}`);
+      throw new Error(`Cannot find item for external id ${externalId}`);
     }
     const outputItem = await DataMutate.createItem({
       ...transformAddItemInput(
@@ -54,7 +54,7 @@ export default function resolveImportExternal<
         inputTransform
       ),
       id: uuid(),
-      externalId: id,
+      externalId,
       type,
     });
     return transformItem(outputItem, outputTransform);

@@ -12,7 +12,7 @@ test("can import external video game", async () => {
     mutation: gql`
       mutation Test_ImportOri {
         firstImport: importExternalVideoGame(
-          id: "igdb:136149"
+          externalId: "igdb:136149"
           shelfId: Completed
         ) {
           id
@@ -22,7 +22,7 @@ test("can import external video game", async () => {
           }
         }
         secondImport: importExternalVideoGame(
-          id: "igdb:19456"
+          externalId: "igdb:19456"
           shelfId: Playing
         ) {
           id

@@ -89,10 +89,10 @@ export const importer: Importer = {
           mutation BulkImportBook(
             $id: ID!
             $shelf: BookShelfId!
-            $overrides: OverrideBookInput!
+            $overrides: UpdateBookInput!
           ) {
             importExternalBook(
-              id: $id
+              externalId: $id
               shelfId: $shelf
               overrides: $overrides
             ) {

@@ -84,9 +84,9 @@ export const typeDefs = gql`
     updateVideoGame(id: ID!, item: UpdateVideoGameInput!): VideoGame!
     deleteVideoGame(id: ID!): DeleteItemOutput!
     importExternalVideoGame(
+      externalId: ID!
       shelfId: VideoGameShelfId!
-      id: ID!
-      overrides: OverrideVideoGameInput
+      overrides: UpdateVideoGameInput
     ): VideoGame!
   }
 
@@ -104,16 +104,6 @@ export const typeDefs = gql`
   input UpdateVideoGameInput {
     title: String
     shelfId: VideoGameShelfId
-    rating: Rating
-    image: ImageInput
-    platformIds: [VideoGamePlatformId!]
-    addedAt: DateTime
-    movedAt: DateTime
-    notes: String
-  }
-
-  input OverrideVideoGameInput {
-    title: String
     rating: Rating
     image: ImageInput
     platformIds: [VideoGamePlatformId!]

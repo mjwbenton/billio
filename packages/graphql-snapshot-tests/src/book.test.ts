@@ -11,7 +11,10 @@ test("can import external book", async () => {
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test {
-        importExternalBook(id: "googlebooks:CkVF9cg8daMC", shelfId: Reading) {
+        importExternalBook(
+          externalId: "googlebooks:CkVF9cg8daMC"
+          shelfId: Reading
+        ) {
           id
           externalId
           title
