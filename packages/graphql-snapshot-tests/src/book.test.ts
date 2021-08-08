@@ -241,3 +241,19 @@ test("can add note to a book", async () => {
   });
   expect(data.updateBook.notes).toEqual(NOTE);
 });
+
+test("can delete book", async () => {
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_DeleteBook($id: ID!) {
+        deleteBook(id: $id) {
+          id
+        }
+      }
+    `,
+    variables: {
+      id: TEST_ID,
+    },
+  });
+  expect(data.deleteBook.id).toEqual(TEST_ID);
+});

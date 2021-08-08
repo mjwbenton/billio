@@ -191,3 +191,19 @@ test("can move video game between shelves", async () => {
   });
   expect(data).toMatchSnapshot();
 });
+
+test("can delete video game", async () => {
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_VideoGame($id: ID!) {
+        deleteVideoGame(id: $id) {
+          id
+        }
+      }
+    `,
+    variables: {
+      id: TEST_VIDEO_GAME,
+    },
+  });
+  expect(data.deleteVideoGame.id).toEqual(TEST_VIDEO_GAME);
+});

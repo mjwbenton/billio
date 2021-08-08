@@ -37,10 +37,6 @@ export const typeDefs = gql`
   type DeleteItemOutput {
     id: ID!
   }
-
-  input DeleteItemInput {
-    id: ID!
-  }
 `;
 
 export const resolvers = {

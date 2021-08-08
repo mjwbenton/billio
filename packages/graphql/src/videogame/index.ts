@@ -82,7 +82,7 @@ export const typeDefs = gql`
   extend type Mutation {
     addVideoGame(item: AddVideoGameInput!): VideoGame!
     updateVideoGame(id: ID!, item: UpdateVideoGameInput!): VideoGame!
-    deleteVideoGame(item: DeleteItemInput!): DeleteItemOutput!
+    deleteVideoGame(id: ID!): DeleteItemOutput!
     importExternalVideoGame(
       shelfId: VideoGameShelfId!
       id: ID!
@@ -120,14 +120,6 @@ export const typeDefs = gql`
     addedAt: DateTime
     movedAt: DateTime
     notes: String
-  }
-
-  type DeleteVideoGameOutput {
-    id: ID!
-  }
-
-  input DeleteVideoGameInput {
-    id: ID!
   }
 `;
 
