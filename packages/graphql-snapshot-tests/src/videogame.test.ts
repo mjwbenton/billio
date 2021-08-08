@@ -141,7 +141,7 @@ test("can mutate title on video game", async () => {
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_MutateTitle($id: ID!, $title: String!) {
-        updateVideoGame(item: { id: $id, title: $title }) {
+        updateVideoGame(id: $id, item: { title: $title }) {
           title
         }
       }
@@ -158,7 +158,7 @@ test("Can add platform to video game", async () => {
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_MutatePlatform($id: ID!) {
-        updateVideoGame(item: { id: $id, platformIds: [Playstation4] }) {
+        updateVideoGame(id: $id, item: { platformIds: [Playstation4] }) {
           platforms {
             id
             name
@@ -177,7 +177,7 @@ test("can move video game between shelves", async () => {
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_MoveShelf($id: ID!) {
-        updateVideoGame(item: { id: $id, shelfId: Played }) {
+        updateVideoGame(id: $id, item: { shelfId: Played }) {
           shelf {
             id
             name

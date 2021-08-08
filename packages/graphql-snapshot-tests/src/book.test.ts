@@ -126,7 +126,7 @@ test("can mutate title on book", async () => {
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_MutateTitle($id: ID!, $title: String!) {
-        updateBook(item: { id: $id, title: $title }) {
+        updateBook(id: $id, item: { title: $title }) {
           title
         }
       }
@@ -158,7 +158,7 @@ test("movedAt doesn't change on rating", async () => {
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_MutateRating($id: ID!) {
-        updateBook(item: { id: $id, rating: 10 }) {
+        updateBook(id: $id, item: { rating: 10 }) {
           movedAt
           rating
         }
@@ -187,7 +187,7 @@ test("moving between shelves updates movedAt", async () => {
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_MoveShelf($id: ID!) {
-        updateBook(item: { id: $id, shelfId: Read }) {
+        updateBook(id: $id, item: { shelfId: Read }) {
           shelf {
             id
             name
@@ -210,7 +210,7 @@ test("cannot rate book more than 10", async () => {
     await client.mutate({
       mutation: gql`
         mutation Test_InvalidRating($id: ID!) {
-          updateBook(item: { id: $id, rating: 11 }) {
+          updateBook(id: $id, item: { rating: 11 }) {
             id
           }
         }
@@ -229,7 +229,7 @@ test("can add note to a book", async () => {
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_AddNote($id: ID!, $note: String!) {
-        updateBook(item: { id: $id, notes: $note }) {
+        updateBook(id: $id, item: { notes: $note }) {
           notes
         }
       }

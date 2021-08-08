@@ -1,4 +1,4 @@
-import { AddItemInput } from "../shared/Item";
+import { ItemInput } from "../shared/Item";
 import { Item } from "../generated/graphql";
 import {
   FieldTransform,
@@ -13,7 +13,7 @@ import {
 
 export default function resolveAddItem<
   TItem extends Item,
-  TAddItemInput extends AddItemInput
+  TAddItemInput extends ItemInput
 >(
   type: string,
   inputTransform: FieldTransform<DataItem, TAddItemInput>,

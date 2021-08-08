@@ -1,4 +1,4 @@
-import { AddItemInput, ItemOverrides } from "../shared/Item";
+import { ItemInput, ItemOverrides } from "../shared/Item";
 import {
   Item as DataItem,
   Mutate as DataMutate,
@@ -16,7 +16,7 @@ import ExternalApi from "../external/ExternalApi";
 export default function resolveImportExternal<
   TItem extends Item,
   TShelfId extends string,
-  TInputType extends AddItemInput,
+  TInputType extends ItemInput,
   TExternalItem
 >(
   type: string,

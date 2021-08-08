@@ -70,7 +70,7 @@ export const typeDefs = gql`
 
   extend type Mutation {
     addBook(item: AddBookInput!): Book!
-    updateBook(item: UpdateBookInput!): Book!
+    updateBook(id: ID!, item: UpdateBookInput!): Book!
     deleteBook(item: DeleteItemInput!): DeleteItemOutput!
     importExternalBook(
       id: ID!
@@ -91,7 +91,6 @@ export const typeDefs = gql`
   }
 
   input UpdateBookInput {
-    id: ID!
     title: String
     shelfId: BookShelfId
     rating: Rating

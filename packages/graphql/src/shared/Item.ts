@@ -1,17 +1,6 @@
 import { ImageInput } from "../generated/graphql";
 
-export interface UpdateItemInput {
-  id: string;
-  title?: string | null;
-  shelfId?: string | null;
-  rating?: number | null;
-  image?: ImageInput | null;
-  notes?: string | null;
-  addedAt?: Date | null;
-  movedAt?: Date | null;
-}
-
-export interface AddItemInput {
+export interface ItemInput {
   title: string;
   shelfId: string;
   rating?: number | null;
@@ -21,6 +10,6 @@ export interface AddItemInput {
   movedAt?: Date | null;
 }
 
-export type ItemOverrides<T> = {
+export type ItemOverrides<T extends ItemInput> = {
   [P in keyof T]?: T[P] | null;
 };

@@ -81,7 +81,7 @@ export const typeDefs = gql`
 
   extend type Mutation {
     addVideoGame(item: AddVideoGameInput!): VideoGame!
-    updateVideoGame(item: UpdateVideoGameInput!): VideoGame!
+    updateVideoGame(id: ID!, item: UpdateVideoGameInput!): VideoGame!
     deleteVideoGame(item: DeleteItemInput!): DeleteItemOutput!
     importExternalVideoGame(
       shelfId: VideoGameShelfId!
@@ -102,7 +102,6 @@ export const typeDefs = gql`
   }
 
   input UpdateVideoGameInput {
-    id: ID!
     title: String
     shelfId: VideoGameShelfId
     rating: Rating

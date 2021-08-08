@@ -1,5 +1,5 @@
 import { Item as DataItem } from "@mattb.tech/billio-data";
-import { AddItemInput, UpdateItemInput } from "./Item";
+import { ItemInput, ItemOverrides } from "./Item";
 import { Item } from "../generated/graphql";
 
 export type FieldTransform<OutType, InType = any> = (
@@ -8,7 +8,7 @@ export type FieldTransform<OutType, InType = any> = (
 
 export function transformExternalItem<
   TExternalItem,
-  TAddItemInput extends AddItemInput
+  TAddItemInput extends ItemInput
 >(
   input: TExternalItem,
   shelfId: string,
@@ -39,7 +39,7 @@ export function transformItem<TItem extends Item>(
   }) as unknown as TItem;
 }
 
-export function transformUpdateItemInput<T extends UpdateItemInput>(
+export function transformUpdateItemInput<T extends ItemOverrides<ItemInput>>(
   input: T,
   fieldTransform: FieldTransform<DataItem, T> = () => ({})
 ) {
@@ -52,7 +52,7 @@ export function transformUpdateItemInput<T extends UpdateItemInput>(
   });
 }
 
-export function transformAddItemInput<T extends AddItemInput>(
+export function transformAddItemInput<T extends ItemInput>(
   input: T,
   fieldTransform: FieldTransform<DataItem, T> = () => ({})
 ) {

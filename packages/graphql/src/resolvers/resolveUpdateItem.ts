@@ -1,4 +1,4 @@
-import { UpdateItemInput } from "../shared/Item";
+import { ItemInput, ItemOverrides } from "../shared/Item";
 import { Item } from "../generated/graphql";
 import {
   FieldTransform,
@@ -12,15 +12,19 @@ import {
 
 export default function resolveUpdateItem<
   TItem extends Item,
-  TUpdateItemInput extends UpdateItemInput
+  TUpdateItemInput extends ItemOverrides<ItemInput>
 >(
   type: string,
   inputTransform: FieldTransform<DataItem, TUpdateItemInput>,
   outputTransform: FieldTransform<TItem, DataItem>
 ) {
-  return async (_: unknown, { item }: { item: TUpdateItemInput }) => {
+  return async (
+    _: unknown,
+    { id, item }: { id: string; item: TUpdateItemInput }
+  ) => {
     const outputItem = await DataMutate.updateItem({
       type,
+      id,
       ...transformUpdateItemInput(item, inputTransform),
     });
     return transformItem<TItem>(outputItem, outputTransform);
