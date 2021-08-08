@@ -26,10 +26,10 @@ Object {
     "items": Array [
       Object {
         "__typename": "Book",
-        "title": "agurn",
+        "title": "The Damned Utd",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJCb29rOmM0YzIxMmZhLTdhMWItNDBmYy1iNjQ1LTVlNDU5NDcwOTgxYSIsIm1vdmVkQXQ6dHlwZTppZCI6IjE2Mjc5MzUwMzY2NjM6Qm9vazpjNGMyMTJmYS03YTFiLTQwZmMtYjY0NS01ZTQ1OTQ3MDk4MWEiLCJ0eXBlIjoiQm9vayJ9fQ==",
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJCb29rOmQ0YTlhNzBkLTIwMTktNDkwOS04Njk3LTE2Mjk3MDU2ZGE5NiIsIm1vdmVkQXQ6dHlwZTppZCI6IjE2Mjg0MjAxNDgyMzU6Qm9vazpkNGE5YTcwZC0yMDE5LTQ5MDktODY5Ny0xNjI5NzA1NmRhOTYiLCJ0eXBlIjoiQm9vayJ9fQ==",
   },
 }
 `;
@@ -42,10 +42,10 @@ Object {
     "items": Array [
       Object {
         "__typename": "Book",
-        "title": "zprhq",
+        "title": "sfamq",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJCb29rOmNhZWRjZWEwLTA5ZTItNDI5Yy05ODdlLWY0ZDgwYTE4NjExOCIsIm1vdmVkQXQ6dHlwZTppZCI6IjE2Mjc5MzUwNTIyMTI6Qm9vazpjYWVkY2VhMC0wOWUyLTQyOWMtOTg3ZS1mNGQ4MGExODYxMTgiLCJ0eXBlIjoiQm9vayJ9fQ==",
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJCb29rOmE2NjY4NzA3LTEzZmMtNDBjMi1iOGMyLTFiMjBlMGI5YTg0YyIsIm1vdmVkQXQ6dHlwZTppZCI6IjE2Mjg0MTk1MTgxMDc6Qm9vazphNjY2ODcwNy0xM2ZjLTQwYzItYjhjMi0xYjIwZTBiOWE4NGMiLCJ0eXBlIjoiQm9vayJ9fQ==",
   },
 }
 `;

@@ -26,7 +26,7 @@ Object {
         "title": "Ori and the Blind Forest: Definitive Edition",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6ZjcyZjgwNGUtOGRiNy00MTM2LWE3YmItNjk1NjA2MTM0YzJjIiwibW92ZWRBdDp0eXBlOmlkIjoiMTYyNzkzNTAzMTgxNTpWaWRlb0dhbWU6ZjcyZjgwNGUtOGRiNy00MTM2LWE3YmItNjk1NjA2MTM0YzJjIiwidHlwZSI6IlZpZGVvR2FtZSJ9fQ==",
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6ZWQ5YzQ5NWEtZmI0OS00MTUwLTg0ZWYtZTAzOWE1N2NlNGM3IiwibW92ZWRBdDp0eXBlOmlkIjoiMTYyODQyMDE1MTA2MDpWaWRlb0dhbWU6ZWQ5YzQ5NWEtZmI0OS00MTUwLTg0ZWYtZTAzOWE1N2NlNGM3IiwidHlwZSI6IlZpZGVvR2FtZSJ9fQ==",
   },
 }
 `;
@@ -39,10 +39,10 @@ Object {
     "items": Array [
       Object {
         "__typename": "VideoGame",
-        "title": "thcgf",
+        "title": "Ori and the Will of the Wisps: Collector's Edition",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6MDNhYjQ0OTMtYzJjZi00YTRmLTg5NGMtYmM3NWMyMWJjNzYzIiwibW92ZWRBdDp0eXBlOmlkIjoiMTYyNzkzNTAzNjYyODpWaWRlb0dhbWU6MDNhYjQ0OTMtYzJjZi00YTRmLTg5NGMtYmM3NWMyMWJjNzYzIiwidHlwZSI6IlZpZGVvR2FtZSJ9fQ==",
+    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6OWZkNTU3MmItOWJiYS00MzNmLTkyY2UtZDY1ZDAzNjI4YWVlIiwibW92ZWRBdDp0eXBlOmlkIjoiMTYyODQyMDE1MDAzMjpWaWRlb0dhbWU6OWZkNTU3MmItOWJiYS00MzNmLTkyY2UtZDY1ZDAzNjI4YWVlIiwidHlwZSI6IlZpZGVvR2FtZSJ9fQ==",
   },
 }
 `;
