@@ -119,7 +119,8 @@ const OUTPUT_TRANSFORM: FieldTransform<Book, DataItem> = () => ({});
 
 const EXTERNAL_TRANSFORM: FieldTransform<AddBookInput, ExternalBook> = ({
   imageUrl,
-}: any) => ({
+}) => ({
+  imageUrl: undefined,
   image: imageUrl ? { url: imageUrl, width: null, height: null } : null,
   rating: null,
 });

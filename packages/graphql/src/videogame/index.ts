@@ -146,8 +146,10 @@ const INPUT_TRANSFORM: FieldTransform<
 });
 
 const EXTERNAL_TRANSFORM: FieldTransform<AddVideoGameInput, ExternalVideoGame> =
-  () => ({
-    image: null,
+  ({ imageUrl }) => ({
+    image: imageUrl ? { url: imageUrl, width: null, height: null } : null,
+    imageUrl: undefined,
+    previewImageUrl: undefined,
     rating: null,
     platformIds: [],
   });
