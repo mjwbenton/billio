@@ -15,6 +15,7 @@ import { LambdaProxyIntegration } from "@aws-cdk/aws-apigatewayv2-integrations";
 import path from "path";
 import BillioDataStack from "./BillioDataStack";
 import DomainConstruct from "./DomainConstruct";
+import BillioImageStack from "./BillioImageStack";
 
 export default class BillioApiStack extends Stack {
   private readonly api: HttpApi;
@@ -24,11 +25,13 @@ export default class BillioApiStack extends Stack {
     id: string,
     {
       dataStack,
+      imageStack,
       enableMutations,
       enableIam,
       domainName,
     }: {
       dataStack: BillioDataStack;
+      imageStack: BillioImageStack;
       enableMutations: boolean;
       enableIam: boolean;
       domainName: string;
@@ -56,6 +59,7 @@ export default class BillioApiStack extends Stack {
       memorySize: 1024,
       environment: {
         BILLIO_TABLE: dataStack.itemTable.tableName,
+        BILLIO_IMAGE_BUCKET: imageStack.imageBucket.bucketName,
         ENABLE_MUTATIONS: enableMutations ? "1" : "0",
       },
     });
