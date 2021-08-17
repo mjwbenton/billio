@@ -11,8 +11,16 @@ const CLIENT_SECRET = process.env.IGDB_CLIENT_SECRET!;
 const AUTH_URL = "https://id.twitch.tv/oauth2/token";
 const GAMES_URL = "https://api.igdb.com/v4/games/";
 
+const FIELDS = "name, cover.image_id";
+
+const IMAGE_BASE_URL = "https://images.igdb.com/igdb/image/upload";
+const LARGE_SIZE = "t_cover_big_2x";
+const SMALL_SIZE = "t_cover_small";
+const JPG = ".jpg";
+
 export class IgdbApi implements ExternalApi<ExternalVideoGame> {
   private accessToken: string | undefined;
+
   public async search({
     term,
   }: {
@@ -20,7 +28,7 @@ export class IgdbApi implements ExternalApi<ExternalVideoGame> {
   }): Promise<Array<ExternalVideoGame>> {
     const result = await axios.post(
       GAMES_URL,
-      `search "${term}"; fields name; limit 10;`,
+      `search "${term}"; fields ${FIELDS}; limit 10;`,
       {
         headers: await this.buildHeaders(),
       }
@@ -36,10 +44,13 @@ export class IgdbApi implements ExternalApi<ExternalVideoGame> {
 
     const result = await axios.post(
       GAMES_URL,
-      `fields name; where id = ${innerId};`,
+      `fields ${FIELDS}; where id = ${innerId};`,
       { headers: await this.buildHeaders() }
     );
-    return result.data ? transform(result.data[0]) : null;
+    if (!result.data) {
+      return null;
+    }
+    return transform(result.data[0]);
   }
 
   private async getAccessToken(): Promise<string> {
@@ -74,5 +85,11 @@ function transform(item: any): ExternalVideoGame {
   return {
     id: `${ID_BASE}:${item.id}`,
     title: item.name,
+    ...(item.cover
+      ? {
+          previewImageUrl: `${IMAGE_BASE_URL}/${SMALL_SIZE}/${item.cover.image_id}${JPG}`,
+          imageUrl: `${IMAGE_BASE_URL}/${LARGE_SIZE}/${item.cover.image_id}${JPG}`,
+        }
+      : {}),
   };
 }

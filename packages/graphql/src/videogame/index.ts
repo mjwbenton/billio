@@ -77,6 +77,8 @@ export const typeDefs = gql`
   type ExternalVideoGame {
     id: ID!
     title: String!
+    previewImageUrl: String
+    imageUrl: String
   }
 
   extend type Mutation {
