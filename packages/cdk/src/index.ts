@@ -4,6 +4,7 @@ import BillioApiStack from "./BillioApiStack";
 import BillioAuthStack from "./BillioAuthStack";
 import BillioDataStack from "./BillioDataStack";
 import BillioImageStack from "./BillioImageStack";
+import BillioCDNStack from "./BillioCDNStack";
 
 const app = new App();
 
@@ -18,10 +19,15 @@ const apiStack = new BillioApiStack(app, "BillioAPI", {
   enableIam: true,
   enableMutations: true,
 });
+new BillioCDNStack(app, "BillioCDN", {
+  imageStack,
+  domainName: "image-cdn.billio.mattb.tech",
+});
 apiStack.grantCall(authStack.authenticatedUserRole);
 new BillioAdminStack(app, "BillioAdmin");
 new BillioApiStack(app, "BillioReadonlyAPI", {
   dataStack,
+  imageStack,
   domainName: "api-readonly.billio.mattb.tech",
   enableIam: false,
   enableMutations: false,
@@ -36,4 +42,8 @@ new BillioApiStack(app, "BillioTestAPI", {
   domainName: "api-test.billio.mattb.tech",
   enableIam: false,
   enableMutations: true,
+});
+new BillioCDNStack(app, "BillioCDN", {
+  imageStack: integrationImageStack,
+  domainName: "image-cdn-test.billio.mattb.tech",
 });

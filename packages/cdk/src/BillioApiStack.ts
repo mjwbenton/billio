@@ -63,9 +63,13 @@ export default class BillioApiStack extends Stack {
         ENABLE_MUTATIONS: enableMutations ? "1" : "0",
       },
     });
-    enableMutations
-      ? dataStack.itemTable.grantReadWriteData(lambdaFunction)
-      : dataStack.itemTable.grantReadData(lambdaFunction);
+
+    if (enableMutations) {
+      dataStack.itemTable.grantReadWriteData(lambdaFunction);
+      imageStack.imageBucket.grantReadWrite(lambdaFunction);
+    } else {
+      dataStack.itemTable.grantReadData(lambdaFunction);
+    }
 
     const domainNameConstruct = new DomainConstruct(this, "Domain", {
       domainName,
