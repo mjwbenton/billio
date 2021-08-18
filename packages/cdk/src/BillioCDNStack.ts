@@ -6,6 +6,8 @@ import DomainConstruct from "./DomainConstruct";
 import BillioImageStack from "./BillioImageStack";
 
 export default class BillioCDNStack extends Stack {
+  public readonly domainName: string;
+
   constructor(
     scope: Construct,
     id: string,
@@ -15,6 +17,7 @@ export default class BillioCDNStack extends Stack {
     }: { imageStack: BillioImageStack; domainName: string }
   ) {
     super(scope, id);
+    this.domainName = domainName;
 
     const domain = new DomainConstruct(this, "Domain", {
       domainName,

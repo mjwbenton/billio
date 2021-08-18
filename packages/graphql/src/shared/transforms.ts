@@ -2,6 +2,8 @@ import { Item as DataItem } from "@mattb.tech/billio-data";
 import { ItemInput, ItemOverrides } from "./Item";
 import { Item } from "../generated/graphql";
 
+const IMAGE_DOMAIN = process.env.BILLIO_IMAGE_DOMAIN!;
+
 export type FieldTransform<OutType, InType = any> = (
   given: InType
 ) => Partial<OutType>;
@@ -27,11 +29,14 @@ export function transformItem<TItem extends Item>(
   input: DataItem,
   fieldTransform: FieldTransform<TItem> = () => ({})
 ): TItem {
-  const { shelf, type, ...rest } = input;
+  const { shelf, type, image, ...rest } = input;
   const transformed = fieldTransform(input);
   // Cast to TItem isn't validated here, but will be validated on output by the GraphQL engine
   return cleanUndefined({
     ...rest,
+    ...(image
+      ? { image: { ...image, url: `${IMAGE_DOMAIN}/${image.url}` } }
+      : {}),
     ...transformed,
     shelf: {
       id: input.shelf,

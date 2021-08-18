@@ -16,6 +16,7 @@ import path from "path";
 import BillioDataStack from "./BillioDataStack";
 import DomainConstruct from "./DomainConstruct";
 import BillioImageStack from "./BillioImageStack";
+import BillioCDNStack from "./BillioCDNStack";
 
 export default class BillioApiStack extends Stack {
   private readonly api: HttpApi;
@@ -26,12 +27,14 @@ export default class BillioApiStack extends Stack {
     {
       dataStack,
       imageStack,
+      cdnStack,
       enableMutations,
       enableIam,
       domainName,
     }: {
       dataStack: BillioDataStack;
       imageStack: BillioImageStack;
+      cdnStack: BillioCDNStack;
       enableMutations: boolean;
       enableIam: boolean;
       domainName: string;
@@ -60,6 +63,7 @@ export default class BillioApiStack extends Stack {
       environment: {
         BILLIO_TABLE: dataStack.itemTable.tableName,
         BILLIO_IMAGE_BUCKET: imageStack.imageBucket.bucketName,
+        BILLIO_IMAGE_DOMAIN: cdnStack.domainName,
         ENABLE_MUTATIONS: enableMutations ? "1" : "0",
       },
     });
