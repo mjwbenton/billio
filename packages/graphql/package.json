@@ -34,10 +34,12 @@
     "@graphql-tools/wrap": "^8.0.6",
     "@mattb.tech/billio-data": "1.0.0",
     "apollo-server-lambda": "^3.1.1",
+    "aws-sdk": "^2.970.0",
     "axios": "^0.21.1",
     "dotenv": "^10.0.0",
     "graphql": "^15.5.1",
     "graphql-scalars": "^1.10.0",
+    "jimp": "^0.16.1",
     "lodash.merge": "^4.6.2",
     "uuid": "^8.3.2"
   }

@@ -1,6 +1,7 @@
 import { Item as DataItem } from "@mattb.tech/billio-data";
 import { ItemInput, ItemOverrides } from "./Item";
 import { Item } from "../generated/graphql";
+import storeImage from "../external/storeImage";
 
 const IMAGE_DOMAIN = process.env.BILLIO_IMAGE_DOMAIN!;
 
@@ -44,28 +45,37 @@ export function transformItem<TItem extends Item>(
   }) as unknown as TItem;
 }
 
-export function transformUpdateItemInput<T extends ItemOverrides<ItemInput>>(
-  input: T,
-  fieldTransform: FieldTransform<DataItem, T> = () => ({})
-) {
-  const { shelfId, ...rest } = input;
+export async function transformUpdateItemInput<
+  T extends ItemOverrides<ItemInput>
+>(input: T, fieldTransform: FieldTransform<DataItem, T> = () => ({})) {
+  const { shelfId, imageUrl, ...rest } = input;
   const transformed = fieldTransform(input);
   return cleanUndefined({
     ...rest,
     ...transformed,
+    ...(imageUrl
+      ? {
+          image: await storeImage({ imageUrl }),
+        }
+      : {}),
     ...(shelfId ? { shelf: shelfId } : {}),
   });
 }
 
-export function transformAddItemInput<T extends ItemInput>(
+export async function transformAddItemInput<T extends ItemInput>(
   input: T,
   fieldTransform: FieldTransform<DataItem, T> = () => ({})
 ) {
-  const { shelfId, ...rest } = input;
+  const { shelfId, imageUrl, ...rest } = input;
   const transformed = fieldTransform(input);
   return cleanUndefined({
     ...rest,
     ...transformed,
+    ...(imageUrl
+      ? {
+          image: await storeImage({ imageUrl }),
+        }
+      : {}),
     shelf: shelfId,
   });
 }

@@ -25,7 +25,7 @@ export default function resolveUpdateItem<
     const outputItem = await DataMutate.updateItem({
       type,
       id,
-      ...transformUpdateItemInput(item, inputTransform),
+      ...(await transformUpdateItemInput(item, inputTransform)),
     });
     return transformItem<TItem>(outputItem, outputTransform);
   };

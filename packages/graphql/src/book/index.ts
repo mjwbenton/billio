@@ -83,7 +83,7 @@ export const typeDefs = gql`
     title: String!
     shelfId: BookShelfId!
     rating: Rating
-    image: ImageInput
+    imageUrl: String
     author: String!
     addedAt: DateTime
     movedAt: DateTime
@@ -94,7 +94,7 @@ export const typeDefs = gql`
     title: String
     shelfId: BookShelfId
     rating: Rating
-    image: ImageInput
+    imageUrl: String
     author: String
     addedAt: DateTime
     movedAt: DateTime
@@ -117,11 +117,7 @@ const INPUT_TRANSFORM: FieldTransform<
 
 const OUTPUT_TRANSFORM: FieldTransform<Book, DataItem> = () => ({});
 
-const EXTERNAL_TRANSFORM: FieldTransform<AddBookInput, ExternalBook> = ({
-  imageUrl,
-}) => ({
-  imageUrl: undefined,
-  image: imageUrl ? { url: imageUrl, width: null, height: null } : null,
+const EXTERNAL_TRANSFORM: FieldTransform<AddBookInput, ExternalBook> = () => ({
   rating: null,
 });
 

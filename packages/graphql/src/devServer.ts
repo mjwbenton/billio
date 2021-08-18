@@ -1,6 +1,9 @@
 require("dotenv").config();
 process.env.AWS_PROFILE = "mattb.tech-deploy";
 process.env.AWS_REGION = "us-east-1";
+process.env.BILLIO_IMAGE_BUCKET = process.env.USE_PROD_TABLE
+  ? "billioimage-imagebucket97210811-1aeflaj405d4g"
+  : "billiotestimage-imagebucket97210811-jdlm9v72wtlf";
 process.env.BILLIO_IMAGE_DOMAIN = process.env.USE_PROD_TABLE
   ? "https://image-cdn.billio.mattb.tech"
   : "https://image-cdn-test.billio.mattb.tech";

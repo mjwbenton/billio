@@ -28,12 +28,6 @@ export const typeDefs = gql`
     height: Float
   }
 
-  input ImageInput {
-    url: String!
-    width: Float
-    height: Float
-  }
-
   type DeleteItemOutput {
     id: ID!
   }

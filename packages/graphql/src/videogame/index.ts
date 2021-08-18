@@ -96,7 +96,7 @@ export const typeDefs = gql`
     title: String!
     shelfId: VideoGameShelfId!
     rating: Rating
-    image: ImageInput
+    imageUrl: String
     platformIds: [VideoGamePlatformId!]!
     addedAt: DateTime
     movedAt: DateTime
@@ -107,7 +107,7 @@ export const typeDefs = gql`
     title: String
     shelfId: VideoGameShelfId
     rating: Rating
-    image: ImageInput
+    imageUrl: String
     platformIds: [VideoGamePlatformId!]
     addedAt: DateTime
     movedAt: DateTime
@@ -146,9 +146,7 @@ const INPUT_TRANSFORM: FieldTransform<
 });
 
 const EXTERNAL_TRANSFORM: FieldTransform<AddVideoGameInput, ExternalVideoGame> =
-  ({ imageUrl }) => ({
-    image: imageUrl ? { url: imageUrl, width: null, height: null } : null,
-    imageUrl: undefined,
+  () => ({
     previewImageUrl: undefined,
     rating: null,
     platformIds: [],
