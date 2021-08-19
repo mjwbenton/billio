@@ -3,6 +3,7 @@ import {
   ChipField,
   Datagrid,
   DateField,
+  ImageField,
   List,
   NumberField,
   Show,
@@ -16,6 +17,7 @@ import Title from "../shared/Title";
 
 function fields() {
   return [
+    <ImageField source="image.url" label="" sortable={false} />,
     <TextField source="title" sortable={false} />,
     <ArrayField source="platforms" sortable={false}>
       <SingleFieldList linkType={false}>

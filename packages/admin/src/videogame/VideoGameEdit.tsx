@@ -32,7 +32,7 @@ const TRANSFORM = transform((data: any) => {
   };
 });
 
-function PlatformsInput() {
+const PlatformsInput = () => {
   return (
     <ArrayInput source="platforms">
       <SimpleFormIterator>
@@ -40,11 +40,17 @@ function PlatformsInput() {
       </SimpleFormIterator>
     </ArrayInput>
   );
-}
+};
+
+const VideoGameInfo = ({ record }: { record?: any }) =>
+  record?.image?.url ? (
+    <img src={record.image.url} alt={record.title} title={record.image.url} />
+  ) : null;
 
 export const VideoGameEdit = (props) => (
   <Edit {...props} transform={TRANSFORM} title={<Title base="Video Game" />}>
     <SimpleForm>
+      <VideoGameInfo />
       <TextInput source="title" />
       <PlatformsInput />
       <ShelfInput shelves={SHELVES} />

@@ -9,6 +9,9 @@ fragment VideoGame on VideoGame {
     id
     name
   }
+  image {
+    url
+  }
   rating
   movedAt
   addedAt
