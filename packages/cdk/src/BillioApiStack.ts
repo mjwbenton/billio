@@ -63,7 +63,7 @@ export default class BillioApiStack extends Stack {
       environment: {
         BILLIO_TABLE: dataStack.itemTable.tableName,
         BILLIO_IMAGE_BUCKET: imageStack.imageBucket.bucketName,
-        BILLIO_IMAGE_DOMAIN: cdnStack.domainName,
+        BILLIO_IMAGE_DOMAIN: cdnStack.endpoint,
         ENABLE_MUTATIONS: enableMutations ? "1" : "0",
       },
     });

@@ -7,6 +7,7 @@ import BillioImageStack from "./BillioImageStack";
 
 export default class BillioCDNStack extends Stack {
   public readonly domainName: string;
+  public readonly endpoint: string;
 
   constructor(
     scope: Construct,
@@ -18,6 +19,7 @@ export default class BillioCDNStack extends Stack {
   ) {
     super(scope, id);
     this.domainName = domainName;
+    this.endpoint = `https://${domainName}`;
 
     const domain = new DomainConstruct(this, "Domain", {
       domainName,
