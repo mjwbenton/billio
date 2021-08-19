@@ -43,23 +43,23 @@ const QUERIES = {
     ${FRAGMENTS[resourceName]}`,
 
   UPDATE: (resourceName: string) => gql`
-    mutation UPDATE_${resourceName}($item: Update${resourceName}Input!) {
-      item: update${resourceName}(item: $item) {
+    mutation UPDATE_${resourceName}($id: ID!, $item: Update${resourceName}Input!) {
+      item: update${resourceName}(id: $id, item: $item) {
         ...${resourceName}
       }
     }
     ${FRAGMENTS[resourceName]}`,
 
   DELETE: (resourceName: string) => gql`
-    mutation DELETE_${resourceName}($item: DeleteItemInput!) {
-      item: delete${resourceName}(item: $item) {
+    mutation DELETE_${resourceName}($id: ID!) {
+      item: delete${resourceName}(id: $id) {
         id
       }
     }`,
 
   IMPORT: (resourceName: string) => gql`
     mutation IMPORT_${resourceName}($id: ID!, $shelfId: ${resourceName}ShelfId!) {
-      item: importExternal${resourceName}(id: $id, shelfId: $shelfId) {
+      item: importExternal${resourceName}(externalId: $id, shelfId: $shelfId) {
         ...${resourceName}
       }
     }
@@ -101,10 +101,12 @@ const dataProvider: DataProvider = {
     };
   },
   async create(resourceName, params) {
+    const { id, ...item } = params.data;
     const result = await client.mutate({
       mutation: QUERIES.CREATE(resourceName),
       variables: {
-        item: params.data,
+        id,
+        item,
       },
     });
     return {
@@ -112,10 +114,12 @@ const dataProvider: DataProvider = {
     };
   },
   async update(resourceName, params) {
+    const { id, ...item } = params.data;
     const result = await client.mutate({
       mutation: QUERIES.UPDATE(resourceName),
       variables: {
-        item: params.data,
+        id,
+        item,
       },
     });
     return {
@@ -126,7 +130,7 @@ const dataProvider: DataProvider = {
     const result = await client.mutate({
       mutation: QUERIES.DELETE(resourceName),
       variables: {
-        item: { id: params.id },
+        id: params.id,
       },
     });
     return {
@@ -148,7 +152,7 @@ const dataProvider: DataProvider = {
         client.mutate({
           mutation: QUERIES.DELETE(resourceName),
           variables: {
-            item: { id },
+            id,
           },
         })
       )
