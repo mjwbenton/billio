@@ -15,6 +15,8 @@ import { LambdaProxyIntegration } from "@aws-cdk/aws-apigatewayv2-integrations";
 import path from "path";
 import BillioDataStack from "./BillioDataStack";
 import DomainConstruct from "./DomainConstruct";
+import BillioImageStack from "./BillioImageStack";
+import BillioCDNStack from "./BillioCDNStack";
 
 export default class BillioApiStack extends Stack {
   private readonly api: HttpApi;
@@ -24,11 +26,15 @@ export default class BillioApiStack extends Stack {
     id: string,
     {
       dataStack,
+      imageStack,
+      cdnStack,
       enableMutations,
       enableIam,
       domainName,
     }: {
       dataStack: BillioDataStack;
+      imageStack: BillioImageStack;
+      cdnStack: BillioCDNStack;
       enableMutations: boolean;
       enableIam: boolean;
       domainName: string;
@@ -56,12 +62,18 @@ export default class BillioApiStack extends Stack {
       memorySize: 1024,
       environment: {
         BILLIO_TABLE: dataStack.itemTable.tableName,
+        BILLIO_IMAGE_BUCKET: imageStack.imageBucket.bucketName,
+        BILLIO_IMAGE_DOMAIN: cdnStack.domainName,
         ENABLE_MUTATIONS: enableMutations ? "1" : "0",
       },
     });
-    enableMutations
-      ? dataStack.itemTable.grantReadWriteData(lambdaFunction)
-      : dataStack.itemTable.grantReadData(lambdaFunction);
+
+    if (enableMutations) {
+      dataStack.itemTable.grantReadWriteData(lambdaFunction);
+      imageStack.imageBucket.grantReadWrite(lambdaFunction);
+    } else {
+      dataStack.itemTable.grantReadData(lambdaFunction);
+    }
 
     const domainNameConstruct = new DomainConstruct(this, "Domain", {
       domainName,

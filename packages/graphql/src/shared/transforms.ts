@@ -1,6 +1,9 @@
 import { Item as DataItem } from "@mattb.tech/billio-data";
 import { ItemInput, ItemOverrides } from "./Item";
 import { Item } from "../generated/graphql";
+import storeImage from "../external/storeImage";
+
+const IMAGE_DOMAIN = process.env.BILLIO_IMAGE_DOMAIN!;
 
 export type FieldTransform<OutType, InType = any> = (
   given: InType
@@ -27,11 +30,14 @@ export function transformItem<TItem extends Item>(
   input: DataItem,
   fieldTransform: FieldTransform<TItem> = () => ({})
 ): TItem {
-  const { shelf, type, ...rest } = input;
+  const { shelf, type, image, ...rest } = input;
   const transformed = fieldTransform(input);
   // Cast to TItem isn't validated here, but will be validated on output by the GraphQL engine
   return cleanUndefined({
     ...rest,
+    ...(image
+      ? { image: { ...image, url: `${IMAGE_DOMAIN}/${image.url}` } }
+      : {}),
     ...transformed,
     shelf: {
       id: input.shelf,
@@ -39,28 +45,37 @@ export function transformItem<TItem extends Item>(
   }) as unknown as TItem;
 }
 
-export function transformUpdateItemInput<T extends ItemOverrides<ItemInput>>(
-  input: T,
-  fieldTransform: FieldTransform<DataItem, T> = () => ({})
-) {
-  const { shelfId, ...rest } = input;
+export async function transformUpdateItemInput<
+  T extends ItemOverrides<ItemInput>
+>(input: T, fieldTransform: FieldTransform<DataItem, T> = () => ({})) {
+  const { shelfId, imageUrl, ...rest } = input;
   const transformed = fieldTransform(input);
   return cleanUndefined({
     ...rest,
     ...transformed,
+    ...(imageUrl
+      ? {
+          image: await storeImage({ imageUrl }),
+        }
+      : {}),
     ...(shelfId ? { shelf: shelfId } : {}),
   });
 }
 
-export function transformAddItemInput<T extends ItemInput>(
+export async function transformAddItemInput<T extends ItemInput>(
   input: T,
   fieldTransform: FieldTransform<DataItem, T> = () => ({})
 ) {
-  const { shelfId, ...rest } = input;
+  const { shelfId, imageUrl, ...rest } = input;
   const transformed = fieldTransform(input);
   return cleanUndefined({
     ...rest,
     ...transformed,
+    ...(imageUrl
+      ? {
+          image: await storeImage({ imageUrl }),
+        }
+      : {}),
     shelf: shelfId,
   });
 }

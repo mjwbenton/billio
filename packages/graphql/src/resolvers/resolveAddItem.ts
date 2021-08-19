@@ -21,7 +21,7 @@ export default function resolveAddItem<
 ) {
   return async (_: unknown, { item }: { item: TAddItemInput }) => {
     const outputItem = await DataMutate.createItem({
-      ...transformAddItemInput(item, inputTransform),
+      ...(await transformAddItemInput(item, inputTransform)),
       id: uuid(),
       type,
     });

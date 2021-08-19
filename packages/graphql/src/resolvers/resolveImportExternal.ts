@@ -11,13 +11,13 @@ import {
   transformExternalItem,
   transformItem,
 } from "../shared/transforms";
-import ExternalApi from "../external/ExternalApi";
+import ExternalApi, { ExternalItem } from "../external/ExternalApi";
 
 export default function resolveImportExternal<
   TItem extends Item,
   TShelfId extends string,
   TInputType extends ItemInput,
-  TExternalItem
+  TExternalItem extends ExternalItem
 >(
   type: string,
   outputTransform: FieldTransform<TItem, DataItem>,
@@ -42,7 +42,7 @@ export default function resolveImportExternal<
       throw new Error(`Cannot find item for external id ${externalId}`);
     }
     const outputItem = await DataMutate.createItem({
-      ...transformAddItemInput(
+      ...(await transformAddItemInput(
         {
           ...transformExternalItem(
             externalItem,
@@ -52,7 +52,7 @@ export default function resolveImportExternal<
           ...overrides,
         },
         inputTransform
-      ),
+      )),
       id: uuid(),
       externalId,
       type,
