@@ -1,12 +1,15 @@
 import {
   ArrayInput,
+  BooleanInput,
   Create,
+  DateTimeInput,
   Edit,
   SelectInput,
   SimpleForm,
   SimpleFormIterator,
   TextInput,
 } from "react-admin";
+import OverridableDateInput from "../shared/OverridableDateInput";
 import RatingInput from "../shared/RatingInput";
 import ShelfInput from "../shared/ShelfInput";
 import Title from "../shared/Title";
@@ -47,25 +50,30 @@ const VideoGameInfo = ({ record }: { record?: any }) =>
     <img src={record.image.url} alt={record.title} title={record.image.url} />
   ) : null;
 
+function fields() {
+  return [
+    <TextInput source="title" />,
+    <PlatformsInput />,
+    <ShelfInput shelves={SHELVES} />,
+    <RatingInput />,
+    <TextInput source="notes" />,
+    <BooleanInput source="_overrideDates" />,
+    <OverridableDateInput source="addedAt" />,
+    <OverridableDateInput source="movedAt" />,
+  ];
+}
+
 export const VideoGameEdit = (props) => (
   <Edit {...props} transform={TRANSFORM} title={<Title base="Video Game" />}>
     <SimpleForm>
       <VideoGameInfo />
-      <TextInput source="title" />
-      <PlatformsInput />
-      <ShelfInput shelves={SHELVES} />
-      <RatingInput />
+      {fields()}
     </SimpleForm>
   </Edit>
 );
 
 export const VideoGameCreate = (props) => (
   <Create {...props} transform={TRANSFORM} title="Add Video Game">
-    <SimpleForm>
-      <TextInput source="title" />
-      <PlatformsInput />
-      <ShelfInput shelves={SHELVES} />
-      <RatingInput />
-    </SimpleForm>
+    <SimpleForm>{fields()}</SimpleForm>
   </Create>
 );
