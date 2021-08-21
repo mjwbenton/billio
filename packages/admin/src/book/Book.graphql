@@ -12,4 +12,5 @@ fragment Book on Book {
   rating
   movedAt
   addedAt
+  notes
 }

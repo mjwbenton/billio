@@ -15,4 +15,5 @@ fragment VideoGame on VideoGame {
   rating
   movedAt
   addedAt
+  notes
 }

@@ -22,6 +22,7 @@ function fields() {
     <NumberField source="rating" sortable={false} />,
     <DateField source="movedAt" sortable={false} />,
     <DateField source="addedAt" sortable={false} />,
+    <TextField source="notes" sortable={false} />,
   ];
 }
 
