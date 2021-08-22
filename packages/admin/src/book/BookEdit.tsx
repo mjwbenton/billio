@@ -1,5 +1,5 @@
 import { TextInput } from "react-admin";
-import { Create, Edit } from "../shared/Edit";
+import { Create, Edit, Import } from "../shared/Edit";
 import transform from "../shared/transform";
 import SHELVES from "./BookShelves";
 
@@ -15,4 +15,8 @@ export const BookEdit = (props) => (
   <Edit {...props} transform={TRANSFORM} shelves={SHELVES}>
     <TextInput source="author" />
   </Edit>
+);
+
+export const BookImport = (props) => (
+  <Import {...props} transform={TRANSFORM}></Import>
 );

@@ -1,5 +1,5 @@
 import { ArrayInput, SelectInput, SimpleFormIterator } from "react-admin";
-import { Create, Edit } from "../shared/Edit";
+import { Create, Edit, Import } from "../shared/Edit";
 import transform from "../shared/transform";
 import SHELVES from "./VideoGameShelves";
 
@@ -40,4 +40,10 @@ export const VideoGameCreate = (props) => (
   <Create {...props} transform={TRANSFORM} shelves={SHELVES}>
     <PlatformsInput />
   </Create>
+);
+
+export const VideoGameImport = () => (
+  <Import shelves={SHELVES} transform={TRANSFORM}>
+    <PlatformsInput />
+  </Import>
 );

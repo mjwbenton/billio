@@ -9,6 +9,8 @@ import OverridableDateInput from "./OverridableDateInput";
 import RatingInput from "./RatingInput";
 import ShelfInput from "./ShelfInput";
 import Title from "./Title";
+import { default as InternalImport } from "../import/Import";
+import SearchExternalInput from "../import/SearchExternalInput";
 
 const PosterDisplay = ({ record }: { record?: any }) =>
   record?.image?.url ? (
@@ -30,8 +32,7 @@ function baseMetaInputs(shelves) {
   ];
 }
 
-export const Edit = (props) => {
-  const { children, shelves, ...rest } = props;
+export const Edit = ({ children, shelves, ...rest }) => {
   return (
     <RAEdit {...rest} title={<Title />}>
       <SimpleForm>
@@ -44,8 +45,7 @@ export const Edit = (props) => {
   );
 };
 
-export const Create = (props) => {
-  const { children, shelves, ...rest } = props;
+export const Create = ({ children, shelves, ...rest }) => {
   return (
     <RACreate {...rest}>
       <SimpleForm>
@@ -54,5 +54,17 @@ export const Create = (props) => {
         {baseMetaInputs(shelves)}
       </SimpleForm>
     </RACreate>
+  );
+};
+
+export const Import = ({ shelves, children, transform }) => {
+  return (
+    <InternalImport transform={transform}>
+      <SimpleForm>
+        <SearchExternalInput source="id" />
+        {children}
+        {baseMetaInputs(shelves)}
+      </SimpleForm>
+    </InternalImport>
   );
 };

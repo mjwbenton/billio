@@ -1,4 +1,5 @@
 fragment ExternalVideoGame on ExternalVideoGame {
   id
   title
+  imageUrl: previewImageUrl
 }

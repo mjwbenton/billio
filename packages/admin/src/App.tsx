@@ -3,15 +3,17 @@ import dataProvider from "./dataProvider";
 import authProvider from "./authProvider";
 import GamesIcon from "@material-ui/icons/Games";
 import BookIcon from "@material-ui/icons/Book";
-import { BookCreate, BookEdit } from "./book/BookEdit";
-import { VideoGameCreate, VideoGameEdit } from "./videogame/VideoGameEdit";
+import { BookCreate, BookEdit, BookImport } from "./book/BookEdit";
+import {
+  VideoGameCreate,
+  VideoGameEdit,
+  VideoGameImport,
+} from "./videogame/VideoGameEdit";
 import { VideoGameShow, VideoGameList } from "./videogame/VideoGameShow";
 import { BookShow, BookList } from "./book/BookShow";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { Route } from "react-router-dom";
 import ImportPage from "./import/ImportPage";
-import VideoGameImport from "./videogame/VideoGameImport";
-import BookImport from "./book/BookImport";
 
 const THEME = createMuiTheme({
   palette: {

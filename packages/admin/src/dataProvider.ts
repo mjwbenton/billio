@@ -58,8 +58,8 @@ const QUERIES = {
     }`,
 
   IMPORT: (resourceName: string) => gql`
-    mutation IMPORT_${resourceName}($id: ID!, $shelfId: ${resourceName}ShelfId!) {
-      item: importExternal${resourceName}(externalId: $id, shelfId: $shelfId) {
+    mutation IMPORT_${resourceName}($id: ID!, $shelfId: ${resourceName}ShelfId!, $overrides: Update${resourceName}Input) {
+      item: importExternal${resourceName}(externalId: $id, shelfId: $shelfId, overrides: $overrides) {
         ...${resourceName}
       }
     }
@@ -162,11 +162,13 @@ const dataProvider: DataProvider = {
     };
   },
   async import(resourceName, params) {
+    const { id, shelfId, ...overrides } = params;
     const result = await client.mutate({
       mutation: QUERIES.IMPORT(resourceName),
       variables: {
-        id: params.id,
-        shelfId: params.shelf.id,
+        id,
+        shelfId,
+        overrides,
       },
     });
     return {

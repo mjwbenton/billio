@@ -1,6 +1,6 @@
 fragment ExternalBook on ExternalBook {
   id
   title
-  author
+  subtitle: author
   imageUrl
 }

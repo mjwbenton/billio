@@ -23,7 +23,13 @@ const ImportToolbar = (props: any) => (
   </Toolbar>
 );
 
-export default function Import({ children }: { children: ReactElement }) {
+export default function Import({
+  children,
+  transform,
+}: {
+  children: ReactElement;
+  transform: any;
+}) {
   const dataProvider = useDataProvider();
   const notify = useNotify();
   const redirect = useRedirect();
@@ -33,7 +39,7 @@ export default function Import({ children }: { children: ReactElement }) {
   const handleSave = useCallback(
     (values) => {
       setSaving(true);
-      dataProvider.import(resource, values, {
+      dataProvider.import(resource, transform(values), {
         onSuccess: ({ data }) => {
           setSaving(false);
           notify(`Imported ${data.title}`, "info");

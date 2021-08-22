@@ -7,7 +7,7 @@ import {
   useResourceContext,
 } from "react-admin";
 import TextField from "@material-ui/core/TextField";
-import { Grid } from "@material-ui/core";
+import { Grid, Typography } from "@material-ui/core";
 import throttle from "lodash.throttle";
 
 const THROTTLE_MS = 100;
@@ -89,10 +89,34 @@ export default function SearchExternalInput<TOption extends Option>({
   );
 }
 
-function DefaultOptionDisplay({ title }: { title: string }) {
-  return (
-    <Grid container>
-      <Grid item>{title}</Grid>
+const DefaultOptionDisplay = ({
+  title,
+  subtitle,
+  imageUrl,
+}: {
+  title: string;
+  subtitle?: string | null;
+  imageUrl?: string | null;
+}) => (
+  <Grid container alignItems="center" spacing={2}>
+    <Grid item xs={4}>
+      {imageUrl ? (
+        <img
+          src={imageUrl!}
+          alt={title}
+          style={{ maxWidth: "75px", width: "100%;" }}
+        />
+      ) : (
+        <div />
+      )}
     </Grid>
-  );
-}
+    <Grid item xs={8} container direction="column" spacing={2}>
+      <Grid item>{title}</Grid>
+      {subtitle ? (
+        <Grid item>
+          <Typography variant="body2">{subtitle}</Typography>
+        </Grid>
+      ) : null}
+    </Grid>
+  </Grid>
+);
