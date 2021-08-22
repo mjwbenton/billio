@@ -18,5 +18,5 @@ export const BookEdit = (props) => (
 );
 
 export const BookImport = (props) => (
-  <Import {...props} transform={TRANSFORM}></Import>
+  <Import {...props} transform={TRANSFORM} shelves={SHELVES}></Import>
 );
