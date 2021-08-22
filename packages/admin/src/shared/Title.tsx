@@ -1,16 +1,3 @@
-export default function Title({
-  base,
-  record,
-}: {
-  base: string;
-  record?: { title: string };
-}) {
-  if (record) {
-    return (
-      <span>
-        {base}: {record.title}
-      </span>
-    );
-  }
-  return <span>{base}</span>;
+export default function Title({ record }: { record?: { title: string } }) {
+  return <span>{record?.title ?? ""}</span>;
 }
