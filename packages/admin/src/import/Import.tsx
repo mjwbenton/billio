@@ -52,7 +52,7 @@ export default function Import({
       });
       setSaving(false);
     },
-    [dataProvider, notify, basePath, redirect, resource]
+    [dataProvider, notify, basePath, redirect, resource, transform]
   );
   const saveContext = useMemo(
     () => ({
