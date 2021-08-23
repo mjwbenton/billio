@@ -18,17 +18,17 @@ const PosterDisplay = ({ record }: { record?: any }) =>
   ) : null;
 
 function baseDataInputs() {
-  return [<TextInput source="title" />];
+  return [<TextInput key="title" source="title" />];
 }
 
 function baseMetaInputs(shelves) {
   return [
-    <ShelfInput shelves={shelves} />,
-    <RatingInput />,
-    <TextInput source="notes" />,
-    <BooleanInput source="_overrideDates" />,
-    <OverridableDateInput source="addedAt" />,
-    <OverridableDateInput source="movedAt" />,
+    <ShelfInput key="shelf" shelves={shelves} />,
+    <RatingInput key="rating" />,
+    <TextInput key="notes" source="notes" />,
+    <BooleanInput key="_overrideDates" source="_overrideDates" />,
+    <OverridableDateInput key="addedAt" source="addedAt" />,
+    <OverridableDateInput key="movedAt" source="movedAt" />,
   ];
 }
 
