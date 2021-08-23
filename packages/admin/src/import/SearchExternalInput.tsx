@@ -8,67 +8,61 @@ import {
 } from "react-admin";
 import TextField from "@material-ui/core/TextField";
 import { Grid, Typography } from "@material-ui/core";
-import throttle from "lodash.throttle";
-
-const THROTTLE_MS = 100;
 
 interface Option {
   readonly id: string;
   readonly title: string;
+  readonly subtitle: string | null;
+  readonly imageUrl: string | null;
 }
 
-export default function SearchExternalInput<TOption extends Option>({
-  source,
-  option: OptionComponent = DefaultOptionDisplay,
-}: {
-  source: string;
-  option?: React.ComponentType<TOption>;
-}) {
+export default function SearchExternalInput({ source }: { source: string }) {
   const dataProvider = useDataProvider();
   const notify = useNotify();
   const resource = useResourceContext();
+  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
   const [inputValue, setInputValue] = useState("");
-  const [options, setOptions] = useState<TOption[]>([]);
+  const [options, setOptions] = useState<Option[]>([]);
   const {
     input: { name, onChange },
     meta: { touched, error },
   } = useInput({ source });
 
   const throttledFetch = useMemo(
-    () =>
-      throttle((term, callbacks) => {
-        dataProvider.searchExternal(resource, { term }, callbacks);
-      }, THROTTLE_MS),
+    () => (term) => {
+      if (!term || term.length < 3) {
+        return Promise.resolve({ data: [] });
+      }
+      return dataProvider.searchExternal(resource, { term });
+    },
     [dataProvider, resource]
   );
 
   useEffect(() => {
-    if (!inputValue || inputValue.length < 3) {
-      setOptions([]);
-      return;
-    }
-    const term = inputValue;
-    throttledFetch(term, {
-      onSuccess: ({ data }) => {
-        if (term === inputValue) {
-          setOptions(data);
+    let active = true;
+    throttledFetch(inputValue)
+      ?.then(({ data }) => {
+        if (active) {
+          setOptions(selectedOption ? [selectedOption, ...data] : data);
         }
-      },
-      onFailure: () => {
-        if (term === inputValue) {
-          setOptions([]);
-          notify("An issue occurred while searching.", "error");
-        }
-      },
-    });
-  }, [inputValue, notify, throttledFetch]);
+      })
+      .catch((err) => {
+        notify("An issue occurred while searching.", "error");
+      });
+    return () => {
+      active = false;
+    };
+  }, [inputValue, selectedOption, notify, throttledFetch]);
 
   return (
-    <Autocomplete<TOption>
+    <Autocomplete<Option>
       options={options}
       autoComplete
-      filterSelectedOptions
+      filterSelectedOptions={false}
+      filterOptions={(x) => x}
       onChange={(_, value) => {
+        setSelectedOption(value);
+        setOptions(value ? [value, ...options] : options);
         onChange(value?.id ?? null);
       }}
       onInputChange={(_: any, newInputValue: string) => {
@@ -89,34 +83,28 @@ export default function SearchExternalInput<TOption extends Option>({
   );
 }
 
-const DefaultOptionDisplay = ({
-  title,
-  subtitle,
-  imageUrl,
-}: {
-  title: string;
-  subtitle?: string | null;
-  imageUrl?: string | null;
-}) => (
-  <Grid container alignItems="center" spacing={2}>
-    <Grid item xs={4}>
-      {imageUrl ? (
-        <img
-          src={imageUrl!}
-          alt={title}
-          style={{ maxWidth: "75px", width: "100%;" }}
-        />
-      ) : (
-        <div />
-      )}
+const OptionComponent = ({ title, subtitle, imageUrl }: Option) => {
+  return (
+    <Grid container alignItems="center" spacing={2}>
+      <Grid item xs={4}>
+        {imageUrl ? (
+          <img
+            src={imageUrl!}
+            alt={title}
+            style={{ maxWidth: "75px", width: "100%" }}
+          />
+        ) : (
+          <div />
+        )}
+      </Grid>
+      <Grid item xs={8} container direction="column" spacing={2}>
+        <Grid item>{title}</Grid>
+        {subtitle ? (
+          <Grid item>
+            <Typography variant="body2">{subtitle}</Typography>
+          </Grid>
+        ) : null}
+      </Grid>
     </Grid>
-    <Grid item xs={8} container direction="column" spacing={2}>
-      <Grid item>{title}</Grid>
-      {subtitle ? (
-        <Grid item>
-          <Typography variant="body2">{subtitle}</Typography>
-        </Grid>
-      ) : null}
-    </Grid>
-  </Grid>
-);
+  );
+};
