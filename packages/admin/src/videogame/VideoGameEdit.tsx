@@ -16,6 +16,10 @@ const PLATFORMS = [
     id: "Nintendo3DS",
     name: "Nintendo 3DS",
   },
+  {
+    id: "Playstation3",
+    name: "Playstation 3",
+  },
 ];
 
 const TRANSFORM = transform((data: any) => {

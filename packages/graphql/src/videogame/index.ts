@@ -72,6 +72,7 @@ export const typeDefs = gql`
     Playstation4
     NintendoSwitch
     Nintendo3DS
+    Playstation3
   }
 
   type ExternalVideoGame {
@@ -128,6 +129,7 @@ const PLATFORM_NAMES: { [key in VideoGamePlatformId]: string } = {
   Playstation4: "Playstation 4",
   NintendoSwitch: "Nintendo Switch",
   Nintendo3DS: "Nintendo 3DS",
+  Playstation3: "Playstation 3",
 };
 
 const IGDB_API = new IgdbApi();
