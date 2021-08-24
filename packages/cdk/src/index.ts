@@ -5,6 +5,7 @@ import BillioAuthStack from "./BillioAuthStack";
 import BillioDataStack from "./BillioDataStack";
 import BillioImageStack from "./BillioImageStack";
 import BillioCDNStack from "./BillioCDNStack";
+import BillioBackupStack from "./BillioBackupStack";
 
 const app = new App();
 
@@ -33,6 +34,9 @@ new BillioApiStack(app, "BillioReadonlyAPI", {
   domainName: "api-readonly.billio.mattb.tech",
   enableIam: false,
   enableMutations: false,
+});
+new BillioBackupStack(app, "BillioBackup", {
+  dataStack,
 });
 
 // Integration test stacks
