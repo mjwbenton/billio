@@ -9,9 +9,10 @@ import {
   SimpleShowLayout,
   TextField,
 } from "react-admin";
-import Title from "../shared/Title";
-import EmptyPage from "../shared/EmptyPage";
-import ListActions from "../shared/ListActions";
+import Title from "./Title";
+import EmptyPage from "./EmptyPage";
+import ListActions from "./ListActions";
+import CursorPagination from "./CursorPagination";
 
 function baseDataFields() {
   return [
@@ -42,6 +43,8 @@ export const List = (props) => {
       exporter={false}
       actions={<ListActions />}
       empty={<EmptyPage />}
+      pagination={<CursorPagination />}
+      perPage={50}
     >
       <Datagrid rowClick="show">
         {baseDataFields()}
