@@ -15,6 +15,10 @@
     "clean": "yarn workspaces run clean && ./scripts/clean.sh",
     "check": "yarn workspaces run check",
     "fix": "yarn workspaces run fix",
-    "deploy": "yarn build && yarn workspace @mattb.tech/billio-cdk deploy"
+    "deploy": "yarn build && yarn workspace @mattb.tech/billio-cdk deploy",
+    "start:graphql": "yarn workspace @mattb.tech/billio-graphql start",
+    "start:admin": "yarn workspace @mattb.tech/billio-admin start",
+    "test:graphql-local": "yarn workspace @mattb.tech/billio-graphql-snapshot-tests test-local",
+    "test:graphql-integration": "yarn workspace @mattb.tech"
   }
 }
