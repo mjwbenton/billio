@@ -1,15 +1,15 @@
 overwrite: true
 schema:
- - "./src/videogame/index.ts"
- - "./src/book/index.ts"
- - "./src/shared/schema.ts"
+  - "./src/videogame/index.ts"
+  - "./src/book/index.ts"
+  - "./src/shared/schema.ts"
 generates:
   src/generated/graphql.ts:
     plugins:
       - "typescript"
       - "typescript-resolvers"
       - add:
-         content: "import { PartialDeep } from 'type-fest';"
+          content: "import { PartialDeep } from 'type-fest';"
     config:
       skipTypename: true
       useIndexSignature: true
