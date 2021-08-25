@@ -6,3 +6,5 @@ cdk.out
 generated
 build
 .env
+book.json
+videogame.json
