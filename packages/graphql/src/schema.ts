@@ -8,12 +8,21 @@ import {
   typeDefs as videoGameTypeDefs,
   resolvers as videoGameResolvers,
 } from "./videogame";
+import {
+  typeDefs as movieTypeDefs,
+  resolvers as movieResolvers,
+} from "./movie";
 import { typeDefs as bookTypeDefs, resolvers as bookResolvers } from "./book";
 import merge from "lodash.merge";
 
 const schema = makeExecutableSchema({
-  typeDefs: [sharedTypeDefs, videoGameTypeDefs, bookTypeDefs],
-  resolvers: merge(sharedResolvers, videoGameResolvers, bookResolvers),
+  typeDefs: [sharedTypeDefs, videoGameTypeDefs, bookTypeDefs, movieTypeDefs],
+  resolvers: merge(
+    sharedResolvers,
+    videoGameResolvers,
+    bookResolvers,
+    movieResolvers
+  ),
 });
 
 export default wrapSchema({
