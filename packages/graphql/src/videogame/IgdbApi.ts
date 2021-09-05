@@ -2,8 +2,11 @@ import axios from "axios";
 import qs from "querystring";
 import ExternalApi from "../external/ExternalApi";
 import { ExternalVideoGame } from "../generated/graphql";
+import parseNamespacedId, {
+  buildNamespacedId,
+} from "../shared/parseNamespacedId";
 
-const ID_BASE = "igdb";
+const ID_NAMESPACE = "igdb";
 
 const CLIENT_ID = process.env.IGDB_CLIENT_ID!;
 const CLIENT_SECRET = process.env.IGDB_CLIENT_SECRET!;
@@ -37,14 +40,13 @@ export class IgdbApi implements ExternalApi<ExternalVideoGame> {
   }
 
   public async get({ id }: { id: string }): Promise<ExternalVideoGame | null> {
-    const innerId = id.split(":")[1];
-    if (!innerId) {
-      throw new Error(`Invalid igdb id "${id}"`);
-    }
+    const { externalId } = parseNamespacedId(id, {
+      assertNamespace: ID_NAMESPACE,
+    });
 
     const result = await axios.post(
       GAMES_URL,
-      `fields ${FIELDS}; where id = ${innerId};`,
+      `fields ${FIELDS}; where id = ${externalId};`,
       { headers: await this.buildHeaders() }
     );
     if (!result.data) {
@@ -83,7 +85,7 @@ export class IgdbApi implements ExternalApi<ExternalVideoGame> {
 
 function transform(item: any): ExternalVideoGame {
   return {
-    id: `${ID_BASE}:${item.id}`,
+    id: buildNamespacedId({ namespace: ID_NAMESPACE, externalId: item.id }),
     title: item.name,
     ...(item.cover
       ? {

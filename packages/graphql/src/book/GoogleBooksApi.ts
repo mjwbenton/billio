@@ -2,8 +2,11 @@ import axios from "axios";
 import qs from "querystring";
 import ExternalApi from "../external/ExternalApi";
 import { ExternalBook } from "../generated/graphql";
+import parseNamespacedId, {
+  buildNamespacedId,
+} from "../shared/parseNamespacedId";
 
-const ID_BASE = "googlebooks";
+const ID_NAMESPACE = "googlebooks";
 
 const BASE_URL = "https://www.googleapis.com/books/v1/volumes";
 
@@ -29,12 +32,11 @@ export class GoogleBooksApi implements ExternalApi<ExternalBook> {
   }
 
   public async get({ id }: { id: string }): Promise<ExternalBook | null> {
-    const innerId = id.split(":")[1];
-    if (!innerId) {
-      throw new Error(`Invalid googlebooks id "${id}"`);
-    }
+    const { externalId } = parseNamespacedId(id, {
+      assertNamespace: ID_NAMESPACE,
+    });
 
-    const url = BASE_URL.concat(`/${innerId}`);
+    const url = BASE_URL.concat(`/${externalId}`);
     const result = (await axios.get(url)).data;
     if (result.error) {
       return null;
@@ -45,7 +47,7 @@ export class GoogleBooksApi implements ExternalApi<ExternalBook> {
 
 function transform(item: any): ExternalBook {
   return {
-    id: `${ID_BASE}:${item.id}`,
+    id: buildNamespacedId({ namespace: ID_NAMESPACE, externalId: item.id }),
     title: item.volumeInfo.title,
     imageUrl: item.volumeInfo.imageLinks?.thumbnail ?? null,
     author: item.volumeInfo.authors?.[0] ?? "",
