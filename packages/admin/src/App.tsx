@@ -3,14 +3,17 @@ import dataProvider from "./dataProvider";
 import authProvider from "./authProvider";
 import GamesIcon from "@material-ui/icons/Games";
 import BookIcon from "@material-ui/icons/Book";
-import { BookCreate, BookEdit, BookImport } from "./book/BookEdit";
+import MovieIcon from "@material-ui/icons/Movie";
 import {
   VideoGameCreate,
   VideoGameEdit,
   VideoGameImport,
 } from "./videogame/VideoGameEdit";
 import { VideoGameShow, VideoGameList } from "./videogame/VideoGameShow";
+import { BookCreate, BookEdit, BookImport } from "./book/BookEdit";
 import { BookShow, BookList } from "./book/BookShow";
+import { MovieCreate, MovieEdit, MovieImport } from "./movie/MovieEdit";
+import { MovieShow, MovieList } from "./movie/MovieShow";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { Route } from "react-router-dom";
 import ImportPage from "./import/ImportPage";
@@ -67,6 +70,17 @@ const CUSTOM_ROUTES = [
       </ResourceContextProvider>
     )}
   />,
+  <Route
+    exact
+    path="/Movie/import"
+    component={(renderProps) => (
+      <ResourceContextProvider value="Movie">
+        <ImportPage>
+          <MovieImport />
+        </ImportPage>
+      </ResourceContextProvider>
+    )}
+  />,
 ];
 
 function App() {
@@ -96,6 +110,15 @@ function App() {
         edit={BookEdit}
         options={{ label: "Books" }}
         icon={BookIcon}
+      />
+      <Resource
+        name="Movie"
+        create={MovieCreate}
+        list={MovieList}
+        show={MovieShow}
+        edit={MovieEdit}
+        options={{ label: "Movies" }}
+        icon={MovieIcon}
       />
     </Admin>
   );

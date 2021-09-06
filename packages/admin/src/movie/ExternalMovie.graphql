@@ -1,0 +1,6 @@
+fragment ExternalMovie on ExternalMovie {
+  id
+  title
+  subtitle: releaseYear
+  imageUrl
+}

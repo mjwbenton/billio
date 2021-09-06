@@ -7,11 +7,13 @@ import { DataProvider } from "ra-core";
 const FRAGMENTS = {
   Book: loader("./book/Book.graphql"),
   VideoGame: loader("./videogame/VideoGame.graphql"),
+  Movie: loader("./movie/Movie.graphql"),
 };
 
 const EXTERNAL_FRAGMENTS = {
   Book: loader("./book/ExternalBook.graphql"),
   VideoGame: loader("./videogame/ExternalVideoGame.graphql"),
+  Movie: loader("./movie/Movie.graphql"),
 };
 
 const QUERIES = {

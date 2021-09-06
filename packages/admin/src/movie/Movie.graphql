@@ -1,0 +1,16 @@
+fragment Movie on Movie {
+  id
+  title
+  releaseYear
+  shelf {
+    id
+    name
+  }
+  image {
+    url
+  }
+  rating
+  movedAt
+  addedAt
+  notes
+}
