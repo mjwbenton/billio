@@ -1,19 +1,12 @@
 import { ApolloClient, InMemoryCache, HttpLink, gql } from "@apollo/client";
 import fetch from "cross-fetch";
 import { Importer, ImportItem, Source } from ".";
+import billioClient from "./billioClient";
 
 const apiClient = new ApolloClient({
   cache: new InMemoryCache(),
   link: new HttpLink({
     uri: "https://api.mattb.tech/",
-    fetch,
-  }),
-});
-
-const billioClient = new ApolloClient({
-  cache: new InMemoryCache(),
-  link: new HttpLink({
-    uri: "http://localhost:4000",
     fetch,
   }),
 });

@@ -1,3 +1,5 @@
+import chunk from "lodash.chunk";
+
 export interface ImportItem {
   id: string;
   title: string;
@@ -18,5 +20,8 @@ export interface Importer {
 
 export async function runImport(source: Source, importer: Importer) {
   const items = await source.fetch();
-  await Promise.all(items.map((item) => importer.importItem(item)));
+  const chunks = chunk(items, 50);
+  for (let i = 0; i < chunks.length; i++) {
+    await Promise.all(chunks[i].map((item) => importer.importItem(item)));
+  }
 }

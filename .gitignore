@@ -8,3 +8,4 @@ build
 .env
 book.json
 videogame.json
+imdb-ratings.csv
