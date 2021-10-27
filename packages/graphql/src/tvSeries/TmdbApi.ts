@@ -1,17 +1,19 @@
 import axios from "axios";
 import qs from "querystring";
-import ExternalApi from "../external/ExternalApi";
-import { ExternalTvSeries } from "../generated/graphql";
-import parseNamespacedId from "../shared/parseNamespacedId";
+import ExternalApi, { GetExternalApi } from "../external/ExternalApi";
+import { ExternalTvSeason, ExternalTvSeries } from "../generated/graphql";
+import parseNamespacedId, {
+  buildNamespacedId,
+} from "../shared/parseNamespacedId";
 
 const API_KEY = process.env.TMDB_API_KEY!;
 
-const IMDB_ID_BASE = "imdb";
-const TMDB_ID_BASE = "tmdb";
+const SERIES_ID_NAMESPACE = "tmdbSeries";
+const SEASON_ID_NAMESPACE = "tmdbSeason";
 
 const BASE_URL = "https://api.themoviedb.org/3";
 const GET_ENDPOINT = `${BASE_URL}/tv`;
-const FIND_ENDPOINT = `${BASE_URL}/find`;
+const SEASON_SUBENDPOINT = "season";
 const SEARCH_ENDPOINT = `${BASE_URL}/search/tv`;
 
 // Hardcoding, but officially available from the configuration API.
@@ -23,18 +25,13 @@ const BASE_PARAMS = {
   language: "en-US",
 };
 
-const GET_PARAMS = {
-  ...BASE_PARAMS,
-  external_source: "imdb_id",
-};
-
 const SEARCH_PARAMS = {
   ...BASE_PARAMS,
   include_adult: "false",
   page: "1",
 };
 
-export class TmdbApi implements ExternalApi<ExternalTvSeries> {
+export class TmdbSeriesApi implements ExternalApi<ExternalTvSeries> {
   public async search({
     term,
   }: {
@@ -45,65 +42,91 @@ export class TmdbApi implements ExternalApi<ExternalTvSeries> {
       query: term,
     })}`;
     const result = (await axios.get(url)).data;
-    return await Promise.all(result?.results?.map((i: any) => this.getTmdb(i)));
+    return await Promise.all(
+      result?.results?.map((i: any) =>
+        this.get({
+          id: buildNamespacedId({
+            namespace: SERIES_ID_NAMESPACE,
+            externalId: i.id,
+          }),
+        })
+      )
+    );
   }
 
   public async get({ id }: { id: string }): Promise<ExternalTvSeries | null> {
-    const { namespace, externalId } = parseNamespacedId(id);
-
-    if (namespace === IMDB_ID_BASE) {
-      return this.getImdb({ id: externalId });
-    }
-
-    if (namespace === TMDB_ID_BASE) {
-      return this.getTmdb({ id: externalId });
-    }
-
-    throw new Error(`Invalid id, supports namespaces tmdb and imdb: ${id}`);
-  }
-
-  private async getTmdb({
-    id,
-  }: {
-    id: string;
-  }): Promise<ExternalTvSeries | null> {
-    const url = `${GET_ENDPOINT}/${id}?${qs.stringify(BASE_PARAMS)}`;
+    const { externalId } = parseNamespacedId(id, {
+      assertNamespace: SERIES_ID_NAMESPACE,
+    });
+    const url = `${GET_ENDPOINT}/${externalId}?${qs.stringify(BASE_PARAMS)}`;
     const result = (await axios.get(url)).data;
-    console.log(JSON.stringify(result, null, 2));
     if (!result.id) {
       return null;
     }
-    return transform(result);
-  }
-
-  private async getImdb({
-    id,
-  }: {
-    id: string;
-  }): Promise<ExternalTvSeries | null> {
-    const url = `${FIND_ENDPOINT}/${id}?${qs.stringify(GET_PARAMS)}`;
-    const result = (await axios.get(url)).data;
-    const movie = result?.movie_results?.[0];
-    if (!movie) {
-      return null;
-    }
-    return transform({ ...movie, imdb_id: id });
+    return transformSeries(result);
   }
 }
 
-function transform(item: any): ExternalTvSeries {
+export class TmdbSeasonApi implements GetExternalApi<ExternalTvSeason> {
+  async get({ id }: { id: string }): Promise<ExternalTvSeason | null> {
+    const {
+      externalId,
+      additionalSections: [seasonNumber],
+    } = parseNamespacedId(id, {
+      assertNamespace: SEASON_ID_NAMESPACE,
+      idSections: 3,
+    });
+    const seriesUrl = `${GET_ENDPOINT}/${externalId}?${qs.stringify(
+      BASE_PARAMS
+    )}`;
+    const seasonUrl = `${GET_ENDPOINT}/${externalId}/${SEASON_SUBENDPOINT}/${seasonNumber}?${qs.stringify(
+      BASE_PARAMS
+    )}`;
+    const [series, season] = (
+      await Promise.all([axios.get(seriesUrl), axios.get(seasonUrl)])
+    ).map((r: any) => r.data);
+    if (!season.id) {
+      return null;
+    }
+    return transformSeason({ series, season });
+  }
+}
+
+function transformSeries(item: any): ExternalTvSeries {
   return {
-    id: item.imdb_id ? `imdbSeries:${item.imdb_id}` : `tmdbSeries:${item.id}`,
+    id: buildNamespacedId({
+      namespace: SERIES_ID_NAMESPACE,
+      externalId: item.id,
+    }),
     title: item.name,
     imageUrl: item.poster_path ? IMAGE_BASE.concat(item.poster_path) : null,
     seasons:
-      item?.seasons?.map((s: any) => ({
-        seriesId: `tmdbSeries:${item.id}`,
-        seriesTitle: item.name,
-        id: `tmdbSeason:${item.id}:${s.season_number}`,
-        number: s.season_number,
-        imageUrl: s.poster_path ? IMAGE_BASE.concat(s.poster_path) : null,
-        title: s.name,
-      })) ?? [],
+      item?.seasons?.map((season: any) =>
+        transformSeason({ season, series: item })
+      ) ?? [],
+  };
+}
+
+function transformSeason({
+  series,
+  season,
+}: {
+  series: any;
+  season: any;
+}): ExternalTvSeason {
+  return {
+    seriesExternalId: buildNamespacedId({
+      namespace: SERIES_ID_NAMESPACE,
+      externalId: series.id,
+    }),
+    title: series.name,
+    id: buildNamespacedId({
+      namespace: SEASON_ID_NAMESPACE,
+      externalId: series.id,
+      additionalSections: [season.season_number],
+    }),
+    seasonNumber: season.season_number,
+    imageUrl: season.poster_path ? IMAGE_BASE.concat(season.poster_path) : null,
+    seasonTitle: season.name,
   };
 }

@@ -2,6 +2,7 @@ import { gql } from "apollo-server-lambda";
 import {
   AddTvSeasonInput,
   ExternalTvSeries,
+  ExternalTvSeason,
   Resolvers,
   TvSeason,
   TvSeasonShelfId,
@@ -19,7 +20,7 @@ import resolveShelfItems from "../resolvers/resolveShelfItems";
 import resolveShelfName from "../resolvers/resolveShelfName";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
 import { FieldTransform } from "../shared/transforms";
-import { TmdbApi } from "./TmdbApi";
+import { TmdbSeasonApi, TmdbSeriesApi } from "./TmdbApi";
 
 export const typeDefs = gql`
   extend type Query {
@@ -38,9 +39,10 @@ export const typeDefs = gql`
     title: String!
     rating: Rating
     image: Image
+    seriesExternalId: ID
     seasonNumber: Int!
+    seasonTitle: String
     shelf: TvSeasonShelf!
-    releaseYear: String!
   }
 
   type TvSeasonShelf {
@@ -71,11 +73,11 @@ export const typeDefs = gql`
 
   type ExternalTvSeason {
     id: ID!
-    seriesId: ID!
-    seriesTitle: String!
-    number: Int!
+    seriesExternalId: ID!
+    seasonTitle: String!
+    seasonNumber: Int!
     imageUrl: String
-    title: String
+    title: String!
   }
 
   extend type Mutation {
@@ -91,8 +93,9 @@ export const typeDefs = gql`
 
   input AddTvSeasonInput {
     title: String!
-    releaseYear: String!
+    seriesExternalId: ID
     seasonNumber: Int!
+    seasonTitle: String
     shelfId: TvSeasonShelfId!
     rating: Rating
     imageUrl: String
@@ -104,7 +107,9 @@ export const typeDefs = gql`
   input UpdateTvSeasonInput {
     title: String
     releaseYear: String
-    seasonNumber: Int!
+    seasonNumber: Int
+    seasonTitle: String
+    seriesExternalId: ID
     shelfId: TvSeasonShelfId
     rating: Rating
     imageUrl: String
@@ -119,7 +124,7 @@ const TYPE = "TvSeason";
 const SHELF_NAMES: { [key in TvSeasonShelfId]: string } = {
   Watching: "Watching",
   Watched: "Watched",
-  GaveUp: "GaveUp",
+  GaveUp: "Gave Up",
 };
 
 const INPUT_TRANSFORM: FieldTransform<
@@ -129,19 +134,20 @@ const INPUT_TRANSFORM: FieldTransform<
 
 const OUTPUT_TRANSFORM: FieldTransform<TvSeason, DataItem> = () => ({});
 
-const EXTERNAL_TRANSFORM: FieldTransform<AddTvSeasonInput, ExternalTvSeries> =
+const EXTERNAL_TRANSFORM: FieldTransform<AddTvSeasonInput, ExternalTvSeason> =
   () => ({
     rating: null,
   });
 
-const TMDB_API = new TmdbApi();
+const SERIES_API = new TmdbSeriesApi();
+const SEASON_API = new TmdbSeasonApi();
 
 export const resolvers: Resolvers = {
   Query: {
     tvSeason: resolveForId<TvSeason>(TYPE, OUTPUT_TRANSFORM),
     tvSeasons: resolveForType<TvSeason>(TYPE, OUTPUT_TRANSFORM),
     tvSeasonShelf: resolveShelf<TvSeasonShelfId>(SHELF_NAMES),
-    searchExternalTvSeries: resolveExternal<ExternalTvSeries>(TMDB_API),
+    searchExternalTvSeries: resolveExternal<ExternalTvSeries>(SERIES_API),
   },
   TvSeasonShelf: {
     name: resolveShelfName<TvSeasonShelfId>(SHELF_NAMES),
@@ -152,8 +158,8 @@ export const resolvers: Resolvers = {
       TvSeason,
       TvSeasonShelfId,
       AddTvSeasonInput,
-      ExternalTvSeries
-    >(TYPE, OUTPUT_TRANSFORM, INPUT_TRANSFORM, EXTERNAL_TRANSFORM, TMDB_API),
+      ExternalTvSeason
+    >(TYPE, OUTPUT_TRANSFORM, INPUT_TRANSFORM, EXTERNAL_TRANSFORM, SEASON_API),
     addTvSeason: resolveAddItem<TvSeason, AddTvSeasonInput>(
       TYPE,
       INPUT_TRANSFORM,
