@@ -19,6 +19,6 @@
     "start:graphql": "yarn workspace @mattb.tech/billio-graphql start",
     "start:admin": "yarn workspace @mattb.tech/billio-admin start",
     "test:graphql-local": "yarn workspace @mattb.tech/billio-graphql-snapshot-tests test-local",
-    "test:graphql-integration": "yarn workspace @mattb.tech"
+    "test:graphql-integration": "yarn workspace @mattb.tech/billio-graphql-snapshot-tests test-integration"
   }
 }
