@@ -13,15 +13,26 @@ import {
   resolvers as movieResolvers,
 } from "./movie";
 import { typeDefs as bookTypeDefs, resolvers as bookResolvers } from "./book";
+import {
+  typeDefs as tvSeriesTypeDefs,
+  resolvers as tvSeriesResolvers,
+} from "./tvSeries";
 import merge from "lodash.merge";
 
 const schema = makeExecutableSchema({
-  typeDefs: [sharedTypeDefs, videoGameTypeDefs, bookTypeDefs, movieTypeDefs],
+  typeDefs: [
+    sharedTypeDefs,
+    videoGameTypeDefs,
+    bookTypeDefs,
+    movieTypeDefs,
+    tvSeriesTypeDefs,
+  ],
   resolvers: merge(
     sharedResolvers,
     videoGameResolvers,
     bookResolvers,
-    movieResolvers
+    movieResolvers,
+    tvSeriesResolvers
   ),
 });
 

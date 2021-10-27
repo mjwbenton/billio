@@ -3,6 +3,7 @@ schema:
   - "./src/videogame/index.ts"
   - "./src/book/index.ts"
   - "./src/movie/index.ts"
+  - "./src/tvSeries/index.ts"
   - "./src/shared/schema.ts"
 generates:
   src/generated/graphql.ts:
