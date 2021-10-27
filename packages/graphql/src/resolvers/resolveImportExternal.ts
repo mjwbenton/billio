@@ -11,7 +11,7 @@ import {
   transformExternalItem,
   transformItem,
 } from "../shared/transforms";
-import ExternalApi, { ExternalItem } from "../external/ExternalApi";
+import { ExternalItem, GetExternalApi } from "../external/ExternalApi";
 
 export default function resolveImportExternal<
   TItem extends Item,
@@ -23,7 +23,7 @@ export default function resolveImportExternal<
   outputTransform: FieldTransform<TItem, DataItem>,
   inputTransform: FieldTransform<DataItem, TInputType>,
   externalItemTransform: FieldTransform<TInputType, TExternalItem>,
-  api: ExternalApi<TExternalItem>
+  api: GetExternalApi<TExternalItem>
 ) {
   return async (
     _: unknown,

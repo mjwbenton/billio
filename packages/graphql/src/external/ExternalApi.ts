@@ -4,7 +4,14 @@ export interface ExternalItem {
   imageUrl?: string | null;
 }
 
-export default interface ExternalApi<T extends ExternalItem> {
+export interface SearchExternalApi<T extends ExternalItem> {
   search(input: { term: string }): Promise<Array<T>>;
+}
+
+export interface GetExternalApi<T extends ExternalItem> {
   get(input: { id: string }): Promise<T | null>;
 }
+
+export type ExternalApi<T extends ExternalItem> = SearchExternalApi<T> &
+  GetExternalApi<T>;
+export default ExternalApi;
