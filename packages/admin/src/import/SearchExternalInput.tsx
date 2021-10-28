@@ -1,5 +1,5 @@
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   useInput,
   useDataProvider,
@@ -20,16 +20,18 @@ export default function SearchExternalInput({ source }: { source: string }) {
   const dataProvider = useDataProvider();
   const notify = useNotify();
   const resource = useResourceContext();
+
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<Option[]>([]);
+
   const {
     input: { name, onChange },
     meta: { touched, error },
   } = useInput({ source });
 
-  const throttledFetch = useMemo(
-    () => (term) => {
+  const performSearch = useCallback(
+    (term) => {
       if (!term || term.length < 3) {
         return Promise.resolve({ data: [] });
       }
@@ -40,7 +42,7 @@ export default function SearchExternalInput({ source }: { source: string }) {
 
   useEffect(() => {
     let active = true;
-    throttledFetch(inputValue)
+    performSearch(inputValue)
       ?.then(({ data }) => {
         if (active) {
           setOptions(selectedOption ? [selectedOption, ...data] : data);
@@ -52,7 +54,7 @@ export default function SearchExternalInput({ source }: { source: string }) {
     return () => {
       active = false;
     };
-  }, [inputValue, selectedOption, notify, throttledFetch]);
+  }, [inputValue, selectedOption, notify, performSearch]);
 
   return (
     <Autocomplete<Option>
