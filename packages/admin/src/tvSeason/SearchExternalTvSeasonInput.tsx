@@ -1,15 +1,6 @@
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useCallback, useEffect, useState } from "react";
 import { useInput, useDataProvider, useNotify } from "react-admin";
-import TextField from "@material-ui/core/TextField";
-import { Grid, Typography } from "@material-ui/core";
-
-interface Option {
-  readonly id: string;
-  readonly title: string;
-  readonly subtitle: string | null;
-  readonly imageUrl: string | null;
-}
+import Autocomplete, { Option } from "../shared/Autocomplete";
 
 type SeriesOption = Option & {
   readonly seasons: Array<{
@@ -72,72 +63,29 @@ export default function SearchExternalInput() {
 
   return (
     <>
-      <Autocomplete<SeriesOption>
+      <Autocomplete
         options={seriesOptions}
-        autoComplete
-        filterSelectedOptions={false}
-        filterOptions={(x) => x}
-        onChange={(_, value) => {
-          setSelectedSeries(value);
-          setSeriesOptions(value ? [value, ...seriesOptions] : seriesOptions);
+        filterByTitle={false}
+        onSelection={(option) => {
+          // TODO: Clean up cast
+          setSelectedSeries(option as SeriesOption);
         }}
-        onInputChange={(_: any, newInputValue: string) => {
-          setSeriesInputValue(newInputValue);
+        onInputChange={(value: string) => {
+          setSeriesInputValue(value);
         }}
-        renderInput={(params) => (
-          <TextField {...params} label="Search Series" variant="filled" />
-        )}
-        getOptionLabel={(option) => option.title}
-        renderOption={(option) => <OptionComponent {...option} />}
+        label="Search Series"
       />
-      <Autocomplete<Option>
+      <Autocomplete
         options={seasonOptions}
-        autoComplete
-        filterSelectedOptions={false}
-        //filterOptions={(x) => x}
-        onChange={(_, value) => {
-          seasonIdInput.input.onChange(value?.id ?? null);
+        filterByTitle={true}
+        onSelection={(option) => {
+          seasonIdInput.input.onChange(option?.id ?? null);
         }}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Season"
-            variant="filled"
-            name={seasonIdInput.input.name}
-            error={!!(seasonIdInput.meta.touched && seasonIdInput.meta.error)}
-          />
-        )}
-        getOptionSelected={(option, value) => option.id === value.id}
-        getOptionLabel={(option) => option.title}
-        renderOption={(option) => <OptionComponent {...option} />}
+        error={!!(seasonIdInput.meta.touched && seasonIdInput.meta.error)}
+        name={seasonIdInput.input.name}
+        label="Season"
         disabled={seasonOptions.length === 0}
       />
     </>
   );
 }
-
-const OptionComponent = ({ title, subtitle, imageUrl }: Option) => {
-  return (
-    <Grid container alignItems="center" spacing={2}>
-      <Grid item xs={4}>
-        {imageUrl ? (
-          <img
-            src={imageUrl!}
-            alt={title}
-            style={{ maxWidth: "75px", width: "100%" }}
-          />
-        ) : (
-          <div />
-        )}
-      </Grid>
-      <Grid item xs={8} container direction="column" spacing={2}>
-        <Grid item>{title}</Grid>
-        {subtitle ? (
-          <Grid item>
-            <Typography variant="body2">{subtitle}</Typography>
-          </Grid>
-        ) : null}
-      </Grid>
-    </Grid>
-  );
-};

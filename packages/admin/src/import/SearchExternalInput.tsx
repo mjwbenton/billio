@@ -1,4 +1,3 @@
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useCallback, useEffect, useState } from "react";
 import {
   useInput,
@@ -6,22 +5,13 @@ import {
   useNotify,
   useResourceContext,
 } from "react-admin";
-import TextField from "@material-ui/core/TextField";
-import { Grid, Typography } from "@material-ui/core";
-
-interface Option {
-  readonly id: string;
-  readonly title: string;
-  readonly subtitle: string | null;
-  readonly imageUrl: string | null;
-}
+import Autocomplete, { Option } from "../shared/Autocomplete";
 
 export default function SearchExternalInput({ source }: { source: string }) {
   const dataProvider = useDataProvider();
   const notify = useNotify();
   const resource = useResourceContext();
 
-  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<Option[]>([]);
 
@@ -45,7 +35,7 @@ export default function SearchExternalInput({ source }: { source: string }) {
     performSearch(inputValue)
       ?.then(({ data }) => {
         if (active) {
-          setOptions(selectedOption ? [selectedOption, ...data] : data);
+          setOptions(data);
         }
       })
       .catch((err) => {
@@ -54,59 +44,21 @@ export default function SearchExternalInput({ source }: { source: string }) {
     return () => {
       active = false;
     };
-  }, [inputValue, selectedOption, notify, performSearch]);
+  }, [inputValue, notify, performSearch]);
 
   return (
-    <Autocomplete<Option>
+    <Autocomplete
       options={options}
-      autoComplete
-      filterSelectedOptions={false}
-      filterOptions={(x) => x}
-      onChange={(_, value) => {
-        setSelectedOption(value);
-        setOptions(value ? [value, ...options] : options);
-        onChange(value?.id ?? null);
+      filterByTitle={false}
+      onSelection={(option) => {
+        onChange(option?.id);
       }}
-      onInputChange={(_: any, newInputValue: string) => {
-        setInputValue(newInputValue);
+      onInputChange={(value) => {
+        setInputValue(value);
       }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Search"
-          variant="filled"
-          name={name}
-          error={!!(touched && error)}
-        />
-      )}
-      getOptionLabel={(option) => option.title}
-      renderOption={(option) => <OptionComponent {...option} />}
+      label="search"
+      name={name}
+      error={!!(touched && error)}
     />
   );
 }
-
-const OptionComponent = ({ title, subtitle, imageUrl }: Option) => {
-  return (
-    <Grid container alignItems="center" spacing={2}>
-      <Grid item xs={4}>
-        {imageUrl ? (
-          <img
-            src={imageUrl!}
-            alt={title}
-            style={{ maxWidth: "75px", width: "100%" }}
-          />
-        ) : (
-          <div />
-        )}
-      </Grid>
-      <Grid item xs={8} container direction="column" spacing={2}>
-        <Grid item>{title}</Grid>
-        {subtitle ? (
-          <Grid item>
-            <Typography variant="body2">{subtitle}</Typography>
-          </Grid>
-        ) : null}
-      </Grid>
-    </Grid>
-  );
-};
