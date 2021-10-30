@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
-import { useInput, useDataProvider, useNotify } from "react-admin";
+import { useState } from "react";
+import { useInput } from "react-admin";
 import Autocomplete, { Option } from "../shared/Autocomplete";
+import useSearchExternal from "../shared/useSearchExternal";
 
 type SeriesOption = Option & {
   readonly seasons: Array<{
@@ -14,26 +15,15 @@ type SeriesOption = Option & {
 const SERIES_RESOURCE = "TvSeries";
 
 export default function SearchExternalInput() {
-  const dataProvider = useDataProvider();
-  const notify = useNotify();
+  const { options: seriesOptions, setSearchTerm } =
+    useSearchExternal<SeriesOption>({
+      resource: SERIES_RESOURCE,
+    });
 
   const [selectedSeries, setSelectedSeries] = useState<SeriesOption | null>(
     null
   );
-  const [seriesInputValue, setSeriesInputValue] = useState("");
-  const [seriesOptions, setSeriesOptions] = useState<SeriesOption[]>([]);
-
   const seasonIdInput = useInput({ source: "id" });
-
-  const performSearch = useCallback(
-    (term) => {
-      if (!term || term.length < 3) {
-        return Promise.resolve({ data: [] });
-      }
-      return dataProvider.searchExternal(SERIES_RESOURCE, { term });
-    },
-    [dataProvider]
-  );
 
   const seasonOptions: Array<Option> =
     selectedSeries?.seasons.map(
@@ -45,33 +35,16 @@ export default function SearchExternalInput() {
       })
     ) ?? [];
 
-  useEffect(() => {
-    let active = true;
-    performSearch(seriesInputValue)
-      ?.then(({ data }) => {
-        if (active) {
-          setSeriesOptions(selectedSeries ? [selectedSeries, ...data] : data);
-        }
-      })
-      .catch((err) => {
-        notify("An issue occurred while searching.", "error");
-      });
-    return () => {
-      active = false;
-    };
-  }, [seriesInputValue, selectedSeries, notify, performSearch]);
-
   return (
     <>
-      <Autocomplete
+      <Autocomplete<SeriesOption>
         options={seriesOptions}
         filterByTitle={false}
         onSelection={(option) => {
-          // TODO: Clean up cast
-          setSelectedSeries(option as SeriesOption);
+          setSelectedSeries(option);
         }}
         onInputChange={(value: string) => {
-          setSeriesInputValue(value);
+          setSearchTerm(value);
         }}
         label="Search Series"
       />
