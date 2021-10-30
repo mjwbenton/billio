@@ -4,6 +4,7 @@ import authProvider from "./authProvider";
 import GamesIcon from "@material-ui/icons/Games";
 import BookIcon from "@material-ui/icons/Book";
 import MovieIcon from "@material-ui/icons/Movie";
+import TvIcon from "@material-ui/icons/Tv";
 import {
   VideoGameCreate,
   VideoGameEdit,
@@ -17,6 +18,12 @@ import { MovieShow, MovieList } from "./movie/MovieShow";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { Route } from "react-router-dom";
 import ImportPage from "./import/ImportPage";
+import {
+  TvSeasonCreate,
+  TvSeasonEdit,
+  TvSeasonImport,
+} from "./tvSeason/TvSeasonEdit";
+import { TvSeasonShow, TvSeasonList } from "./tvSeason/TvSeasonShow";
 
 const THEME = createMuiTheme({
   palette: {
@@ -81,6 +88,17 @@ const CUSTOM_ROUTES = [
       </ResourceContextProvider>
     )}
   />,
+  <Route
+    exact
+    path="/TvSeason/import"
+    component={(renderProps) => (
+      <ResourceContextProvider value="TvSeason">
+        <ImportPage>
+          <TvSeasonImport />
+        </ImportPage>
+      </ResourceContextProvider>
+    )}
+  />,
 ];
 
 function App() {
@@ -119,6 +137,15 @@ function App() {
         edit={MovieEdit}
         options={{ label: "Movies" }}
         icon={MovieIcon}
+      />
+      <Resource
+        name="TvSeason"
+        create={TvSeasonCreate}
+        list={TvSeasonList}
+        show={TvSeasonShow}
+        edit={TvSeasonEdit}
+        options={{ label: "TV" }}
+        icon={TvIcon}
       />
     </Admin>
   );

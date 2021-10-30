@@ -8,12 +8,14 @@ const FRAGMENTS = {
   Book: loader("./book/Book.graphql"),
   VideoGame: loader("./videogame/VideoGame.graphql"),
   Movie: loader("./movie/Movie.graphql"),
+  TvSeason: loader("./tvSeason/TvSeason.graphql"),
 };
 
 const EXTERNAL_FRAGMENTS = {
   Book: loader("./book/ExternalBook.graphql"),
   VideoGame: loader("./videogame/ExternalVideoGame.graphql"),
   Movie: loader("./movie/ExternalMovie.graphql"),
+  TvSeries: loader("./tvSeason/ExternalTvSeries.graphql"),
 };
 
 const QUERIES = {

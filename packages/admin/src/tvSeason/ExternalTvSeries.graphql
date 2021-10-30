@@ -1,0 +1,11 @@
+fragment ExternalTvSeries on ExternalTvSeries {
+  id
+  title
+  imageUrl
+  seasons {
+    id
+    seasonTitle
+    seasonNumber
+    imageUrl
+  }
+}

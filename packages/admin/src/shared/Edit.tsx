@@ -17,11 +17,11 @@ const PosterDisplay = ({ record }: { record?: any }) =>
     <img src={record.image.url} alt={record.title} title={record.image.url} />
   ) : null;
 
-function baseDataInputs() {
+export function baseDataInputs() {
   return [<TextInput key="title" source="title" />];
 }
 
-function baseMetaInputs(shelves) {
+export function baseMetaInputs(shelves) {
   return [
     <ShelfInput key="shelf" shelves={shelves} />,
     <RatingInput key="rating" />,
