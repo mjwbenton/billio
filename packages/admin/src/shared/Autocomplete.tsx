@@ -9,18 +9,18 @@ export interface Option {
   readonly imageUrl: string | null;
 }
 
-interface Props {
-  readonly options: Array<Option>;
+interface Props<TOption extends Option = Option> {
+  readonly options: Array<TOption>;
   readonly filterByTitle: boolean;
   readonly label: string;
-  readonly onSelection?: (option: Option | null) => void;
+  readonly onSelection?: (option: TOption | null) => void;
   readonly onInputChange?: (value: string) => void;
   readonly name?: string;
   readonly error?: boolean;
   readonly disabled?: boolean;
 }
 
-export default function Autocomplete({
+export default function Autocomplete<TOption extends Option = Option>({
   options,
   filterByTitle,
   onSelection,
@@ -29,11 +29,11 @@ export default function Autocomplete({
   name,
   error,
   disabled,
-}: Props) {
-  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
+}: Props<TOption>) {
+  const [selectedOption, setSelectedOption] = useState<TOption | null>(null);
 
   return (
-    <MaterialAutocomplete<Option>
+    <MaterialAutocomplete<TOption>
       options={selectedOption ? [selectedOption, ...options] : options}
       autoComplete
       filterSelectedOptions={false}
