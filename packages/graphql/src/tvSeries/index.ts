@@ -74,7 +74,7 @@ export const typeDefs = gql`
   type ExternalTvSeason {
     id: ID!
     seriesExternalId: ID!
-    seasonTitle: String!
+    seasonTitle: String
     seasonNumber: Int!
     imageUrl: String
     title: String!

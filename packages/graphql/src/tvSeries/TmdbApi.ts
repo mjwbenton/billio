@@ -31,6 +31,8 @@ const SEARCH_PARAMS = {
   page: "1",
 };
 
+const SEASON_BASIC_TITLE_REGEX = /^Season [0-9]+$/;
+
 export class TmdbSeriesApi implements ExternalApi<ExternalTvSeries> {
   public async search({
     term,
@@ -127,6 +129,8 @@ function transformSeason({
     }),
     seasonNumber: season.season_number,
     imageUrl: season.poster_path ? IMAGE_BASE.concat(season.poster_path) : null,
-    seasonTitle: season.name,
+    seasonTitle: season.name?.match(SEASON_BASIC_TITLE_REGEX)
+      ? null
+      : season.name,
   };
 }
