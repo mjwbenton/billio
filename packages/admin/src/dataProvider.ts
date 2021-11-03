@@ -13,7 +13,7 @@ const FRAGMENTS = {
 const EXTERNAL_FRAGMENTS = {
   Book: loader("./book/ExternalBook.graphql"),
   VideoGame: loader("./videogame/ExternalVideoGame.graphql"),
-  Movie: loader("./movie/Movie.graphql"),
+  Movie: loader("./movie/ExternalMovie.graphql"),
 };
 
 const QUERIES = {
