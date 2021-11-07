@@ -89,10 +89,10 @@ type After = {
 export const Query = {
   withId: async (
     { type, id }: ItemKey,
-    options?: { consistent?: boolean }
-  ): Promise<Item> =>
+    { consistent = false }: { consistent?: boolean } = {}
+  ): Promise<Item | undefined> =>
     ItemModel.get(combinedKey({ type, id }, TYPE_ID), {
-      consistent: options?.consistent ?? false,
+      consistent,
     }),
   ofType: async (
     { type }: TypeKey,
@@ -180,7 +180,7 @@ export const Mutate = {
       ...combinedKey(withTimestamps, TYPE_SHELF),
       ...combinedKey(withTimestamps, MOVED_AT_TYPE_ID),
     });
-    return Query.withId({ type, id }, { consistent: true });
+    return (await Query.withId({ type, id }, { consistent: true }))!;
   },
   async deleteItem({ id, type }: ItemKey): Promise<void> {
     await ItemModel.delete(combinedKey({ id, type }, TYPE_ID));
