@@ -74,6 +74,14 @@ const ItemModel = dynamoose.model<ItemDocument>(
           rangeKey: "movedAt:type:id",
         },
       },
+      // Tv Series only
+      seriesId: {
+        type: String,
+        index: {
+          name: "seriesId",
+          rangeKey: "movedAt:type:id",
+        },
+      },
     },
     {
       saveUnknown: true,
@@ -110,6 +118,14 @@ export const Query = {
       .eq(externalId)
       .sort(SortOrder.ascending)
       .using("externalId")
+      .exec();
+    return Array.from<Item>(data);
+  },
+  // Only used for Tv Series
+  withSeriesId: async ({ seriesId }: { seriesId: string }): Promise<Item[]> => {
+    const data = await ItemModel.query("seriesId")
+      .eq(seriesId)
+      .using("seriesId")
       .exec();
     return Array.from<Item>(data);
   },

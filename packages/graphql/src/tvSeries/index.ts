@@ -22,7 +22,7 @@ import resolveShelf from "../resolvers/resolveShelf";
 import resolveShelfItems from "../resolvers/resolveShelfItems";
 import resolveShelfName from "../resolvers/resolveShelfName";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
-import { FieldTransform } from "../shared/transforms";
+import { FieldTransform, transformItem } from "../shared/transforms";
 import {
   seriesExternalIdForSeasonExternalId,
   TmdbSeasonApi,
@@ -333,8 +333,13 @@ export const resolvers: Resolvers = {
     },
   },
   TvSeries: {
-    // TODO: Finish support
-    seasons: () => [],
+    seasons: async ({ id }) => {
+      if (!id) {
+        throw new Error("missing id");
+      }
+      const seasons = await DataQuery.withSeriesId({ seriesId: id });
+      return seasons.map((season) => transformItem(season, OUTPUT_TRANSFORM));
+    },
   },
   Mutation: {
     importExternalTvSeason,
