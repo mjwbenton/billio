@@ -1,10 +1,10 @@
 import axios from "axios";
 import qs from "querystring";
 import ExternalApi from "../external/ExternalApi";
-import { ExternalVideoGame } from "../generated/graphql";
 import parseNamespacedId, {
   buildNamespacedId,
 } from "../shared/parseNamespacedId";
+import { ExternalVideoGame } from "./types";
 
 const ID_NAMESPACE = "igdb";
 

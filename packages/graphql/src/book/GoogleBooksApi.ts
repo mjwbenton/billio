@@ -1,10 +1,10 @@
 import axios from "axios";
 import qs from "querystring";
 import ExternalApi from "../external/ExternalApi";
-import { ExternalBook } from "../generated/graphql";
 import parseNamespacedId, {
   buildNamespacedId,
 } from "../shared/parseNamespacedId";
+import { ExternalBook } from "./types";
 
 const ID_NAMESPACE = "googlebooks";
 

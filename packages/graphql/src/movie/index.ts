@@ -3,7 +3,6 @@ import {
   AddMovieInput,
   Movie,
   MovieShelfId,
-  ExternalMovie,
   Resolvers,
   UpdateMovieInput,
 } from "../generated/graphql";
@@ -20,6 +19,8 @@ import resolveShelfName from "../resolvers/resolveShelfName";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
 import { FieldTransform } from "../shared/transforms";
 import { TmdbApi } from "./TmdbApi";
+import resolveImportedItem from "../resolvers/resolveImportedItem";
+import { ExternalMovie } from "./types";
 
 export const typeDefs = gql`
   extend type Query {
@@ -63,6 +64,7 @@ export const typeDefs = gql`
     title: String!
     releaseYear: String!
     imageUrl: String
+    importedItem: Movie
   }
 
   extend type Mutation {
@@ -128,6 +130,9 @@ export const resolvers: Resolvers = {
   MovieShelf: {
     name: resolveShelfName<MovieShelfId>(SHELF_NAMES),
     items: resolveShelfItems<Movie, MovieShelfId>(TYPE, OUTPUT_TRANSFORM),
+  },
+  ExternalMovie: {
+    importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
   },
   Mutation: {
     importExternalMovie: resolveImportExternal<

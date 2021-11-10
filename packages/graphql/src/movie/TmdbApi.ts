@@ -1,8 +1,8 @@
 import axios from "axios";
 import qs from "querystring";
 import ExternalApi from "../external/ExternalApi";
-import { ExternalMovie } from "../generated/graphql";
 import parseNamespacedId from "../shared/parseNamespacedId";
+import { ExternalMovie } from "./types";
 
 const API_KEY = process.env.TMDB_API_KEY!;
 

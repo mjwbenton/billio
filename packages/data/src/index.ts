@@ -53,6 +53,13 @@ const ItemModel = dynamoose.model<ItemDocument>(
       shelf: String,
       addedAt: Date,
       movedAt: Date,
+      externalId: {
+        type: String,
+        index: {
+          name: "externalId",
+          rangeKey: "movedAt:type:id",
+        },
+      },
       "type:id": {
         type: String,
         hashKey: true,
@@ -89,11 +96,24 @@ type After = {
 export const Query = {
   withId: async (
     { type, id }: ItemKey,
-    options?: { consistent?: boolean }
-  ): Promise<Item> =>
+    { consistent = false }: { consistent?: boolean } = {}
+  ): Promise<Item | undefined> =>
     ItemModel.get(combinedKey({ type, id }, TYPE_ID), {
-      consistent: options?.consistent ?? false,
+      consistent,
     }),
+  withExternalId: async ({
+    externalId,
+  }: {
+    externalId: string;
+  }): Promise<Item[]> => {
+    const data = await ItemModel.query("externalId")
+      .eq(externalId)
+      .sort(SortOrder.ascending)
+      .using("externalId")
+      .limit(1)
+      .exec();
+    return Array.from<Item>(data);
+  },
   ofType: async (
     { type }: TypeKey,
     { first, after }: { first: number; after?: string }
@@ -180,35 +200,46 @@ export const Mutate = {
       ...combinedKey(withTimestamps, TYPE_SHELF),
       ...combinedKey(withTimestamps, MOVED_AT_TYPE_ID),
     });
-    return Query.withId({ type, id }, { consistent: true });
+    return (await Query.withId({ type, id }, { consistent: true }))!;
   },
   async deleteItem({ id, type }: ItemKey): Promise<void> {
-    await ItemModel.delete(combinedKey({ id, type }, TYPE_ID));
-  },
-  async updateItem({ id, type, ...updates }: UpdateItem) {
-    const now = new Date();
-    await ItemModel.update(combinedKey({ type, id }, TYPE_ID), {
-      // If the shelf is updated, update the movedAt timestamp
-      ...(updates.shelf
-        ? {
-            movedAt: now,
-            ...combinedKey({ type, shelf: updates.shelf }, TYPE_SHELF),
-            ...combinedKey({ movedAt: now, type, id }, MOVED_AT_TYPE_ID),
-          }
-        : {}),
-      // If movedAt is overridden, update the related combinedKey
-      ...(updates.movedAt
-        ? {
-            movedAt: updates.movedAt,
-            ...combinedKey(
-              { movedAt: updates.movedAt, type, id },
-              MOVED_AT_TYPE_ID
-            ),
-          }
-        : {}),
-      ...updates,
+    const key = combinedKey({ type, id }, TYPE_ID);
+    await ItemModel.delete(key, {
+      condition: new dynamoose.Condition().filter("type:id").exists(),
     });
-    return await Query.withId({ type, id }, { consistent: true });
+  },
+  async updateItem({ id, type, ...updates }: UpdateItem): Promise<Item> {
+    const now = new Date();
+    const key = combinedKey({ type, id }, TYPE_ID);
+    await ItemModel.update(
+      key,
+      {
+        // If the shelf is updated, update the movedAt timestamp
+        ...(updates.shelf
+          ? {
+              movedAt: now,
+              ...combinedKey({ type, shelf: updates.shelf }, TYPE_SHELF),
+              ...combinedKey({ movedAt: now, type, id }, MOVED_AT_TYPE_ID),
+            }
+          : {}),
+        // If movedAt is overridden, update the related combinedKey
+        ...(updates.movedAt
+          ? {
+              movedAt: updates.movedAt,
+              ...combinedKey(
+                { movedAt: updates.movedAt, type, id },
+                MOVED_AT_TYPE_ID
+              ),
+            }
+          : {}),
+        ...updates,
+      },
+      {
+        condition: new dynamoose.Condition().filter("type:id").exists(),
+      }
+    );
+    const item = await Query.withId({ type, id }, { consistent: true });
+    return item!;
   },
 };
 
