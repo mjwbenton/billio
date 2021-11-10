@@ -3,7 +3,6 @@ import {
   AddBookInput,
   Book,
   BookShelfId,
-  ExternalBook,
   Resolvers,
   UpdateBookInput,
 } from "../generated/graphql";
@@ -18,8 +17,10 @@ import resolveShelf from "../resolvers/resolveShelf";
 import resolveShelfItems from "../resolvers/resolveShelfItems";
 import resolveShelfName from "../resolvers/resolveShelfName";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
+import resolveImportedItem from "../resolvers/resolveImportedItem";
 import { GoogleBooksApi } from "./GoogleBooksApi";
 import { FieldTransform } from "../shared/transforms";
+import { ExternalBook } from "./types";
 
 export const typeDefs = gql`
   extend type Query {
@@ -66,6 +67,7 @@ export const typeDefs = gql`
     title: String!
     author: String!
     imageUrl: String
+    importedItem: Book
   }
 
   extend type Mutation {
@@ -133,6 +135,9 @@ export const resolvers: Resolvers = {
   BookShelf: {
     name: resolveShelfName<BookShelfId>(SHELF_NAMES),
     items: resolveShelfItems<Book, BookShelfId>(TYPE, OUTPUT_TRANSFORM),
+  },
+  ExternalBook: {
+    importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
   },
   Mutation: {
     importExternalBook: resolveImportExternal<

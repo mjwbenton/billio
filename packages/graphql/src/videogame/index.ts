@@ -1,7 +1,6 @@
 import { gql } from "apollo-server-lambda";
 import {
   AddVideoGameInput,
-  ExternalVideoGame,
   Resolvers,
   UpdateVideoGameInput,
   VideoGame,
@@ -21,6 +20,8 @@ import resolveDeleteItem from "../resolvers/resolveDeleteItem";
 import resolveAddItem from "../resolvers/resolveAddItem";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
 import resolveShelfName from "../resolvers/resolveShelfName";
+import { ExternalVideoGame } from "./types";
+import resolveImportedItem from "../resolvers/resolveImportedItem";
 
 export const typeDefs = gql`
   extend type Query {
@@ -80,6 +81,7 @@ export const typeDefs = gql`
     title: String!
     previewImageUrl: String
     imageUrl: String
+    importedItem: VideoGame
   }
 
   extend type Mutation {
@@ -172,6 +174,9 @@ export const resolvers: Resolvers = {
     name: ({ id }: { id?: VideoGamePlatformId }) => {
       return PLATFORM_NAMES[id!];
     },
+  },
+  ExternalVideoGame: {
+    importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
   },
   Mutation: {
     importExternalVideoGame: resolveImportExternal<
