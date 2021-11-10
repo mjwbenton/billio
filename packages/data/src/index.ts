@@ -185,30 +185,38 @@ export const Mutate = {
   async deleteItem({ id, type }: ItemKey): Promise<void> {
     await ItemModel.delete(combinedKey({ id, type }, TYPE_ID));
   },
-  async updateItem({ id, type, ...updates }: UpdateItem) {
+  async updateItem({ id, type, ...updates }: UpdateItem): Promise<Item> {
     const now = new Date();
-    await ItemModel.update(combinedKey({ type, id }, TYPE_ID), {
-      // If the shelf is updated, update the movedAt timestamp
-      ...(updates.shelf
-        ? {
-            movedAt: now,
-            ...combinedKey({ type, shelf: updates.shelf }, TYPE_SHELF),
-            ...combinedKey({ movedAt: now, type, id }, MOVED_AT_TYPE_ID),
-          }
-        : {}),
-      // If movedAt is overridden, update the related combinedKey
-      ...(updates.movedAt
-        ? {
-            movedAt: updates.movedAt,
-            ...combinedKey(
-              { movedAt: updates.movedAt, type, id },
-              MOVED_AT_TYPE_ID
-            ),
-          }
-        : {}),
-      ...updates,
-    });
-    return await Query.withId({ type, id }, { consistent: true });
+    const key = combinedKey({ type, id }, TYPE_ID);
+    await ItemModel.update(
+      key,
+      {
+        // If the shelf is updated, update the movedAt timestamp
+        ...(updates.shelf
+          ? {
+              movedAt: now,
+              ...combinedKey({ type, shelf: updates.shelf }, TYPE_SHELF),
+              ...combinedKey({ movedAt: now, type, id }, MOVED_AT_TYPE_ID),
+            }
+          : {}),
+        // If movedAt is overridden, update the related combinedKey
+        ...(updates.movedAt
+          ? {
+              movedAt: updates.movedAt,
+              ...combinedKey(
+                { movedAt: updates.movedAt, type, id },
+                MOVED_AT_TYPE_ID
+              ),
+            }
+          : {}),
+        ...updates,
+      },
+      {
+        condition: new dynamoose.Condition().filter("type:id").exists(),
+      }
+    );
+    const item = await Query.withId({ type, id }, { consistent: true });
+    return item!;
   },
 };
 
