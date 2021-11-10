@@ -117,10 +117,6 @@ function transformSeason({
   season: any;
 }): ExternalTvSeason {
   return {
-    seriesExternalId: buildNamespacedId({
-      namespace: SERIES_ID_NAMESPACE,
-      externalId: series.id,
-    }),
     title: series.name,
     id: buildNamespacedId({
       namespace: SEASON_ID_NAMESPACE,
@@ -133,4 +129,15 @@ function transformSeason({
       ? null
       : season.name,
   };
+}
+
+export function seriesExternalIdForSeasonExternalId(seasonExternalId: string) {
+  const parsedExternalId = parseNamespacedId(seasonExternalId, {
+    assertNamespace: SEASON_ID_NAMESPACE,
+    idSections: 3,
+  });
+  return buildNamespacedId({
+    namespace: SERIES_ID_NAMESPACE,
+    externalId: parsedExternalId.externalId,
+  });
 }

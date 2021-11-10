@@ -11,7 +11,7 @@ import {
   AddTvSeriesInput,
   UpdateTvSeriesInput,
 } from "../generated/graphql";
-import { Item as DataItem } from "@mattb.tech/billio-data";
+import { Item as DataItem, Query as DataQuery } from "@mattb.tech/billio-data";
 import resolveAddItem from "../resolvers/resolveAddItem";
 import resolveDeleteItem from "../resolvers/resolveDeleteItem";
 import resolveExternal from "../resolvers/resolveExternal";
@@ -23,7 +23,16 @@ import resolveShelfItems from "../resolvers/resolveShelfItems";
 import resolveShelfName from "../resolvers/resolveShelfName";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
 import { FieldTransform } from "../shared/transforms";
-import { TmdbSeasonApi, TmdbSeriesApi } from "./TmdbApi";
+import {
+  seriesExternalIdForSeasonExternalId,
+  TmdbSeasonApi,
+  TmdbSeriesApi,
+} from "./TmdbApi";
+import resolveImportedItem from "../resolvers/resolveImportedItem";
+import { ItemOverrides } from "../shared/Item";
+import parseNamespacedId, {
+  buildNamespacedId,
+} from "../shared/parseNamespacedId";
 
 export const typeDefs = gql`
   extend type Query {
@@ -45,10 +54,10 @@ export const typeDefs = gql`
     title: String!
     rating: Rating
     image: Image
-    seriesExternalId: ID
     seasonNumber: Int!
     seasonTitle: String
     shelf: TvSeasonShelf!
+    series: TvSeries!
   }
 
   type TvSeries implements Item {
@@ -101,15 +110,16 @@ export const typeDefs = gql`
     title: String!
     imageUrl: String
     seasons: [ExternalTvSeason!]!
+    importedItem: TvSeries
   }
 
   type ExternalTvSeason {
     id: ID!
-    seriesExternalId: ID!
     seasonTitle: String
     seasonNumber: Int!
     imageUrl: String
     title: String!
+    importedItem: TvSeason
   }
 
   extend type Mutation {
@@ -133,7 +143,7 @@ export const typeDefs = gql`
 
   input AddTvSeasonInput {
     title: String!
-    seriesExternalId: ID
+    seriesId: ID!
     seasonNumber: Int!
     seasonTitle: String
     shelfId: TvShelfId!
@@ -159,7 +169,7 @@ export const typeDefs = gql`
     releaseYear: String
     seasonNumber: Int
     seasonTitle: String
-    seriesExternalId: ID
+    seriesId: ID
     shelfId: TvShelfId
     rating: Rating
     imageUrl: String
@@ -217,6 +227,73 @@ const EXTERNAL_SEASON_TRANSFORM: FieldTransform<
 const SERIES_API = new TmdbSeriesApi();
 const SEASON_API = new TmdbSeasonApi();
 
+const importExternalTvSeries = resolveImportExternal<
+  TvSeries,
+  TvShelfId,
+  AddTvSeriesInput,
+  ExternalTvSeries
+>(
+  TV_SERIES,
+  OUTPUT_TRANSFORM,
+  INPUT_TRANSFORM,
+  EXTERNAL_SERIES_TRANSFORM,
+  SERIES_API
+);
+
+/*
+ * Special case for TvSeason. We want to make sure we have the TvSeries imported whenever
+ * we import a season of that series. If its not already imported, then we import it here
+ * and set the seriesId field on the season.
+ */
+const importExternalTvSeason = async (
+  _: unknown,
+  {
+    externalId,
+    shelfId,
+    overrides,
+  }: {
+    shelfId: TvShelfId;
+    externalId: string;
+    overrides?: ItemOverrides<AddTvSeasonInput> | null;
+  }
+) => {
+  const seriesExternalId = seriesExternalIdForSeasonExternalId(externalId);
+
+  // If we were provided as seriesId as part of the query, then use that. Otherwise see
+  // if we've already got one imported with the same externalID. Otherwise import the
+  // TvSeries.
+  const seriesId =
+    overrides?.seriesId ||
+    (
+      await DataQuery.withExternalId({
+        externalId: seriesExternalId,
+      })
+    )[0]?.id ||
+    (
+      await importExternalTvSeries(_, {
+        externalId: seriesExternalId,
+        shelfId,
+        overrides: {
+          ...(overrides?.rating ? { rating: overrides?.rating } : {}),
+          ...(overrides?.addedAt ? { addedAt: overrides?.addedAt } : {}),
+          ...(overrides?.movedAt ? { movedAt: overrides?.movedAt } : {}),
+        },
+      })
+    ).id;
+  return await resolveImportExternal<
+    TvSeason,
+    TvShelfId,
+    AddTvSeasonInput,
+    ExternalTvSeason
+  >(
+    TV_SEASON,
+    OUTPUT_TRANSFORM,
+    INPUT_TRANSFORM,
+    EXTERNAL_SEASON_TRANSFORM,
+    SEASON_API
+  )(_, { externalId, shelfId, overrides: { ...overrides, seriesId } });
+};
+
 export const resolvers: Resolvers = {
   Query: {
     tvSeason: resolveForId<TvSeason>(TV_SEASON, OUTPUT_TRANSFORM),
@@ -235,34 +312,33 @@ export const resolvers: Resolvers = {
     name: resolveShelfName<TvShelfId>(SHELF_NAMES),
     items: resolveShelfItems<TvSeries, TvShelfId>(TV_SERIES, OUTPUT_TRANSFORM),
   },
+  ExternalTvSeason: {
+    importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
+  },
+  ExternalTvSeries: {
+    importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
+  },
+  TvSeason: {
+    // TODO: Fix types here, put somewhere better
+    series: async (parent) => {
+      const seriesId = (parent as any).seriesId;
+      const series = await resolveForId<TvSeries>(TV_SERIES, OUTPUT_TRANSFORM)(
+        null,
+        { id: seriesId }
+      );
+      if (!series) {
+        throw new Error("Invalid link from season to series");
+      }
+      return series;
+    },
+  },
   TvSeries: {
+    // TODO: Finish support
     seasons: () => [],
   },
   Mutation: {
-    importExternalTvSeason: resolveImportExternal<
-      TvSeason,
-      TvShelfId,
-      AddTvSeasonInput,
-      ExternalTvSeason
-    >(
-      TV_SEASON,
-      OUTPUT_TRANSFORM,
-      INPUT_TRANSFORM,
-      EXTERNAL_SEASON_TRANSFORM,
-      SEASON_API
-    ),
-    importExternalTvSeries: resolveImportExternal<
-      TvSeries,
-      TvShelfId,
-      AddTvSeriesInput,
-      ExternalTvSeries
-    >(
-      TV_SERIES,
-      OUTPUT_TRANSFORM,
-      INPUT_TRANSFORM,
-      EXTERNAL_SERIES_TRANSFORM,
-      SERIES_API
-    ),
+    importExternalTvSeason,
+    importExternalTvSeries,
     addTvSeason: resolveAddItem<TvSeason, AddTvSeasonInput>(
       TV_SEASON,
       INPUT_TRANSFORM,
