@@ -183,7 +183,10 @@ export const Mutate = {
     return (await Query.withId({ type, id }, { consistent: true }))!;
   },
   async deleteItem({ id, type }: ItemKey): Promise<void> {
-    await ItemModel.delete(combinedKey({ id, type }, TYPE_ID));
+    const key = combinedKey({ type, id }, TYPE_ID);
+    await ItemModel.delete(key, {
+      condition: new dynamoose.Condition().filter("type:id").exists(),
+    });
   },
   async updateItem({ id, type, ...updates }: UpdateItem): Promise<Item> {
     const now = new Date();
