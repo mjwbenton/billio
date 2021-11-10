@@ -110,7 +110,6 @@ export const Query = {
       .eq(externalId)
       .sort(SortOrder.ascending)
       .using("externalId")
-      .limit(1)
       .exec();
     return Array.from<Item>(data);
   },
