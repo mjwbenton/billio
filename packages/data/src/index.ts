@@ -53,6 +53,13 @@ const ItemModel = dynamoose.model<ItemDocument>(
       shelf: String,
       addedAt: Date,
       movedAt: Date,
+      externalId: {
+        type: String,
+        index: {
+          name: "externalId",
+          rangeKey: "movedAt:type:id",
+        },
+      },
       "type:id": {
         type: String,
         hashKey: true,
@@ -94,6 +101,19 @@ export const Query = {
     ItemModel.get(combinedKey({ type, id }, TYPE_ID), {
       consistent,
     }),
+  withExternalId: async ({
+    externalId,
+  }: {
+    externalId: string;
+  }): Promise<Item[]> => {
+    const data = await ItemModel.query("externalId")
+      .eq(externalId)
+      .sort(SortOrder.ascending)
+      .using("externalId")
+      .limit(1)
+      .exec();
+    return Array.from<Item>(data);
+  },
   ofType: async (
     { type }: TypeKey,
     { first, after }: { first: number; after?: string }
