@@ -32,6 +32,12 @@ export default class BillioDataStack extends Stack {
       partitionKey: { name: "externalId", type: AttributeType.STRING },
       sortKey: { name: "movedAt:type:id", type: AttributeType.STRING },
     });
+    // Specifically for TV
+    itemTable.addGlobalSecondaryIndex({
+      indexName: "seriesId",
+      partitionKey: { name: "seriesId", type: AttributeType.STRING },
+      sortKey: { name: "seasonNumber", type: AttributeType.NUMBER },
+    });
 
     this.itemTable = itemTable;
   }
