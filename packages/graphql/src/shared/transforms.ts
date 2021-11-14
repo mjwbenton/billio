@@ -10,9 +10,6 @@ import { ExternalItem } from "../external/ExternalApi";
 
 const IMAGE_DOMAIN = process.env.BILLIO_IMAGE_DOMAIN!;
 
-// TODO: Remove
-export type FieldTransform = {};
-
 export type OutputTransform<
   TItem extends Item<TShelfId>,
   TShelfId extends string

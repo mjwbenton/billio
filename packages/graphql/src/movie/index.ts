@@ -6,21 +6,25 @@ import {
   Resolvers,
   UpdateMovieInput,
 } from "../generated/graphql";
-import { Item as DataItem } from "@mattb.tech/billio-data";
 import resolveAddItem from "../resolvers/resolveAddItem";
 import resolveDeleteItem from "../resolvers/resolveDeleteItem";
 import resolveExternal from "../resolvers/resolveExternal";
 import resolveForId from "../resolvers/resolveForId";
 import resolveForType from "../resolvers/resolveForType";
 import resolveImportExternal from "../resolvers/resolveImportExternal";
-import { resolveShelfArgs } from "../resolvers/resolveShelf";
+import { resolveShelfParent } from "../resolvers/resolveShelf";
 import resolveShelfItems from "../resolvers/resolveShelfItems";
-import resolveShelfName from "../resolvers/resolveShelfName";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
-import { FieldTransform } from "../shared/transforms";
+import {
+  AddInputTransform,
+  ExternalToInputTransform,
+  OutputTransform,
+  UpdateInputTransform,
+} from "../shared/transforms";
 import { TmdbApi } from "./TmdbApi";
 import resolveImportedItem from "../resolvers/resolveImportedItem";
 import { ExternalMovie } from "./types";
+import { PartialResolvers } from "../shared/types";
 
 export const typeDefs = gql`
   extend type Query {
@@ -87,6 +91,7 @@ export const typeDefs = gql`
     addedAt: DateTime
     movedAt: DateTime
     notes: String
+    externalId: ID
   }
 
   input UpdateMovieInput {
@@ -98,6 +103,7 @@ export const typeDefs = gql`
     addedAt: DateTime
     movedAt: DateTime
     notes: String
+    externalId: ID
   }
 `;
 
@@ -107,28 +113,43 @@ const SHELF_NAMES: { [key in MovieShelfId]: string } = {
   Watched: "Watched",
 };
 
-const INPUT_TRANSFORM: FieldTransform<
-  DataItem,
-  AddMovieInput | UpdateMovieInput
-> = () => ({});
+const OUTPUT_TRANSFORM: OutputTransform<Movie, MovieShelfId> = (input) => ({
+  releaseYear: input.releaseYear,
+});
 
-const OUTPUT_TRANSFORM: FieldTransform<Movie, DataItem> = () => ({});
+const EXTERNAL_TRANSFORM: ExternalToInputTransform<
+  ExternalMovie,
+  AddMovieInput,
+  MovieShelfId
+> = (external) => ({
+  releaseYear: external.releaseYear,
+});
 
-const EXTERNAL_TRANSFORM: FieldTransform<AddMovieInput, ExternalMovie> =
-  () => ({
-    rating: null,
-  });
+const ADD_INPUT_TRANSFORM: AddInputTransform<AddMovieInput, MovieShelfId> = (
+  input
+) => ({
+  releaseYear: input.releaseYear,
+});
+
+const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
+  UpdateMovieInput,
+  MovieShelfId
+> = (input) => ({
+  ...(input.releaseYear ? { releaseYear: input.releaseYear } : {}),
+});
 
 const TMDB_API = new TmdbApi();
 
-export const resolvers: Resolvers = {
+export const resolvers: PartialResolvers = {
   Query: {
-    movie: resolveForId<Movie>(TYPE, OUTPUT_TRANSFORM),
-    movies: resolveForType<Movie>(TYPE, OUTPUT_TRANSFORM),
+    movie: resolveForId<Movie, MovieShelfId>(TYPE, OUTPUT_TRANSFORM),
+    movies: resolveForType<Movie, MovieShelfId>(TYPE, OUTPUT_TRANSFORM),
     searchExternalMovie: resolveExternal<ExternalMovie>(TMDB_API),
   },
+  Movie: {
+    shelf: resolveShelfParent<MovieShelfId>(SHELF_NAMES),
+  },
   MovieShelf: {
-    name: resolveShelfName<MovieShelfId>(SHELF_NAMES),
     items: resolveShelfItems<Movie, MovieShelfId>(TYPE, OUTPUT_TRANSFORM),
   },
   ExternalMovie: {
@@ -140,15 +161,21 @@ export const resolvers: Resolvers = {
       MovieShelfId,
       AddMovieInput,
       ExternalMovie
-    >(TYPE, OUTPUT_TRANSFORM, INPUT_TRANSFORM, EXTERNAL_TRANSFORM, TMDB_API),
-    addMovie: resolveAddItem<Movie, AddMovieInput>(
+    >(
       TYPE,
-      INPUT_TRANSFORM,
+      OUTPUT_TRANSFORM,
+      ADD_INPUT_TRANSFORM,
+      EXTERNAL_TRANSFORM,
+      TMDB_API
+    ),
+    addMovie: resolveAddItem<Movie, MovieShelfId, AddMovieInput>(
+      TYPE,
+      ADD_INPUT_TRANSFORM,
       OUTPUT_TRANSFORM
     ),
-    updateMovie: resolveUpdateItem<Movie, UpdateMovieInput>(
+    updateMovie: resolveUpdateItem<Movie, MovieShelfId, UpdateMovieInput>(
       TYPE,
-      INPUT_TRANSFORM,
+      UPDATE_INPUT_TRANSFORM,
       OUTPUT_TRANSFORM
     ),
     deleteMovie: resolveDeleteItem(TYPE),

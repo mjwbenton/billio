@@ -18,6 +18,7 @@ import {
   resolvers as tvSeriesResolvers,
 } from "./tvSeries";
 import merge from "lodash.merge";
+import { Resolvers } from "./generated/graphql";
 
 const schema = makeExecutableSchema({
   typeDefs: [
@@ -33,7 +34,7 @@ const schema = makeExecutableSchema({
     bookResolvers,
     movieResolvers,
     tvSeriesResolvers
-  ),
+  ) as Resolvers,
 });
 
 export default wrapSchema({

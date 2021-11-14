@@ -92,6 +92,6 @@ function transform(item: any): ExternalVideoGame {
           previewImageUrl: `${IMAGE_BASE_URL}/${SMALL_SIZE}/${item.cover.image_id}${JPG}`,
           imageUrl: `${IMAGE_BASE_URL}/${LARGE_SIZE}/${item.cover.image_id}${JPG}`,
         }
-      : {}),
+      : { previewImageUrl: null, imageUrl: null }),
   };
 }
