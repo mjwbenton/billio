@@ -1,27 +1,33 @@
 import { gql } from "apollo-server-lambda";
 import {
   AddVideoGameInput,
-  Resolvers,
   UpdateVideoGameInput,
   VideoGame,
   VideoGamePlatformId,
   VideoGameShelfId,
 } from "../generated/graphql";
-import { Item as DataItem } from "@mattb.tech/billio-data";
 import { IgdbApi } from "./IgdbApi";
-import { FieldTransform } from "../shared/transforms";
+import {
+  AddInputTransform,
+  ExternalToInputTransform,
+  OutputTransform,
+  UpdateInputTransform,
+} from "../shared/transforms";
 import resolveForId from "../resolvers/resolveForId";
 import resolveForType from "../resolvers/resolveForType";
-import resolveShelf from "../resolvers/resolveShelf";
+import {
+  resolveShelfArgs,
+  resolveShelfParent,
+} from "../resolvers/resolveShelf";
 import resolveExternal from "../resolvers/resolveExternal";
 import resolveShelfItems from "../resolvers/resolveShelfItems";
 import resolveImportExternal from "../resolvers/resolveImportExternal";
 import resolveDeleteItem from "../resolvers/resolveDeleteItem";
 import resolveAddItem from "../resolvers/resolveAddItem";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
-import resolveShelfName from "../resolvers/resolveShelfName";
 import { ExternalVideoGame } from "./types";
 import resolveImportedItem from "../resolvers/resolveImportedItem";
+import { PartialResolvers } from "../shared/types";
 
 export const typeDefs = gql`
   extend type Query {
@@ -104,6 +110,7 @@ export const typeDefs = gql`
     addedAt: DateTime
     movedAt: DateTime
     notes: String
+    externalId: ID
   }
 
   input UpdateVideoGameInput {
@@ -115,6 +122,7 @@ export const typeDefs = gql`
     addedAt: DateTime
     movedAt: DateTime
     notes: String
+    externalId: ID
   }
 `;
 
@@ -136,44 +144,61 @@ const PLATFORM_NAMES: { [key in VideoGamePlatformId]: string } = {
 
 const IGDB_API = new IgdbApi();
 
-const OUTPUT_TRANSFORM: FieldTransform<VideoGame, DataItem> = ({
-  platforms,
-}) => ({
-  platforms: platforms.map((id: VideoGamePlatformId) => ({ id })),
+const OUTPUT_TRANSFORM: OutputTransform<VideoGame, VideoGameShelfId> = (
+  data
+) => {
+  const platformIds: Array<VideoGamePlatformId> = data.platforms ?? [];
+  return {
+    platforms: platformIds.map((id: VideoGamePlatformId) => ({
+      id,
+      name: PLATFORM_NAMES[id],
+    })),
+  };
+};
+
+const ADD_INPUT_TRANSFORM: AddInputTransform<
+  AddVideoGameInput,
+  VideoGameShelfId
+> = (input) => ({
+  platforms: input.platformIds,
 });
 
-const INPUT_TRANSFORM: FieldTransform<
-  DataItem,
-  AddVideoGameInput | UpdateVideoGameInput
-> = ({ platformIds }) => ({
-  platforms: platformIds,
+const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
+  UpdateVideoGameInput,
+  VideoGameShelfId
+> = (input) => ({
+  ...(input.platformIds ? { platforms: input.platformIds } : {}),
 });
 
-const EXTERNAL_TRANSFORM: FieldTransform<AddVideoGameInput, ExternalVideoGame> =
-  () => ({
-    previewImageUrl: undefined,
-    rating: null,
-    platformIds: [],
-  });
+const EXTERNAL_TRANSFORM: ExternalToInputTransform<
+  ExternalVideoGame,
+  AddVideoGameInput,
+  VideoGameShelfId
+> = () => ({
+  platformIds: [],
+});
 
-export const resolvers: Resolvers = {
+export const resolvers: PartialResolvers = {
   Query: {
-    videoGame: resolveForId<VideoGame>(TYPE, OUTPUT_TRANSFORM),
-    videoGames: resolveForType<VideoGame>(TYPE, OUTPUT_TRANSFORM),
-    videoGameShelf: resolveShelf<VideoGameShelfId>(SHELF_NAMES),
+    videoGame: resolveForId<VideoGame, VideoGameShelfId>(
+      TYPE,
+      OUTPUT_TRANSFORM
+    ),
+    videoGames: resolveForType<VideoGame, VideoGameShelfId>(
+      TYPE,
+      OUTPUT_TRANSFORM
+    ),
+    videoGameShelf: resolveShelfArgs<VideoGameShelfId>(SHELF_NAMES),
     searchExternalVideoGame: resolveExternal(IGDB_API),
   },
+  VideoGame: {
+    shelf: resolveShelfParent<VideoGameShelfId>(SHELF_NAMES),
+  },
   VideoGameShelf: {
-    name: resolveShelfName<VideoGameShelfId>(SHELF_NAMES),
     items: resolveShelfItems<VideoGame, VideoGameShelfId>(
       TYPE,
       OUTPUT_TRANSFORM
     ),
-  },
-  VideoGamePlatform: {
-    name: ({ id }: { id?: VideoGamePlatformId }) => {
-      return PLATFORM_NAMES[id!];
-    },
   },
   ExternalVideoGame: {
     importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
@@ -184,17 +209,23 @@ export const resolvers: Resolvers = {
       VideoGameShelfId,
       AddVideoGameInput,
       ExternalVideoGame
-    >(TYPE, OUTPUT_TRANSFORM, INPUT_TRANSFORM, EXTERNAL_TRANSFORM, IGDB_API),
-    addVideoGame: resolveAddItem<VideoGame, AddVideoGameInput>(
+    >(
       TYPE,
-      INPUT_TRANSFORM,
-      OUTPUT_TRANSFORM
+      OUTPUT_TRANSFORM,
+      ADD_INPUT_TRANSFORM,
+      EXTERNAL_TRANSFORM,
+      IGDB_API
     ),
-    updateVideoGame: resolveUpdateItem<VideoGame, UpdateVideoGameInput>(
-      TYPE,
-      INPUT_TRANSFORM,
-      OUTPUT_TRANSFORM
-    ),
+    addVideoGame: resolveAddItem<
+      VideoGame,
+      VideoGameShelfId,
+      AddVideoGameInput
+    >(TYPE, ADD_INPUT_TRANSFORM, OUTPUT_TRANSFORM),
+    updateVideoGame: resolveUpdateItem<
+      VideoGame,
+      VideoGameShelfId,
+      UpdateVideoGameInput
+    >(TYPE, UPDATE_INPUT_TRANSFORM, OUTPUT_TRANSFORM),
     deleteVideoGame: resolveDeleteItem(TYPE),
   },
 };

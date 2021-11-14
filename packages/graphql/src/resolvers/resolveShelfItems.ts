@@ -1,11 +1,11 @@
 import { Item as DataItem, Query as DataQuery } from "@mattb.tech/billio-data";
-import { Item } from "../generated/graphql";
-import { FieldTransform, transformItem } from "../shared/transforms";
+import { Item } from "../shared/Item";
+import { OutputTransform, transformItem } from "../shared/transforms";
 
 export default function resolveShelfItems<
-  TItem extends Item,
+  TItem extends Item<TShelfId>,
   TShelfId extends string
->(type: string, transform: FieldTransform<TItem, DataItem>) {
+>(type: string, transform: OutputTransform<TItem, TShelfId>) {
   return async (
     { id }: { id?: TShelfId },
     { first, after }: { first: number; after?: string | null }

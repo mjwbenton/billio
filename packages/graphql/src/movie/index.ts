@@ -13,7 +13,7 @@ import resolveExternal from "../resolvers/resolveExternal";
 import resolveForId from "../resolvers/resolveForId";
 import resolveForType from "../resolvers/resolveForType";
 import resolveImportExternal from "../resolvers/resolveImportExternal";
-import resolveShelf from "../resolvers/resolveShelf";
+import { resolveShelfArgs } from "../resolvers/resolveShelf";
 import resolveShelfItems from "../resolvers/resolveShelfItems";
 import resolveShelfName from "../resolvers/resolveShelfName";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";

@@ -3,24 +3,30 @@ import {
   AddBookInput,
   Book,
   BookShelfId,
-  Resolvers,
   UpdateBookInput,
 } from "../generated/graphql";
-import { Item as DataItem } from "@mattb.tech/billio-data";
 import resolveAddItem from "../resolvers/resolveAddItem";
 import resolveDeleteItem from "../resolvers/resolveDeleteItem";
 import resolveExternal from "../resolvers/resolveExternal";
 import resolveForId from "../resolvers/resolveForId";
 import resolveForType from "../resolvers/resolveForType";
 import resolveImportExternal from "../resolvers/resolveImportExternal";
-import resolveShelf from "../resolvers/resolveShelf";
+import {
+  resolveShelfArgs,
+  resolveShelfParent,
+} from "../resolvers/resolveShelf";
 import resolveShelfItems from "../resolvers/resolveShelfItems";
-import resolveShelfName from "../resolvers/resolveShelfName";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
 import resolveImportedItem from "../resolvers/resolveImportedItem";
 import { GoogleBooksApi } from "./GoogleBooksApi";
-import { FieldTransform } from "../shared/transforms";
+import {
+  ExternalToInputTransform,
+  AddInputTransform,
+  OutputTransform,
+  UpdateInputTransform,
+} from "../shared/transforms";
 import { ExternalBook } from "./types";
+import { PartialResolvers } from "../shared/types";
 
 export const typeDefs = gql`
   extend type Query {
@@ -84,12 +90,13 @@ export const typeDefs = gql`
   input AddBookInput {
     title: String!
     shelfId: BookShelfId!
+    author: String!
     rating: Rating
     imageUrl: String
-    author: String!
     addedAt: DateTime
     movedAt: DateTime
     notes: String
+    externalId: String
   }
 
   input UpdateBookInput {
@@ -101,6 +108,7 @@ export const typeDefs = gql`
     addedAt: DateTime
     movedAt: DateTime
     notes: String
+    externalId: String
   }
 `;
 
@@ -112,32 +120,48 @@ const SHELF_NAMES: { [key in BookShelfId]: string } = {
   DidNotFinish: "Did Not Finish",
 };
 
-const INPUT_TRANSFORM: FieldTransform<
-  DataItem,
-  AddBookInput | UpdateBookInput
-> = () => ({});
+const ADD_INPUT_TRANSFORM: AddInputTransform<AddBookInput, BookShelfId> = (
+  input
+) => ({
+  author: input.author,
+});
 
-const OUTPUT_TRANSFORM: FieldTransform<Book, DataItem> = () => ({});
+const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
+  UpdateBookInput,
+  BookShelfId
+> = (input) => ({
+  ...(input.author ? { author: input.author } : {}),
+});
 
-const EXTERNAL_TRANSFORM: FieldTransform<AddBookInput, ExternalBook> = () => ({
-  rating: null,
+const OUTPUT_TRANSFORM: OutputTransform<Book, BookShelfId> = (data) => ({
+  author: data.author,
+});
+
+const EXTERNAL_TRANSFORM: ExternalToInputTransform<
+  ExternalBook,
+  AddBookInput,
+  BookShelfId
+> = (external) => ({
+  author: external.author,
 });
 
 const GOOGLEBOOKS_API = new GoogleBooksApi();
 
-export const resolvers: Resolvers = {
+export const resolvers: PartialResolvers = {
   Query: {
-    book: resolveForId<Book>(TYPE, OUTPUT_TRANSFORM),
-    books: resolveForType<Book>(TYPE, OUTPUT_TRANSFORM),
-    bookShelf: resolveShelf<BookShelfId>(SHELF_NAMES),
+    book: resolveForId<Book, BookShelfId>(TYPE, OUTPUT_TRANSFORM),
+    books: resolveForType<Book, BookShelfId>(TYPE, OUTPUT_TRANSFORM),
+    bookShelf: resolveShelfArgs<BookShelfId>(SHELF_NAMES),
     searchExternalBook: resolveExternal<ExternalBook>(GOOGLEBOOKS_API),
   },
+  Book: {
+    shelf: resolveShelfParent<BookShelfId>(SHELF_NAMES),
+  },
   BookShelf: {
-    name: resolveShelfName<BookShelfId>(SHELF_NAMES),
     items: resolveShelfItems<Book, BookShelfId>(TYPE, OUTPUT_TRANSFORM),
   },
   ExternalBook: {
-    importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
+    importedItem: resolveImportedItem<Book, BookShelfId>(OUTPUT_TRANSFORM),
   },
   Mutation: {
     importExternalBook: resolveImportExternal<
@@ -148,18 +172,18 @@ export const resolvers: Resolvers = {
     >(
       TYPE,
       OUTPUT_TRANSFORM,
-      INPUT_TRANSFORM,
+      ADD_INPUT_TRANSFORM,
       EXTERNAL_TRANSFORM,
       GOOGLEBOOKS_API
     ),
-    addBook: resolveAddItem<Book, AddBookInput>(
+    addBook: resolveAddItem<Book, BookShelfId, AddBookInput>(
       TYPE,
-      INPUT_TRANSFORM,
+      ADD_INPUT_TRANSFORM,
       OUTPUT_TRANSFORM
     ),
-    updateBook: resolveUpdateItem<Book, UpdateBookInput>(
+    updateBook: resolveUpdateItem<Book, BookShelfId, UpdateBookInput>(
       TYPE,
-      INPUT_TRANSFORM,
+      UPDATE_INPUT_TRANSFORM,
       OUTPUT_TRANSFORM
     ),
     deleteBook: resolveDeleteItem(TYPE),

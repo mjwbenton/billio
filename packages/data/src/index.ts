@@ -26,8 +26,8 @@ export interface Item {
 type TypeKey = Pick<Item, "type">;
 type ItemKey = TypeKey & Pick<Item, "id">;
 type ShelfKey = TypeKey & Pick<Item, "shelf">;
-type UpdateItem = ItemKey & Partial<Item>;
-type CreateItem = ItemKey & ShelfKey & Partial<Item>;
+export type UpdateItem = ItemKey & Partial<Item>;
+export type CreateItem = ItemKey & ShelfKey & Partial<Item>;
 
 class ItemDocument extends Document implements Item {
   type: string;

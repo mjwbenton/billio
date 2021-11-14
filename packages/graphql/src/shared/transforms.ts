@@ -1,96 +1,184 @@
-import { Item as DataItem } from "@mattb.tech/billio-data";
-import { ItemInput, ItemOverrides } from "./Item";
-import { Item } from "../generated/graphql";
+import {
+  Item as DataItem,
+  CreateItem as DataCreateItem,
+  UpdateItem as DataUpdateItem,
+} from "@mattb.tech/billio-data";
+import { Item, ItemInput, ItemOverrides } from "./Item";
 import { storeImage, selectImage } from "./Image";
+import { Unresolved } from "./types";
+import { ExternalItem } from "../external/ExternalApi";
 
 const IMAGE_DOMAIN = process.env.BILLIO_IMAGE_DOMAIN!;
 
-export type FieldTransform<OutType, InType = any> = (
-  given: InType
-) => Partial<OutType>;
+// TODO: Remove
+export type FieldTransform = {};
 
-export function transformExternalItem<
-  TExternalItem,
-  TAddItemInput extends ItemInput
+export type OutputTransform<
+  TItem extends Item<TShelfId>,
+  TShelfId extends string
+> = (
+  data: DataItem
+) => Omit<Unresolved<TItem>, keyof Unresolved<Item<TShelfId>>>;
+
+export function transformItem<
+  TItem extends Item<TShelfId>,
+  TShelfId extends string
 >(
-  input: TExternalItem,
-  shelfId: string,
-  fieldTransform: FieldTransform<TAddItemInput, TExternalItem> = () => ({})
-): TAddItemInput {
-  const transformed = fieldTransform(input);
-  // Cast to TAddItemInput isn't validated here
-  return cleanUndefined({
-    ...input,
-    ...transformed,
-    shelfId,
-  }) as unknown as TAddItemInput;
-}
-
-export function transformItem<TItem extends Item>(
   input: DataItem,
-  fieldTransform: FieldTransform<TItem> = () => ({})
-): TItem {
-  const { shelf, type, image, ...rest } = input;
+  fieldTransform: OutputTransform<TItem, TShelfId>
+): Omit<Unresolved<TItem>, keyof Unresolved<Item<TShelfId>>> &
+  Unresolved<Item<TShelfId>> {
+  const { image } = input;
   const transformed = fieldTransform(input);
   const selectedImage = selectImage(image);
-  // Cast to TItem isn't validated here, but will be validated on output by the GraphQL engine
-  return cleanUndefined({
-    ...rest,
-    ...(selectedImage
+  // Cast to assume that the shelf stored on DataItem is valid
+  const shelfId: TShelfId = input.shelf as TShelfId;
+  const base: Unresolved<Item<TShelfId>> = {
+    id: input.id,
+    addedAt: input.addedAt,
+    movedAt: input.movedAt,
+    title: input.title ?? "",
+    notes: input.notes ?? null,
+    externalId: input.externalId ?? null,
+    rating: input.rating ?? null,
+    image: selectedImage
       ? {
-          image: {
-            ...selectedImage,
-            url: `${IMAGE_DOMAIN}/${selectedImage.url}`,
-          },
+          ...selectedImage,
+          url: `${IMAGE_DOMAIN}/${selectedImage.url}`,
+        }
+      : null,
+    shelfId,
+  };
+  return {
+    ...base,
+    ...transformed,
+  };
+}
+export type ExternalToInputTransform<
+  TExternalItem extends ExternalItem,
+  TItemInput extends ItemInput<TShelfId>,
+  TShelfId extends string
+> = (item: TExternalItem) => Omit<TItemInput, keyof ItemInput<TShelfId>>;
+
+export function transformExternalItem<
+  TExternalItem extends ExternalItem,
+  TItemInput extends ItemInput<TShelfId>,
+  TShelfId extends string
+>(
+  input: TExternalItem,
+  shelfId: TShelfId,
+  transform: ExternalToInputTransform<TExternalItem, TItemInput, TShelfId>
+): Omit<TItemInput, keyof ItemInput<TShelfId>> & ItemInput<TShelfId> {
+  const transformed = transform(input);
+  const base: ItemInput<TShelfId> = {
+    title: input.title,
+    imageUrl: input.imageUrl ?? null,
+    externalId: input.id,
+    shelfId,
+    rating: null,
+    notes: null,
+    addedAt: null,
+    movedAt: null,
+  };
+  return {
+    ...base,
+    ...transformed,
+  };
+}
+
+export type AddInputTransform<
+  TItemInput extends ItemInput<TShelfId>,
+  TShelfId extends string
+> = (
+  input: Omit<TItemInput, keyof ItemInput<TShelfId>> & ItemInput<TShelfId>
+) => {
+  [additional: string]: any;
+};
+
+export async function transformAddItemInput<
+  TItemInput extends ItemInput<TShelfId>,
+  TShelfId extends string
+>(
+  id: string,
+  type: string,
+  input: Omit<TItemInput, keyof ItemInput<TShelfId>> & ItemInput<TShelfId>,
+  fieldTransform: AddInputTransform<TItemInput, TShelfId>
+): Promise<DataCreateItem> {
+  const {
+    shelfId: shelf,
+    imageUrl,
+    movedAt,
+    addedAt,
+    title,
+    rating,
+    notes,
+    externalId,
+  } = input;
+  const transformed = fieldTransform(input);
+  return {
+    ...transformed,
+    id,
+    type,
+    shelf,
+    title,
+    ...(movedAt ? { movedAt } : {}),
+    ...(addedAt ? { addedAt } : {}),
+    ...(rating ? { rating } : {}),
+    ...(notes ? { notes } : {}),
+    ...(externalId ? { externalId } : {}),
+    ...(imageUrl
+      ? {
+          image: await storeImage({ imageUrl }),
         }
       : {}),
-    ...transformed,
-    shelf: {
-      id: input.shelf,
-    },
-  }) as unknown as TItem;
+  };
 }
+
+export type UpdateInputTransform<
+  TItemInput extends ItemOverrides<ItemInput<TShelfId>>,
+  TShelfId extends string
+> = (
+  input: Omit<TItemInput, keyof ItemInput<TShelfId>> &
+    ItemOverrides<ItemInput<TShelfId>>
+) => {
+  [additional: string]: any;
+};
 
 export async function transformUpdateItemInput<
-  T extends ItemOverrides<ItemInput>
->(input: T, fieldTransform: FieldTransform<DataItem, T> = () => ({})) {
-  const { shelfId, imageUrl, ...rest } = input;
+  TItemInput extends ItemOverrides<ItemInput<TShelfId>>,
+  TShelfId extends string
+>(
+  id: string,
+  type: string,
+  input: TItemInput,
+  fieldTransform: UpdateInputTransform<TItemInput, TShelfId>
+): Promise<DataUpdateItem> {
+  const {
+    shelfId: shelf,
+    imageUrl,
+    movedAt,
+    addedAt,
+    title,
+    rating,
+    notes,
+    externalId,
+  } = input;
   const transformed = fieldTransform(input);
-  return cleanUndefined({
-    ...rest,
+  return {
     ...transformed,
+    id,
+    type,
+    ...(shelf ? { shelf } : {}),
+    ...(title ? { title } : {}),
+    ...(movedAt ? { movedAt } : {}),
+    ...(addedAt ? { addedAt } : {}),
+    ...(rating ? { rating } : {}),
+    ...(notes ? { notes } : {}),
+    ...(externalId ? { externalId } : {}),
     ...(imageUrl
       ? {
           image: await storeImage({ imageUrl }),
         }
       : {}),
-    ...(shelfId ? { shelf: shelfId } : {}),
-  });
-}
-
-export async function transformAddItemInput<T extends ItemInput>(
-  input: T,
-  fieldTransform: FieldTransform<DataItem, T> = () => ({})
-) {
-  const { shelfId, imageUrl, ...rest } = input;
-  const transformed = fieldTransform(input);
-  return cleanUndefined({
-    ...rest,
-    ...transformed,
-    ...(imageUrl
-      ? {
-          image: await storeImage({ imageUrl }),
-        }
-      : {}),
-    shelf: shelfId,
-  });
-}
-
-function cleanUndefined<T extends { [key: string]: any } = any>(input: T): T {
-  Object.keys(input).forEach((key) => {
-    if (input[key] === undefined) {
-      delete input[key];
-    }
-  });
-  return input;
+  };
 }

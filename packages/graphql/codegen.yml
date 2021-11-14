@@ -11,11 +11,13 @@ generates:
       - "typescript"
       - "typescript-resolvers"
       - add:
-          content: "import { PartialDeep } from 'type-fest';"
+          content: "import { Unresolved } from '../shared/types';"
     config:
       skipTypename: true
       useIndexSignature: true
-      defaultMapper: PartialDeep<{T}>
       enumsAsTypes: true
+      avoidOptionals: true
+      defaultMapper: Unresolved<{T}>
       scalars:
         DateTime: Date
+        Rating: number

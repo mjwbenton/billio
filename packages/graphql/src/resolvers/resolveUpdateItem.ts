@@ -1,32 +1,29 @@
 import { ItemInput, ItemOverrides } from "../shared/Item";
-import { Item } from "../generated/graphql";
+import { Item } from "../shared/Item";
 import {
-  FieldTransform,
+  OutputTransform,
   transformItem,
   transformUpdateItemInput,
+  UpdateInputTransform,
 } from "../shared/transforms";
-import {
-  Mutate as DataMutate,
-  Item as DataItem,
-} from "@mattb.tech/billio-data";
+import { Mutate as DataMutate } from "@mattb.tech/billio-data";
 
 export default function resolveUpdateItem<
-  TItem extends Item,
-  TUpdateItemInput extends ItemOverrides<ItemInput>
+  TItem extends Item<TShelfId>,
+  TShelfId extends string,
+  TUpdateItemInput extends ItemOverrides<ItemInput<TShelfId>>
 >(
   type: string,
-  inputTransform: FieldTransform<DataItem, TUpdateItemInput>,
-  outputTransform: FieldTransform<TItem, DataItem>
+  inputTransform: UpdateInputTransform<TUpdateItemInput, TShelfId>,
+  outputTransform: OutputTransform<TItem, TShelfId>
 ) {
   return async (
     _: unknown,
     { id, item }: { id: string; item: TUpdateItemInput }
   ) => {
-    const outputItem = await DataMutate.updateItem({
-      type,
-      id,
-      ...(await transformUpdateItemInput(item, inputTransform)),
-    });
-    return transformItem<TItem>(outputItem, outputTransform);
+    const outputItem = await DataMutate.updateItem(
+      await transformUpdateItemInput(id, type, item, inputTransform)
+    );
+    return transformItem<TItem, TShelfId>(outputItem, outputTransform);
   };
 }

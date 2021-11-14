@@ -1,12 +1,11 @@
 import { ItemInput, ItemOverrides } from "../shared/Item";
-import {
-  Item as DataItem,
-  Mutate as DataMutate,
-} from "@mattb.tech/billio-data";
-import { Item } from "../generated/graphql";
+import { Mutate as DataMutate } from "@mattb.tech/billio-data";
+import { Item } from "../shared/Item";
 import { v4 as uuid } from "uuid";
 import {
-  FieldTransform,
+  ExternalToInputTransform,
+  AddInputTransform,
+  OutputTransform,
   transformAddItemInput,
   transformExternalItem,
   transformItem,
@@ -14,15 +13,19 @@ import {
 import { ExternalItem, GetExternalApi } from "../external/ExternalApi";
 
 export default function resolveImportExternal<
-  TItem extends Item,
+  TItem extends Item<TShelfId>,
   TShelfId extends string,
-  TInputType extends ItemInput,
+  TItemInput extends ItemInput<TShelfId>,
   TExternalItem extends ExternalItem
 >(
   type: string,
-  outputTransform: FieldTransform<TItem, DataItem>,
-  inputTransform: FieldTransform<DataItem, TInputType>,
-  externalItemTransform: FieldTransform<TInputType, TExternalItem>,
+  outputTransform: OutputTransform<TItem, TShelfId>,
+  inputTransform: AddInputTransform<TItemInput, TShelfId>,
+  externalItemTransform: ExternalToInputTransform<
+    TExternalItem,
+    TItemInput,
+    TShelfId
+  >,
   api: GetExternalApi<TExternalItem>
 ) {
   return async (
@@ -34,29 +37,42 @@ export default function resolveImportExternal<
     }: {
       shelfId: TShelfId;
       externalId: string;
-      overrides?: ItemOverrides<TInputType> | null;
+      overrides?: ItemOverrides<TItemInput> | null;
     }
   ) => {
     const externalItem = await api.get({ id: externalId });
     if (!externalItem) {
       throw new Error(`Cannot find item for external id ${externalId}`);
     }
-    const outputItem = await DataMutate.createItem({
-      ...(await transformAddItemInput(
-        {
-          ...transformExternalItem(
-            externalItem,
-            shelfId,
-            externalItemTransform
-          ),
-          ...overrides,
-        },
-        inputTransform
-      )),
-      id: uuid(),
-      externalId: externalItem.id ?? externalId,
+    const inputItem = transformExternalItem(
+      externalItem,
+      shelfId,
+      externalItemTransform
+    );
+    const createItem = await transformAddItemInput(
+      uuid(),
       type,
-    });
+      {
+        ...inputItem,
+        ...nullToUndefined(overrides ?? {}),
+      },
+      inputTransform
+    );
+    const outputItem = await DataMutate.createItem(createItem);
     return transformItem(outputItem, outputTransform);
   };
+}
+
+function nullToUndefined<TInput extends Record<string, unknown>>(
+  input: TInput
+): {
+  [Key in keyof TInput]: TInput[Key] extends null
+    ? Exclude<TInput[Key], null> | undefined
+    : TInput[Key];
+} {
+  const result: any = {};
+  Object.entries(input).forEach(([key, value]) => {
+    result[key] = value === null ? undefined : value;
+  });
+  return result;
 }
