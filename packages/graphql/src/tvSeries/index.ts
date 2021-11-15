@@ -1,8 +1,6 @@
 import { gql } from "apollo-server-lambda";
 import {
   AddTvSeasonInput,
-  ExternalTvSeries,
-  ExternalTvSeason,
   Resolvers,
   TvSeason,
   TvShelfId,
@@ -18,11 +16,15 @@ import resolveExternal from "../resolvers/resolveExternal";
 import resolveForId from "../resolvers/resolveForId";
 import resolveForType from "../resolvers/resolveForType";
 import resolveImportExternal from "../resolvers/resolveImportExternal";
-import resolveShelf from "../resolvers/resolveShelf";
 import resolveShelfItems from "../resolvers/resolveShelfItems";
-import resolveShelfName from "../resolvers/resolveShelfName";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
-import { FieldTransform, transformItem } from "../shared/transforms";
+import {
+  AddInputTransform,
+  ExternalToInputTransform,
+  OutputTransform,
+  transformItem,
+  UpdateInputTransform,
+} from "../shared/transforms";
 import {
   seriesExternalIdForSeasonExternalId,
   TmdbSeasonApi,
@@ -30,9 +32,12 @@ import {
 } from "./TmdbApi";
 import resolveImportedItem from "../resolvers/resolveImportedItem";
 import { ItemOverrides } from "../shared/Item";
-import parseNamespacedId, {
-  buildNamespacedId,
-} from "../shared/parseNamespacedId";
+import { ExternalTvSeason, ExternalTvSeries } from "./types";
+import {
+  resolveShelfArgs,
+  resolveShelfParent,
+} from "../resolvers/resolveShelf";
+import { PartialResolvers } from "../shared/types";
 
 export const typeDefs = gql`
   extend type Query {
@@ -152,6 +157,7 @@ export const typeDefs = gql`
     addedAt: DateTime
     movedAt: DateTime
     notes: String
+    externalId: ID
   }
 
   input AddTvSeriesInput {
@@ -162,6 +168,7 @@ export const typeDefs = gql`
     addedAt: DateTime
     movedAt: DateTime
     notes: String
+    externalId: ID
   }
 
   input UpdateTvSeasonInput {
@@ -176,6 +183,7 @@ export const typeDefs = gql`
     addedAt: DateTime
     movedAt: DateTime
     notes: String
+    externalId: ID
   }
 
   input UpdateTvSeriesInput {
@@ -186,6 +194,7 @@ export const typeDefs = gql`
     addedAt: DateTime
     movedAt: DateTime
     notes: String
+    externalId: ID
   }
 `;
 
@@ -198,30 +207,64 @@ const SHELF_NAMES: { [key in TvShelfId]: string } = {
   GaveUp: "Gave Up",
 };
 
-const INPUT_TRANSFORM: FieldTransform<
-  DataItem,
-  | AddTvSeasonInput
-  | UpdateTvSeasonInput
-  | AddTvSeriesInput
-  | UpdateTvSeriesInput
-> = () => ({});
-
-const OUTPUT_TRANSFORM: FieldTransform<TvSeason & TvSeries, DataItem> =
-  () => ({});
-
-const EXTERNAL_SERIES_TRANSFORM: FieldTransform<
-  AddTvSeriesInput,
-  ExternalTvSeries
-> = () => ({
-  rating: null,
-  seasons: undefined,
+const ADD_SEASON_INPUT_TRANSFORM: AddInputTransform<
+  AddTvSeasonInput,
+  TvShelfId
+> = (input) => ({
+  seriesId: input.seriesId,
+  seasonNumber: input.seasonNumber,
+  ...(input.seasonTitle ? { seasonTitle: input.seasonTitle } : {}),
 });
 
-const EXTERNAL_SEASON_TRANSFORM: FieldTransform<
+const ADD_SERIES_INPUT_TRANSFORM: AddInputTransform<
+  AddTvSeriesInput,
+  TvShelfId
+> = () => ({});
+
+const UPDATE_SEASON_INPUT_TRANSFORM: UpdateInputTransform<
+  UpdateTvSeasonInput,
+  TvShelfId
+> = (input) => ({
+  ...(input.seriesId ? { seriesId: input.seriesId } : {}),
+  ...(input.seasonNumber ? { seasonNumber: input.seasonNumber } : {}),
+  ...(input.seasonTitle ? { seasonTitle: input.seasonTitle } : {}),
+});
+
+const UPDATE_SERIES_INPUT_TRANSFORM: UpdateInputTransform<
+  UpdateTvSeriesInput,
+  TvShelfId
+> = () => ({});
+
+const OUTPUT_SEASON_TRANSFORM: OutputTransform<TvSeason, TvShelfId> = (
+  data
+) => ({
+  seasonNumber: data.seasonNumber,
+  seasonTitle: data.seasonTitle ?? null,
+  seriesId: data.seriesId,
+});
+
+const OUTPUT_SERIES_TRANSFORM: OutputTransform<TvSeries, TvShelfId> = (
+  data
+) => ({
+  // TODO: Seasons shouldn't be being asked for here! Seperate resolver?
+  seasons: [],
+});
+
+const EXTERNAL_SERIES_TRANSFORM: ExternalToInputTransform<
+  ExternalTvSeries,
+  AddTvSeriesInput,
+  TvShelfId
+> = (external) => ({});
+
+const EXTERNAL_SEASON_TRANSFORM: ExternalToInputTransform<
+  ExternalTvSeason,
   AddTvSeasonInput,
-  ExternalTvSeason
-> = () => ({
-  rating: null,
+  TvShelfId
+> = (external) => ({
+  seasonNumber: external.seasonNumber,
+  seasonTitle: external.seasonTitle,
+  // TODO: This is fake because we know it gets overridden later
+  seriesId: "",
 });
 
 const SERIES_API = new TmdbSeriesApi();
@@ -234,8 +277,8 @@ const importExternalTvSeries = resolveImportExternal<
   ExternalTvSeries
 >(
   TV_SERIES,
-  OUTPUT_TRANSFORM,
-  INPUT_TRANSFORM,
+  OUTPUT_SERIES_TRANSFORM,
+  ADD_SERIES_INPUT_TRANSFORM,
   EXTERNAL_SERIES_TRANSFORM,
   SERIES_API
 );
@@ -274,12 +317,18 @@ const importExternalTvSeason = async (
         externalId: seriesExternalId,
         shelfId,
         overrides: {
-          ...(overrides?.rating ? { rating: overrides?.rating } : {}),
-          ...(overrides?.addedAt ? { addedAt: overrides?.addedAt } : {}),
-          ...(overrides?.movedAt ? { movedAt: overrides?.movedAt } : {}),
+          rating: overrides?.rating ?? null,
+          addedAt: overrides?.addedAt ?? null,
+          movedAt: overrides?.movedAt ?? null,
+          title: null,
+          shelfId: null,
+          imageUrl: null,
+          notes: null,
+          externalId: null,
         },
       })
     ).id;
+
   return await resolveImportExternal<
     TvSeason,
     TvShelfId,
@@ -287,45 +336,60 @@ const importExternalTvSeason = async (
     ExternalTvSeason
   >(
     TV_SEASON,
-    OUTPUT_TRANSFORM,
-    INPUT_TRANSFORM,
+    OUTPUT_SEASON_TRANSFORM,
+    ADD_SEASON_INPUT_TRANSFORM,
     EXTERNAL_SEASON_TRANSFORM,
     SEASON_API
-  )(_, { externalId, shelfId, overrides: { ...overrides, seriesId } });
+    // TODO: Well this is a mess
+  )(_, {
+    externalId,
+    shelfId,
+    overrides: {
+      title: null,
+      seasonNumber: null,
+      seasonTitle: null,
+      shelfId: null,
+      rating: null,
+      imageUrl: null,
+      movedAt: null,
+      addedAt: null,
+      notes: null,
+      externalId: null,
+      ...overrides,
+      seriesId,
+    },
+  });
 };
 
-export const resolvers: Resolvers = {
+export const resolvers: PartialResolvers = {
   Query: {
-    tvSeason: resolveForId<TvSeason>(TV_SEASON, OUTPUT_TRANSFORM),
-    tvSeriesSingle: resolveForId<TvSeries>(TV_SERIES, OUTPUT_TRANSFORM),
-    tvSeasons: resolveForType<TvSeason>(TV_SEASON, OUTPUT_TRANSFORM),
-    tvSeries: resolveForType<TvSeries>(TV_SERIES, OUTPUT_TRANSFORM),
-    tvSeasonShelf: resolveShelf<TvShelfId>(SHELF_NAMES),
-    tvSeriesShelf: resolveShelf<TvShelfId>(SHELF_NAMES),
+    tvSeason: resolveForId<TvSeason, TvShelfId>(
+      TV_SEASON,
+      OUTPUT_SEASON_TRANSFORM
+    ),
+    tvSeriesSingle: resolveForId<TvSeries, TvShelfId>(
+      TV_SERIES,
+      OUTPUT_SERIES_TRANSFORM
+    ),
+    tvSeasons: resolveForType<TvSeason, TvShelfId>(
+      TV_SEASON,
+      OUTPUT_SEASON_TRANSFORM
+    ),
+    tvSeries: resolveForType<TvSeries, TvShelfId>(
+      TV_SERIES,
+      OUTPUT_SERIES_TRANSFORM
+    ),
+    tvSeasonShelf: resolveShelfArgs<TvShelfId>(SHELF_NAMES),
+    tvSeriesShelf: resolveShelfArgs<TvShelfId>(SHELF_NAMES),
     searchExternalTvSeries: resolveExternal<ExternalTvSeries>(SERIES_API),
   },
-  TvSeasonShelf: {
-    name: resolveShelfName<TvShelfId>(SHELF_NAMES),
-    items: resolveShelfItems<TvSeason, TvShelfId>(TV_SEASON, OUTPUT_TRANSFORM),
-  },
-  TvSeriesShelf: {
-    name: resolveShelfName<TvShelfId>(SHELF_NAMES),
-    items: resolveShelfItems<TvSeries, TvShelfId>(TV_SERIES, OUTPUT_TRANSFORM),
-  },
-  ExternalTvSeason: {
-    importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
-  },
-  ExternalTvSeries: {
-    importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
-  },
   TvSeason: {
-    // TODO: Fix types here, put somewhere better
-    series: async (parent) => {
-      const seriesId = (parent as any).seriesId;
-      const series = await resolveForId<TvSeries>(TV_SERIES, OUTPUT_TRANSFORM)(
-        null,
-        { id: seriesId }
-      );
+    shelf: resolveShelfParent<TvShelfId>(SHELF_NAMES),
+    series: async ({ seriesId }) => {
+      const series = await resolveForId<TvSeries, TvShelfId>(
+        TV_SERIES,
+        OUTPUT_SERIES_TRANSFORM
+      )(null, { id: seriesId });
       if (!series) {
         throw new Error("Invalid link from season to series");
       }
@@ -333,36 +397,54 @@ export const resolvers: Resolvers = {
     },
   },
   TvSeries: {
+    shelf: resolveShelfParent<TvShelfId>(SHELF_NAMES),
     seasons: async ({ id }) => {
-      if (!id) {
-        throw new Error("missing id");
-      }
       const seasons = await DataQuery.withSeriesId({ seriesId: id });
-      return seasons.map((season) => transformItem(season, OUTPUT_TRANSFORM));
+      return seasons.map((season) =>
+        transformItem(season, OUTPUT_SEASON_TRANSFORM)
+      );
     },
+  },
+  TvSeasonShelf: {
+    items: resolveShelfItems<TvSeason, TvShelfId>(
+      TV_SEASON,
+      OUTPUT_SEASON_TRANSFORM
+    ),
+  },
+  TvSeriesShelf: {
+    items: resolveShelfItems<TvSeries, TvShelfId>(
+      TV_SERIES,
+      OUTPUT_SERIES_TRANSFORM
+    ),
+  },
+  ExternalTvSeason: {
+    importedItem: resolveImportedItem(OUTPUT_SEASON_TRANSFORM),
+  },
+  ExternalTvSeries: {
+    importedItem: resolveImportedItem(OUTPUT_SERIES_TRANSFORM),
   },
   Mutation: {
     importExternalTvSeason,
     importExternalTvSeries,
-    addTvSeason: resolveAddItem<TvSeason, AddTvSeasonInput>(
+    addTvSeason: resolveAddItem<TvSeason, TvShelfId, AddTvSeasonInput>(
       TV_SEASON,
-      INPUT_TRANSFORM,
-      OUTPUT_TRANSFORM
+      ADD_SEASON_INPUT_TRANSFORM,
+      OUTPUT_SEASON_TRANSFORM
     ),
-    addTvSeries: resolveAddItem<TvSeries, AddTvSeriesInput>(
+    addTvSeries: resolveAddItem<TvSeries, TvShelfId, AddTvSeriesInput>(
       TV_SERIES,
-      INPUT_TRANSFORM,
-      OUTPUT_TRANSFORM
+      ADD_SERIES_INPUT_TRANSFORM,
+      OUTPUT_SERIES_TRANSFORM
     ),
-    updateTvSeason: resolveUpdateItem<TvSeason, UpdateTvSeasonInput>(
+    updateTvSeason: resolveUpdateItem<TvSeason, TvShelfId, UpdateTvSeasonInput>(
       TV_SEASON,
-      INPUT_TRANSFORM,
-      OUTPUT_TRANSFORM
+      UPDATE_SEASON_INPUT_TRANSFORM,
+      OUTPUT_SEASON_TRANSFORM
     ),
-    updateTvSeries: resolveUpdateItem<TvSeries, UpdateTvSeriesInput>(
+    updateTvSeries: resolveUpdateItem<TvSeries, TvShelfId, UpdateTvSeriesInput>(
       TV_SERIES,
-      INPUT_TRANSFORM,
-      OUTPUT_TRANSFORM
+      UPDATE_SERIES_INPUT_TRANSFORM,
+      OUTPUT_SERIES_TRANSFORM
     ),
     deleteTvSeason: resolveDeleteItem(TV_SEASON),
     deleteTvSeries: resolveDeleteItem(TV_SERIES),

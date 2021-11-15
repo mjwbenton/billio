@@ -63,6 +63,7 @@ export default function resolveImportExternal<
   };
 }
 
+// TODO: Should these be deleting keys rather than making them undefined?
 function nullToUndefined<TInput extends Record<string, unknown>>(
   input: TInput
 ): {
