@@ -22,8 +22,14 @@ import {
   TvSeasonCreate,
   TvSeasonEdit,
   TvSeasonImport,
-} from "./tvSeason/TvSeasonEdit";
-import { TvSeasonShow, TvSeasonList } from "./tvSeason/TvSeasonShow";
+} from "./tv/TvSeasonEdit";
+import { TvSeasonShow, TvSeasonList } from "./tv/TvSeasonShow";
+import {
+  TvSeriesCreate,
+  TvSeriesEdit,
+  TvSeriesImport,
+} from "./tv/TvSeriesEdit";
+import { TvSeriesList, TvSeriesShow } from "./tv/TvSeriesShow";
 
 const THEME = createMuiTheme({
   palette: {
@@ -90,6 +96,17 @@ const CUSTOM_ROUTES = [
   />,
   <Route
     exact
+    path="/TvSeries/import"
+    component={(renderProps) => (
+      <ResourceContextProvider value="TvSeries">
+        <ImportPage>
+          <TvSeriesImport />
+        </ImportPage>
+      </ResourceContextProvider>
+    )}
+  />,
+  <Route
+    exact
     path="/TvSeason/import"
     component={(renderProps) => (
       <ResourceContextProvider value="TvSeason">
@@ -139,12 +156,21 @@ function App() {
         icon={MovieIcon}
       />
       <Resource
+        name="TvSeries"
+        create={TvSeriesCreate}
+        list={TvSeriesList}
+        show={TvSeriesShow}
+        edit={TvSeriesEdit}
+        options={{ label: "TV Series" }}
+        icon={TvIcon}
+      />
+      <Resource
         name="TvSeason"
         create={TvSeasonCreate}
         list={TvSeasonList}
         show={TvSeasonShow}
         edit={TvSeasonEdit}
-        options={{ label: "TV" }}
+        options={{ label: "TV Seasons" }}
         icon={TvIcon}
       />
     </Admin>

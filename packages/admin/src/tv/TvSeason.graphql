@@ -1,0 +1,20 @@
+fragment TvSeason on TvSeason {
+  id
+  title
+  shelf {
+    id
+    name
+  }
+  image {
+    url
+  }
+  series {
+    id
+  }
+  rating
+  seasonNumber
+  seasonTitle
+  movedAt
+  addedAt
+  notes
+}

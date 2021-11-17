@@ -3,7 +3,7 @@ import Import from "../import/Import";
 import { baseMetaInputs, Create, Edit } from "../shared/Edit";
 import transform from "../shared/transform";
 import SearchExternalTvSeasonInput from "./SearchExternalTvSeasonInput";
-import SHELVES from "./TvSeasonShelves";
+import SHELVES from "./TvShelves";
 
 const TRANSFORM = transform();
 

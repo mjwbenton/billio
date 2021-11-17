@@ -4,70 +4,98 @@ import { loader } from "graphql.macro";
 import stripTypename from "./stripTypename";
 import { DataProvider } from "ra-core";
 
-const FRAGMENTS = {
-  Book: loader("./book/Book.graphql"),
-  VideoGame: loader("./videogame/VideoGame.graphql"),
-  Movie: loader("./movie/Movie.graphql"),
-  TvSeason: loader("./tvSeason/TvSeason.graphql"),
-};
-
-const EXTERNAL_FRAGMENTS = {
-  Book: loader("./book/ExternalBook.graphql"),
-  VideoGame: loader("./videogame/ExternalVideoGame.graphql"),
-  Movie: loader("./movie/ExternalMovie.graphql"),
-  TvSeries: loader("./tvSeason/ExternalTvSeries.graphql"),
+const RESOURCE_CONFIGURATION = {
+  Book: {
+    fragment: loader("./book/Book.graphql"),
+    externalFragment: loader("./book/ExternalBook.graphql"),
+    querySingle: "book",
+    queryList: "books",
+    capitalized: "Book",
+    shelfType: "BookShelfId",
+  },
+  VideoGame: {
+    fragment: loader("./videoGame/VideoGame.graphql"),
+    externalFragment: loader("./videoGame/ExternalVideoGame.graphql"),
+    querySingle: "videoGame",
+    queryList: "videoGames",
+    capitalized: "VideoGame",
+    shelfType: "VideoGameShelfId",
+  },
+  Movie: {
+    fragment: loader("./movie/Movie.graphql"),
+    externalFragment: loader("./movie/ExternalMovie.graphql"),
+    querySingle: "movie",
+    queryList: "movies",
+    capitalized: "Movie",
+    shelfType: "MovieShelfId",
+  },
+  TvSeries: {
+    fragment: loader("./tv/TvSeries.graphql"),
+    externalFragment: loader("./tv/ExternalTvSeries.graphql"),
+    querySingle: "tvSeriesSingle",
+    queryList: "tvSeries",
+    capitalized: "TvSeries",
+    shelfType: "TvShelfId",
+  },
+  TvSeason: {
+    fragment: loader("./tv/TvSeason.graphql"),
+    querySingle: "tvSeason",
+    queryList: "tvSeasons",
+    capitalized: "TvSeason",
+    shelfType: "TvShelfId",
+  },
 };
 
 const QUERIES = {
   GET_ONE: (resourceName: string) => gql`
     query GET_ONE_${resourceName}($id: ID!) {
-      item: ${lowerFirst(resourceName)}(id: $id) {
+      item: ${RESOURCE_CONFIGURATION[resourceName].querySingle}(id: $id) {
         ...${resourceName}
       }
     }
-    ${FRAGMENTS[resourceName]}`,
+    ${RESOURCE_CONFIGURATION[resourceName].fragment}`,
 
   GET_LIST: (resourceName: string) => gql`
     query GET_LIST_${resourceName}($first: Int!) {
-      page: ${lowerFirst(resourceName)}s(first: $first) {
+      page: ${RESOURCE_CONFIGURATION[resourceName].queryList}(first: $first) {
         total
         items: items {
           ...${resourceName}
         }
       }
     }
-    ${FRAGMENTS[resourceName]}`,
+    ${RESOURCE_CONFIGURATION[resourceName].fragment}`,
 
   CREATE: (resourceName: string) => gql`
-    mutation CREATE_${resourceName}($item: Add${resourceName}Input!) {
-      item: add${resourceName}(item: $item) {
+    mutation CREATE_${resourceName}($item: Add${RESOURCE_CONFIGURATION[resourceName].capitalized}Input!) {
+      item: add${RESOURCE_CONFIGURATION[resourceName].capitalized}(item: $item) {
         ...${resourceName}
       }
     }
-    ${FRAGMENTS[resourceName]}`,
+    ${RESOURCE_CONFIGURATION[resourceName].fragment}`,
 
   UPDATE: (resourceName: string) => gql`
-    mutation UPDATE_${resourceName}($id: ID!, $item: Update${resourceName}Input!) {
-      item: update${resourceName}(id: $id, item: $item) {
+    mutation UPDATE_${resourceName}($id: ID!, $item: Update${RESOURCE_CONFIGURATION[resourceName].capitalized}Input!) {
+      item: update${RESOURCE_CONFIGURATION[resourceName].capitalized}(id: $id, item: $item) {
         ...${resourceName}
       }
     }
-    ${FRAGMENTS[resourceName]}`,
+    ${RESOURCE_CONFIGURATION[resourceName].fragment}`,
 
   DELETE: (resourceName: string) => gql`
     mutation DELETE_${resourceName}($id: ID!) {
-      item: delete${resourceName}(id: $id) {
+      item: delete${RESOURCE_CONFIGURATION[resourceName].capitalized}(id: $id) {
         id
       }
     }`,
 
   IMPORT: (resourceName: string) => gql`
-    mutation IMPORT_${resourceName}($id: ID!, $shelfId: ${resourceName}ShelfId!, $overrides: Update${resourceName}Input) {
+    mutation IMPORT_${resourceName}($id: ID!, $shelfId: ${RESOURCE_CONFIGURATION[resourceName].shelfType}!, $overrides: Update${RESOURCE_CONFIGURATION[resourceName].capitalized}Input) {
       item: importExternal${resourceName}(externalId: $id, shelfId: $shelfId, overrides: $overrides) {
         ...${resourceName}
       }
     }
-    ${FRAGMENTS[resourceName]}`,
+    ${RESOURCE_CONFIGURATION[resourceName].fragment}`,
 
   SEARCH_EXTERNAL: (resourceName: string) => gql`
     query SEARCH_EXTERNAL_${resourceName}($term: String!) {
@@ -75,12 +103,8 @@ const QUERIES = {
         ...External${resourceName}
       }
     }
-    ${EXTERNAL_FRAGMENTS[resourceName]}`,
+    ${RESOURCE_CONFIGURATION[resourceName].externalFragment}`,
 };
-
-function lowerFirst(str: string): string {
-  return str.charAt(0).toLowerCase() + str.slice(1);
-}
 
 const dataProvider: DataProvider = {
   async getList(resourceName, params) {

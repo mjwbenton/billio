@@ -1,4 +1,4 @@
-fragment TvSeason on TvSeason {
+fragment TvSeries on TvSeries {
   id
   title
   shelf {
@@ -8,9 +8,10 @@ fragment TvSeason on TvSeason {
   image {
     url
   }
+  seasons {
+    id
+  }
   rating
-  seasonNumber
-  seasonTitle
   movedAt
   addedAt
   notes
