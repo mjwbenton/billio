@@ -65,7 +65,6 @@ export class TmdbApi implements ExternalApi<ExternalMovie> {
   private async getTmdb({ id }: { id: string }): Promise<ExternalMovie | null> {
     const url = `${MOVIE_ENDPOINT}/${id}?${qs.stringify(BASE_PARAMS)}`;
     const result = (await axios.get(url)).data;
-    console.log(JSON.stringify(result, null, 2));
     if (!result.id) {
       return null;
     }
