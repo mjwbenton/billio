@@ -5,12 +5,42 @@ const ITEM_MATCHER = {
   id: expect.any(String),
 };
 
-let TEST_ID: string = "";
+let ADDED_ID: string = "";
+let IMPORTED_ID: string = "";
+
+test("can add a book", async () => {
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_AddBook {
+        addBook(
+          item: {
+            title: "Test Book"
+            author: "Matt Benton"
+            shelfId: DidNotFinish
+            rating: 1
+          }
+        ) {
+          id
+          title
+          author
+          shelf {
+            name
+          }
+          rating
+        }
+      }
+    `,
+  });
+  expect(data).toMatchSnapshot({
+    addBook: ITEM_MATCHER,
+  });
+  ADDED_ID = data.addBook.id;
+});
 
 test("can import external book", async () => {
   const { data } = await client.mutate({
     mutation: gql`
-      mutation Test {
+      mutation Test_ImportBook {
         importExternalBook(
           externalId: "googlebooks:CkVF9cg8daMC"
           shelfId: Reading
@@ -29,7 +59,7 @@ test("can import external book", async () => {
   expect(data).toMatchSnapshot({
     importExternalBook: ITEM_MATCHER,
   });
-  TEST_ID = data.importExternalBook.id;
+  IMPORTED_ID = data.importExternalBook.id;
 });
 
 test("can query single book", async () => {
@@ -49,7 +79,7 @@ test("can query single book", async () => {
       }
     `,
     variables: {
-      id: TEST_ID,
+      id: ADDED_ID,
     },
   });
   expect(data).toMatchSnapshot({
@@ -69,10 +99,16 @@ test("can fetch second page of books", async () => {
       }
     }
   `;
+
   const { data: first } = await client.query({
     query,
   });
-  expect(first).toMatchSnapshot();
+  expect(first).toMatchSnapshot({
+    books: {
+      nextPageCursor: expect.any(String),
+      hasNextPage: true,
+    },
+  });
 
   const { data: second } = await client.query({
     query,
@@ -80,14 +116,19 @@ test("can fetch second page of books", async () => {
       after: first.books.nextPageCursor,
     },
   });
-  expect(second).toMatchSnapshot();
+  expect(second).toMatchSnapshot({
+    books: {
+      nextPageCursor: null,
+      hasNextPage: false,
+    },
+  });
 });
 
 test("can fetch books by shelf", async () => {
   const { data } = await client.query({
     query: gql`
       {
-        bookShelf(id: Reading) {
+        bookShelf(id: DidNotFinish) {
           name
           items(first: 1) {
             items {
@@ -121,25 +162,31 @@ test("can search for external books", async () => {
   });
 });
 
-test("can mutate title on book", async () => {
-  const randomTitle = Math.random()
-    .toString(36)
-    .replace(/[^a-z]+/g, "")
-    .substr(0, 5);
+test("can mutate title on book without change to other fields", async () => {
+  const updatedTitle = "Test Book 2";
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_MutateTitle($id: ID!, $title: String!) {
         updateBook(id: $id, item: { title: $title }) {
           title
+          author
+          rating
+          externalId
+          notes
+          image {
+            url
+            width
+            height
+          }
         }
       }
     `,
     variables: {
-      id: TEST_ID,
-      title: randomTitle,
+      id: ADDED_ID,
+      title: updatedTitle,
     },
   });
-  expect(data.updateBook.title).toEqual(randomTitle);
+  expect(data).toMatchSnapshot();
 });
 
 test("movedAt doesn't change on rating", async () => {
@@ -156,7 +203,7 @@ test("movedAt doesn't change on rating", async () => {
         }
       }
     `,
-    variables: { id: TEST_ID },
+    variables: { id: ADDED_ID },
   });
   const { data } = await client.mutate({
     mutation: gql`
@@ -167,7 +214,7 @@ test("movedAt doesn't change on rating", async () => {
         }
       }
     `,
-    variables: { id: TEST_ID },
+    variables: { id: ADDED_ID },
   });
   expect(data.updateBook.rating).toEqual(10);
   expect(data.updateBook.movedAt).toEqual(movedAt);
@@ -185,7 +232,7 @@ test("moving between shelves updates movedAt", async () => {
         }
       }
     `,
-    variables: { id: TEST_ID },
+    variables: { id: ADDED_ID },
   });
   const { data } = await client.mutate({
     mutation: gql`
@@ -200,7 +247,7 @@ test("moving between shelves updates movedAt", async () => {
       }
     `,
     variables: {
-      id: TEST_ID,
+      id: ADDED_ID,
     },
   });
   expect(data.updateBook.shelf.id).toEqual("Read");
@@ -219,7 +266,7 @@ test("cannot rate book more than 10", async () => {
         }
       `,
       variables: {
-        id: TEST_ID,
+        id: ADDED_ID,
       },
     });
   } catch (e) {
@@ -238,25 +285,30 @@ test("can add note to a book", async () => {
       }
     `,
     variables: {
-      id: TEST_ID,
+      id: ADDED_ID,
       note: NOTE,
     },
   });
   expect(data.updateBook.notes).toEqual(NOTE);
 });
 
-test("can delete book", async () => {
+test("can delete books (cleanup)", async () => {
   const { data } = await client.mutate({
     mutation: gql`
-      mutation Test_DeleteBook($id: ID!) {
-        deleteBook(id: $id) {
+      mutation Test_DeleteBook($id1: ID!, $id2: ID!) {
+        delete1: deleteBook(id: $id1) {
+          id
+        }
+        delete2: deleteBook(id: $id2) {
           id
         }
       }
     `,
     variables: {
-      id: TEST_ID,
+      id1: ADDED_ID,
+      id2: IMPORTED_ID,
     },
   });
-  expect(data.deleteBook.id).toEqual(TEST_ID);
+  expect(data.delete1.id).toEqual(ADDED_ID);
+  expect(data.delete2.id).toEqual(IMPORTED_ID);
 });

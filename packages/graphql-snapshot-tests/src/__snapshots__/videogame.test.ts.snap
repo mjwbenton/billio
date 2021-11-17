@@ -15,23 +15,27 @@ Object {
 }
 `;
 
-exports[`can fetch second page of video games 1`] = `
+exports[`can add a video game 1`] = `
 Object {
-  "videoGames": Object {
-    "__typename": "VideoGamePage",
-    "hasNextPage": true,
-    "items": Array [
+  "addVideoGame": Object {
+    "__typename": "VideoGame",
+    "externalId": null,
+    "id": Any<String>,
+    "image": null,
+    "notes": null,
+    "platforms": Array [
       Object {
-        "__typename": "VideoGame",
-        "title": "Ori and the Blind Forest: Definitive Edition",
+        "__typename": "VideoGamePlatform",
+        "name": "Nintendo 3DS",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6ZWQ5YzQ5NWEtZmI0OS00MTUwLTg0ZWYtZTAzOWE1N2NlNGM3IiwibW92ZWRBdDp0eXBlOmlkIjoiMTYyODQyMDE1MTA2MDpWaWRlb0dhbWU6ZWQ5YzQ5NWEtZmI0OS00MTUwLTg0ZWYtZTAzOWE1N2NlNGM3IiwidHlwZSI6IlZpZGVvR2FtZSJ9fQ==",
+    "rating": 1,
+    "title": "Test Video Game",
   },
 }
 `;
 
-exports[`can fetch second page of video games 2`] = `
+exports[`can fetch second page of video games 1`] = `
 Object {
   "videoGames": Object {
     "__typename": "VideoGamePage",
@@ -42,7 +46,23 @@ Object {
         "title": "Ori and the Will of the Wisps: Collector's Edition",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJWaWRlb0dhbWU6OWZkNTU3MmItOWJiYS00MzNmLTkyY2UtZDY1ZDAzNjI4YWVlIiwibW92ZWRBdDp0eXBlOmlkIjoiMTYyODQyMDE1MDAzMjpWaWRlb0dhbWU6OWZkNTU3MmItOWJiYS00MzNmLTkyY2UtZDY1ZDAzNjI4YWVlIiwidHlwZSI6IlZpZGVvR2FtZSJ9fQ==",
+    "nextPageCursor": Any<String>,
+  },
+}
+`;
+
+exports[`can fetch second page of video games 2`] = `
+Object {
+  "videoGames": Object {
+    "__typename": "VideoGamePage",
+    "hasNextPage": false,
+    "items": Array [
+      Object {
+        "__typename": "VideoGame",
+        "title": "Test Video Game",
+      },
+    ],
+    "nextPageCursor": null,
   },
 }
 `;
@@ -67,7 +87,7 @@ Object {
 
 exports[`can import external video game 1`] = `
 Object {
-  "firstImport": Object {
+  "importExternalVideoGame": Object {
     "__typename": "VideoGame",
     "id": Any<String>,
     "shelf": Object {
@@ -75,15 +95,6 @@ Object {
       "id": "Completed",
     },
     "title": "Ori and the Will of the Wisps: Collector's Edition",
-  },
-  "secondImport": Object {
-    "__typename": "VideoGame",
-    "id": Any<String>,
-    "shelf": Object {
-      "__typename": "VideoGameShelf",
-      "id": "Playing",
-    },
-    "title": "Ori and the Blind Forest: Definitive Edition",
   },
 }
 `;
@@ -106,14 +117,20 @@ Object {
   "videoGame": Object {
     "__typename": "VideoGame",
     "id": Any<String>,
-    "platforms": Array [],
-    "rating": null,
+    "platforms": Array [
+      Object {
+        "__typename": "VideoGamePlatform",
+        "id": "Nintendo3DS",
+        "name": "Nintendo 3DS",
+      },
+    ],
+    "rating": 1,
     "shelf": Object {
       "__typename": "VideoGameShelf",
-      "id": "Completed",
-      "name": "Completed",
+      "id": "GaveUp",
+      "name": "Gave Up",
     },
-    "title": "Ori and the Will of the Wisps: Collector's Edition",
+    "title": "Test Video Game",
   },
 }
 `;

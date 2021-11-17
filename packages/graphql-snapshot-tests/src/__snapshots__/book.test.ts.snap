@@ -1,5 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`can add a book 1`] = `
+Object {
+  "addBook": Object {
+    "__typename": "Book",
+    "author": "Matt Benton",
+    "id": Any<String>,
+    "rating": 1,
+    "shelf": Object {
+      "__typename": "BookShelf",
+      "name": "Did Not Finish",
+    },
+    "title": "Test Book",
+  },
+}
+`;
+
 exports[`can fetch books by shelf 1`] = `
 Object {
   "bookShelf": Object {
@@ -9,11 +25,11 @@ Object {
       "items": Array [
         Object {
           "__typename": "Book",
-          "title": "The Damned Utd",
+          "title": "Test Book",
         },
       ],
     },
-    "name": "Reading",
+    "name": "Did Not Finish",
   },
 }
 `;
@@ -29,7 +45,7 @@ Object {
         "title": "The Damned Utd",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoxLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJCb29rOmQ0YTlhNzBkLTIwMTktNDkwOS04Njk3LTE2Mjk3MDU2ZGE5NiIsIm1vdmVkQXQ6dHlwZTppZCI6IjE2Mjg0MjAxNDgyMzU6Qm9vazpkNGE5YTcwZC0yMDE5LTQ5MDktODY5Ny0xNjI5NzA1NmRhOTYiLCJ0eXBlIjoiQm9vayJ9fQ==",
+    "nextPageCursor": Any<String>,
   },
 }
 `;
@@ -38,14 +54,14 @@ exports[`can fetch second page of books 2`] = `
 Object {
   "books": Object {
     "__typename": "BookPage",
-    "hasNextPage": true,
+    "hasNextPage": false,
     "items": Array [
       Object {
         "__typename": "Book",
-        "title": "sfamq",
+        "title": "Test Book",
       },
     ],
-    "nextPageCursor": "eyJjb3VudFNvRmFyIjoyLCJsYXN0S2V5Ijp7InR5cGU6aWQiOiJCb29rOmE2NjY4NzA3LTEzZmMtNDBjMi1iOGMyLTFiMjBlMGI5YTg0YyIsIm1vdmVkQXQ6dHlwZTppZCI6IjE2Mjg0MTk1MTgxMDc6Qm9vazphNjY2ODcwNy0xM2ZjLTQwYzItYjhjMi0xYjIwZTBiOWE4NGMiLCJ0eXBlIjoiQm9vayJ9fQ==",
+    "nextPageCursor": null,
   },
 }
 `;
@@ -66,19 +82,33 @@ Object {
 }
 `;
 
+exports[`can mutate title on book without change to other fields 1`] = `
+Object {
+  "updateBook": Object {
+    "__typename": "Book",
+    "author": "Matt Benton",
+    "externalId": null,
+    "image": null,
+    "notes": null,
+    "rating": 1,
+    "title": "Test Book 2",
+  },
+}
+`;
+
 exports[`can query single book 1`] = `
 Object {
   "book": Object {
     "__typename": "Book",
-    "author": "David Peace",
+    "author": "Matt Benton",
     "id": Any<String>,
-    "rating": null,
+    "rating": 1,
     "shelf": Object {
       "__typename": "BookShelf",
-      "id": "Reading",
-      "name": "Reading",
+      "id": "DidNotFinish",
+      "name": "Did Not Finish",
     },
-    "title": "The Damned Utd",
+    "title": "Test Book",
   },
 }
 `;
