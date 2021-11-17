@@ -327,3 +327,11 @@ test("can delete Tv (cleanup)", async () => {
   expect(data.deleteSeason2.id).toEqual(FOR_ALL_MANKIND_SEASON_1_ID);
   expect(data.deleteSeason3.id).toEqual(MYTHIC_QUEST_SEASON_1_ID);
 });
+
+// TODO: When last seasons rating is updated, the series rating is updated
+// TODO: When an earlier seasons rating is updated, the series rating is not updated
+// TODO: When the shelf of the last season is updated, the series movedAt and shelf is updated
+// TODO: When the last seasons movedAt is updated, the series movedAt is updated
+// TODO: When the shelf of an earlier season is updated, the series shelf is not updated
+// TODO: Cannot create a season without an attached series
+// TODO: Cannot delete a series with an attached season
