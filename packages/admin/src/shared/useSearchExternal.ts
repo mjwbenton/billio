@@ -26,7 +26,7 @@ export default function useSearchExternal<TOption extends Option = Option>({
         term,
       });
     },
-    [dataProvider, resourceFromContext]
+    [dataProvider, resource]
   );
 
   useEffect(() => {
