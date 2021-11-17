@@ -1,7 +1,6 @@
 import { gql } from "apollo-server-lambda";
 import {
   AddTvSeasonInput,
-  Resolvers,
   TvSeason,
   TvShelfId,
   UpdateTvSeasonInput,
@@ -9,7 +8,7 @@ import {
   AddTvSeriesInput,
   UpdateTvSeriesInput,
 } from "../generated/graphql";
-import { Item as DataItem, Query as DataQuery } from "@mattb.tech/billio-data";
+import { Query as DataQuery } from "@mattb.tech/billio-data";
 import resolveAddItem from "../resolvers/resolveAddItem";
 import resolveDeleteItem from "../resolvers/resolveDeleteItem";
 import resolveExternal from "../resolvers/resolveExternal";
@@ -245,10 +244,7 @@ const OUTPUT_SEASON_TRANSFORM: OutputTransform<TvSeason, TvShelfId> = (
 
 const OUTPUT_SERIES_TRANSFORM: OutputTransform<TvSeries, TvShelfId> = (
   data
-) => ({
-  // TODO: Seasons shouldn't be being asked for here! Seperate resolver?
-  seasons: [],
-});
+) => ({});
 
 const EXTERNAL_SERIES_TRANSFORM: ExternalToInputTransform<
   ExternalTvSeries,
@@ -263,7 +259,7 @@ const EXTERNAL_SEASON_TRANSFORM: ExternalToInputTransform<
 > = (external) => ({
   seasonNumber: external.seasonNumber,
   seasonTitle: external.seasonTitle,
-  // TODO: This is fake because we know it gets overridden later
+  // This is fake because we know it gets overridden later in the custom import resolver
   seriesId: "",
 });
 

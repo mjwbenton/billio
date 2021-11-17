@@ -31,7 +31,7 @@ export type Unresolved<T> = T extends Primitive
 
 type RemoveResolvableFields<T> = Omit<
   { [Key in keyof T]: Unresolved<T[Key]> },
-  "shelf" | "series" | "items" | "importedItem"
+  "shelf" | "series" | "items" | "importedItem" | "seasons"
 >;
 
 type IdIfOriginalPresent<T, Field extends string> = T extends Record<
