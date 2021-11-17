@@ -81,7 +81,7 @@ $ yarn deploy
 $ yarn start:graphql
 ```
 
-Set `USE_PROD_TABLE=1` if you want to run locally using the production table rather than the test table.
+Set `INFRA_STACK=test` if you want to run locally using the test table rather than a dedicated local development table.
 
 #### Admin
 
@@ -95,13 +95,13 @@ Set `REACT_APP_USE_LOCAL_GRAPHQL=1` if you want to run against the local graphql
 
 The only tests in this project currently are in the `graphql-snapshot-tests` package.
 
-To run against local instance:
+To run against local instance (generally started with INRA_STACK=test):
 
 ```sh
 $ yarn test:graphql-local
 ```
 
-To run against the test instance
+To run against the test API instance
 
 ```sh
 $ yarn test:graphql-integration

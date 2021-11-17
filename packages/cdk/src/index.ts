@@ -54,3 +54,6 @@ new BillioApiStack(app, "BillioTestAPI", {
   enableIam: false,
   enableMutations: true,
 });
+
+// Local stacks. Local development reuses image related integration test stacks.
+new BillioDataStack(app, "BillioLocalData");
