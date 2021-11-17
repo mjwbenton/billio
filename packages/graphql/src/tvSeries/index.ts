@@ -313,14 +313,9 @@ const importExternalTvSeason = async (
         externalId: seriesExternalId,
         shelfId,
         overrides: {
-          rating: overrides?.rating ?? null,
-          addedAt: overrides?.addedAt ?? null,
-          movedAt: overrides?.movedAt ?? null,
-          title: null,
-          shelfId: null,
-          imageUrl: null,
-          notes: null,
-          externalId: null,
+          ...(overrides?.rating ? { rating: overrides?.rating } : {}),
+          ...(overrides?.addedAt ? { addedAt: overrides?.addedAt } : {}),
+          ...(overrides?.movedAt ? { movedAt: overrides?.movedAt } : {}),
         },
       })
     ).id;
@@ -336,21 +331,10 @@ const importExternalTvSeason = async (
     ADD_SEASON_INPUT_TRANSFORM,
     EXTERNAL_SEASON_TRANSFORM,
     SEASON_API
-    // TODO: Well this is a mess
   )(_, {
     externalId,
     shelfId,
     overrides: {
-      title: null,
-      seasonNumber: null,
-      seasonTitle: null,
-      shelfId: null,
-      rating: null,
-      imageUrl: null,
-      movedAt: null,
-      addedAt: null,
-      notes: null,
-      externalId: null,
       ...overrides,
       seriesId,
     },

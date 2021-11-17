@@ -72,10 +72,6 @@ export function transformExternalItem<
     imageUrl: input.imageUrl ?? null,
     externalId: input.id,
     shelfId,
-    rating: null,
-    notes: null,
-    addedAt: null,
-    movedAt: null,
   };
   return {
     ...base,
@@ -118,16 +114,16 @@ export async function transformAddItemInput<
     type,
     shelf,
     title,
-    ...(movedAt ? { movedAt } : {}),
-    ...(addedAt ? { addedAt } : {}),
-    ...(rating ? { rating } : {}),
-    ...(notes ? { notes } : {}),
-    ...(externalId ? { externalId } : {}),
     ...(imageUrl
       ? {
           image: await storeImage({ imageUrl }),
         }
       : {}),
+    ...(movedAt ? { movedAt } : {}),
+    ...(addedAt ? { addedAt } : {}),
+    ...(rating ? { rating } : {}),
+    ...(notes ? { notes } : {}),
+    ...(externalId ? { externalId } : {}),
   };
 }
 
@@ -165,6 +161,12 @@ export async function transformUpdateItemInput<
     ...transformed,
     id,
     type,
+    ...(imageUrl
+      ? {
+          image: await storeImage({ imageUrl }),
+        }
+      : {}),
+    // TODO: Simplify this with a removeNullAndUndefined utility?
     ...(shelf ? { shelf } : {}),
     ...(title ? { title } : {}),
     ...(movedAt ? { movedAt } : {}),
@@ -172,10 +174,5 @@ export async function transformUpdateItemInput<
     ...(rating ? { rating } : {}),
     ...(notes ? { notes } : {}),
     ...(externalId ? { externalId } : {}),
-    ...(imageUrl
-      ? {
-          image: await storeImage({ imageUrl }),
-        }
-      : {}),
   };
 }

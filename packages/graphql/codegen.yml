@@ -16,7 +16,11 @@ generates:
       skipTypename: true
       useIndexSignature: true
       enumsAsTypes: true
-      avoidOptionals: true
+      avoidOptionals:
+        defaultvalue: true
+        field: true
+        object: true
+        inputValue: false
       defaultMapper: Unresolved<{T}>
       scalars:
         DateTime: Date
