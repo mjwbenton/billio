@@ -1,10 +1,10 @@
 import axios from "axios";
 import qs from "querystring";
 import ExternalApi, { GetExternalApi } from "../external/ExternalApi";
-import { ExternalTvSeason, ExternalTvSeries } from "../generated/graphql";
 import parseNamespacedId, {
   buildNamespacedId,
 } from "../shared/parseNamespacedId";
+import { ExternalTvSeason, ExternalTvSeries } from "./types";
 
 const API_KEY = process.env.TMDB_API_KEY!;
 
