@@ -1,0 +1,128 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`can add a movie 1`] = `
+Object {
+  "addMovie": Object {
+    "__typename": "Movie",
+    "id": Any<String>,
+    "rating": 1,
+    "releaseYear": "2021",
+    "shelf": Object {
+      "__typename": "MovieShelf",
+      "name": "Watched",
+    },
+    "title": "Test Movie",
+  },
+}
+`;
+
+exports[`can fetch second page of movies 1`] = `
+Object {
+  "movies": Object {
+    "__typename": "MoviePage",
+    "hasNextPage": true,
+    "items": Array [
+      Object {
+        "__typename": "Movie",
+        "title": "Lost in Translation",
+      },
+    ],
+    "nextPageCursor": Any<String>,
+  },
+}
+`;
+
+exports[`can fetch second page of movies 2`] = `
+Object {
+  "movies": Object {
+    "__typename": "MoviePage",
+    "hasNextPage": false,
+    "items": Array [
+      Object {
+        "__typename": "Movie",
+        "title": "Test Movie",
+      },
+    ],
+    "nextPageCursor": null,
+  },
+}
+`;
+
+exports[`can import external movie 1`] = `
+Object {
+  "importExternalMovie": Object {
+    "__typename": "Movie",
+    "externalId": "imdb:tt0335266",
+    "id": Any<String>,
+    "releaseYear": "2003",
+    "shelf": Object {
+      "__typename": "MovieShelf",
+      "id": "Watched",
+    },
+    "title": "Lost in Translation",
+  },
+}
+`;
+
+exports[`can mutate title on movie without change to other fields 1`] = `
+Object {
+  "updateMovie": Object {
+    "__typename": "Movie",
+    "externalId": null,
+    "image": null,
+    "notes": null,
+    "rating": 1,
+    "releaseYear": "2021",
+    "title": "Test Movie 2",
+  },
+}
+`;
+
+exports[`can query single movie 1`] = `
+Object {
+  "movie": Object {
+    "__typename": "Movie",
+    "id": Any<String>,
+    "rating": 1,
+    "releaseYear": "2021",
+    "shelf": Object {
+      "__typename": "MovieShelf",
+      "id": "Watched",
+      "name": "Watched",
+    },
+    "title": "Test Movie",
+  },
+}
+`;
+
+exports[`can search for external movies 1`] = `
+Object {
+  "__typename": "ExternalMovie",
+  "id": StringMatching /\\^tmdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external movies 2`] = `
+Object {
+  "__typename": "ExternalMovie",
+  "id": StringMatching /\\^tmdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external movies 3`] = `
+Object {
+  "__typename": "ExternalMovie",
+  "id": StringMatching /\\^tmdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external movies 4`] = `
+Object {
+  "__typename": "ExternalMovie",
+  "id": StringMatching /\\^tmdb:/,
+  "title": Any<String>,
+}
+`;
