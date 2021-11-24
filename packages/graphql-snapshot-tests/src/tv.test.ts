@@ -462,7 +462,7 @@ test("When the shelf of an earlier season is updated, the series shelf is not up
   );
 });
 
-test.skip("Cannot add a season without an attached series", async () => {
+test("Cannot add a season without an attached series", async () => {
   const executeMutation = client.mutate({
     mutation: gql`
       mutation Test_AddWithInvalidSeries {
@@ -480,7 +480,7 @@ test.skip("Cannot add a season without an attached series", async () => {
   expect(executeMutation).rejects.toBeTruthy();
 });
 
-test.skip("Cannot move a season to an invalid series", async () => {
+test("Cannot move a season to an invalid series", async () => {
   const executeMutation = client.mutate({
     mutation: gql`
       mutation Test_UpdateToInvalidSeries($id: ID!) {
@@ -494,7 +494,7 @@ test.skip("Cannot move a season to an invalid series", async () => {
   expect(executeMutation).rejects.toBeTruthy();
 });
 
-test.skip("Cannot delete a series with an attached season", async () => {
+test("Cannot delete a series with an attached season", async () => {
   const executeMutation = client.mutate({
     mutation: gql`
       mutation Test_DeleteSeriesWithAttachedSeason($id: ID!) {
@@ -511,15 +511,46 @@ test.skip("Cannot delete a series with an attached season", async () => {
 });
 
 test("can delete Tv (cleanup)", async () => {
-  const { data } = await client.mutate({
+  const { data: seasonData } = await client.mutate({
     mutation: gql`
-      mutation Test_DeleteTv(
-        $series1: ID!
-        $series2: ID!
-        $series3: ID!
+      mutation Test_DeleteTvSeasons(
         $season1: ID!
         $season2: ID!
         $season3: ID!
+        $season4: ID!
+      ) {
+        deleteSeason1: deleteTvSeason(id: $season1) {
+          id
+        }
+        deleteSeason2: deleteTvSeason(id: $season2) {
+          id
+        }
+        deleteSeason3: deleteTvSeason(id: $season3) {
+          id
+        }
+        deleteSeason4: deleteTvSeason(id: $season4) {
+          id
+        }
+      }
+    `,
+    variables: {
+      season1: ADDED_TV_SEASON,
+      season2: FOR_ALL_MANKIND_SEASON_1_ID,
+      season3: MYTHIC_QUEST_SEASON_1_ID,
+      season4: MYTHIC_QUEST_SEASON_2_ID,
+    },
+  });
+  expect(seasonData.deleteSeason1.id).toEqual(ADDED_TV_SEASON);
+  expect(seasonData.deleteSeason2.id).toEqual(FOR_ALL_MANKIND_SEASON_1_ID);
+  expect(seasonData.deleteSeason3.id).toEqual(MYTHIC_QUEST_SEASON_1_ID);
+  expect(seasonData.deleteSeason4.id).toEqual(MYTHIC_QUEST_SEASON_2_ID);
+
+  const { data: seriesData } = await client.mutate({
+    mutation: gql`
+      mutation Test_DeleteTvSeries(
+        $series1: ID!
+        $series2: ID!
+        $series3: ID!
       ) {
         deleteSeries1: deleteTvSeries(id: $series1) {
           id
@@ -530,30 +561,15 @@ test("can delete Tv (cleanup)", async () => {
         deleteSeries3: deleteTvSeries(id: $series3) {
           id
         }
-        deleteSeason1: deleteTvSeason(id: $season1) {
-          id
-        }
-        deleteSeason2: deleteTvSeason(id: $season2) {
-          id
-        }
-        deleteSeason3: deleteTvSeason(id: $season3) {
-          id
-        }
       }
     `,
     variables: {
       series1: ADDED_TV_SERIES,
       series2: FOR_ALL_MANKIND_SERIES_ID,
       series3: MYTHIC_QUEST_SERIES_ID,
-      season1: ADDED_TV_SEASON,
-      season2: FOR_ALL_MANKIND_SEASON_1_ID,
-      season3: MYTHIC_QUEST_SEASON_1_ID,
     },
   });
-  expect(data.deleteSeries1.id).toEqual(ADDED_TV_SERIES);
-  expect(data.deleteSeries2.id).toEqual(FOR_ALL_MANKIND_SERIES_ID);
-  expect(data.deleteSeries3.id).toEqual(MYTHIC_QUEST_SERIES_ID);
-  expect(data.deleteSeason1.id).toEqual(ADDED_TV_SEASON);
-  expect(data.deleteSeason2.id).toEqual(FOR_ALL_MANKIND_SEASON_1_ID);
-  expect(data.deleteSeason3.id).toEqual(MYTHIC_QUEST_SEASON_1_ID);
+  expect(seriesData.deleteSeries1.id).toEqual(ADDED_TV_SERIES);
+  expect(seriesData.deleteSeries2.id).toEqual(FOR_ALL_MANKIND_SERIES_ID);
+  expect(seriesData.deleteSeries3.id).toEqual(MYTHIC_QUEST_SERIES_ID);
 });

@@ -289,12 +289,13 @@ const addTvSeason = async (
   _: unknown,
   { item }: { item: AddTvSeasonInput }
 ) => {
+  await assertTvSeriesExists(item.seriesId);
   const savedItem = await resolveAddItem<TvSeason, TvShelfId, AddTvSeasonInput>(
     TV_SEASON,
     ADD_SEASON_INPUT_TRANSFORM,
     OUTPUT_SEASON_TRANSFORM
   )(_, { item });
-  await updateTvSeriesToMatchLastSeason(savedItem.seriesId);
+  await updateTvSeriesToMatchLastSeason(item.seriesId);
   return savedItem;
 };
 
@@ -302,6 +303,9 @@ const updateTvSeason = async (
   _: unknown,
   { id, item }: { id: string; item: UpdateTvSeasonInput }
 ) => {
+  if (item.seriesId) {
+    await assertTvSeriesExists(item.seriesId);
+  }
   const savedItem = await resolveUpdateItem<
     TvSeason,
     TvShelfId,
@@ -377,6 +381,27 @@ const importExternalTvSeason = async (
 
   return newTvSeason;
 };
+
+const deleteTvSeries = async (_: unknown, { id }: { id: string }) => {
+  await assertNoTvSeasonsExist(id);
+  return await resolveDeleteItem(TV_SERIES)(_, { id });
+};
+
+async function assertTvSeriesExists(seriesId: string): Promise<void> {
+  const series = await DataQuery.withId({ type: TV_SERIES, id: seriesId });
+  if (series == null) {
+    throw new Error(`No series matching id: ${seriesId}`);
+  }
+}
+
+async function assertNoTvSeasonsExist(seriesId: string): Promise<void> {
+  const seasons = await DataQuery.withSeriesId({ seriesId });
+  if (seasons.length) {
+    throw new Error(
+      `Series ${seriesId} has ${seasons.length} attached seasons`
+    );
+  }
+}
 
 async function updateTvSeriesToMatchLastSeason(
   seriesId: string
@@ -470,6 +495,6 @@ export const resolvers: PartialResolvers = {
     updateTvSeason,
     updateTvSeries,
     deleteTvSeason: resolveDeleteItem(TV_SEASON),
-    deleteTvSeries: resolveDeleteItem(TV_SERIES),
+    deleteTvSeries,
   },
 };
