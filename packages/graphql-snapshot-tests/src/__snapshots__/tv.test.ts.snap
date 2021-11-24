@@ -106,7 +106,7 @@ Object {
       "__typename": "TvSeries",
       "id": Any<String>,
       "movedAt": Any<String>,
-      "rating": null,
+      "rating": 9,
       "seasons": Array [
         Object {
           "__typename": "TvSeason",
@@ -115,7 +115,7 @@ Object {
       ],
       "shelf": Object {
         "__typename": "TvSeriesShelf",
-        "id": "Watching",
+        "id": "Watched",
       },
     },
     "shelf": Object {
@@ -140,7 +140,7 @@ Object {
       "externalId": "tmdbSeries:94951",
       "id": Any<String>,
       "movedAt": Any<String>,
-      "rating": 7,
+      "rating": 6,
       "seasons": Array [
         Object {
           "__typename": "TvSeason",

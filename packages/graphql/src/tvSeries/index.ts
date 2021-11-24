@@ -279,6 +279,12 @@ const importExternalTvSeries = resolveImportExternal<
   SERIES_API
 );
 
+const updateTvSeries = resolveUpdateItem<
+  TvSeries,
+  TvShelfId,
+  UpdateTvSeriesInput
+>(TV_SERIES, UPDATE_SERIES_INPUT_TRANSFORM, OUTPUT_SERIES_TRANSFORM);
+
 /*
  * Special case for TvSeason. We want to make sure we have the TvSeries imported whenever
  * we import a season of that series. If its not already imported, then we import it here
@@ -312,15 +318,11 @@ const importExternalTvSeason = async (
       await importExternalTvSeries(_, {
         externalId: seriesExternalId,
         shelfId,
-        overrides: {
-          ...(overrides?.rating ? { rating: overrides?.rating } : {}),
-          ...(overrides?.addedAt ? { addedAt: overrides?.addedAt } : {}),
-          ...(overrides?.movedAt ? { movedAt: overrides?.movedAt } : {}),
-        },
       })
     ).id;
 
-  return await resolveImportExternal<
+  // Import new season
+  const newTvSeason = await resolveImportExternal<
     TvSeason,
     TvShelfId,
     AddTvSeasonInput,
@@ -339,7 +341,30 @@ const importExternalTvSeason = async (
       seriesId,
     },
   });
+
+  // Make updates to the series
+  await updateTvSeriesToMatchLastSeason(seriesId);
+
+  return newTvSeason;
 };
+
+async function updateTvSeriesToMatchLastSeason(
+  seriesId: string
+): Promise<void> {
+  const seasons = await DataQuery.withSeriesId({ seriesId });
+  const lastSeason = transformItem(
+    seasons[seasons.length - 1],
+    OUTPUT_SERIES_TRANSFORM
+  );
+  await updateTvSeries(null, {
+    id: seriesId,
+    item: {
+      rating: lastSeason.rating,
+      movedAt: lastSeason.movedAt,
+      shelfId: lastSeason.shelfId,
+    },
+  });
+}
 
 export const resolvers: PartialResolvers = {
   Query: {
@@ -421,11 +446,7 @@ export const resolvers: PartialResolvers = {
       UPDATE_SEASON_INPUT_TRANSFORM,
       OUTPUT_SEASON_TRANSFORM
     ),
-    updateTvSeries: resolveUpdateItem<TvSeries, TvShelfId, UpdateTvSeriesInput>(
-      TV_SERIES,
-      UPDATE_SERIES_INPUT_TRANSFORM,
-      OUTPUT_SERIES_TRANSFORM
-    ),
+    updateTvSeries,
     deleteTvSeason: resolveDeleteItem(TV_SEASON),
     deleteTvSeries: resolveDeleteItem(TV_SERIES),
   },

@@ -152,15 +152,15 @@ test("can import first tv season for already imported tv series", async () => {
   expect(data.importExternalTvSeason.series.id).toEqual(
     FOR_ALL_MANKIND_SERIES_ID
   );
-  /*expect(data.importExternalTvSeason.shelf.id).toEqual(
+  expect(data.importExternalTvSeason.shelf.id).toEqual(
     data.importExternalTvSeason.series.shelf.id
   );
   expect(data.importExternalTvSeason.rating).toEqual(
     data.importExternalTvSeason.rating
-  ); 
+  );
   expect(data.importExternalTvSeason.movedAt).toEqual(
     data.importExternalTvSeason.movedAt
-  ); */
+  );
 });
 
 test("can import external tv season when tv series not yet imported", async () => {
@@ -256,16 +256,15 @@ test("can import second tv season for already imported tv series", async () => {
     },
   });
   expect(data.importExternalTvSeason.series.id).toEqual(MYTHIC_QUEST_SERIES_ID);
-  // TODO: Currently fails
-  /*expect(data.importExternalTvSeason.shelf.id).toEqual(
+  expect(data.importExternalTvSeason.shelf.id).toEqual(
     data.importExternalTvSeason.series.shelf.id
   );
   expect(data.importExternalTvSeason.rating).toEqual(
     data.importExternalTvSeason.rating
-  ); 
+  );
   expect(data.importExternalTvSeason.movedAt).toEqual(
     data.importExternalTvSeason.movedAt
-  ); */
+  );
 });
 
 test("can query seasons on tv series", async () => {
