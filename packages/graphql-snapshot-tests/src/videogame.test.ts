@@ -8,6 +8,8 @@ const ITEM_MATCHER = {
 let ADDED_ID: string = "";
 let IMPORTED_ID: string = "";
 
+jest.setTimeout(10_000);
+
 test("can add a video game", async () => {
   const { data } = await client.mutate({
     mutation: gql`
