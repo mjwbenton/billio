@@ -43,14 +43,65 @@ Object {
 }
 `;
 
-exports[`can import external tv season for already imported tv series 1`] = `
+exports[`can import external tv season when tv series not yet imported 1`] = `
+Object {
+  "importExternalTvSeason": Object {
+    "__typename": "TvSeason",
+    "externalId": "tmdbSeason:94951:1",
+    "id": Any<String>,
+    "movedAt": Any<String>,
+    "rating": 7,
+    "series": Object {
+      "__typename": "TvSeries",
+      "externalId": "tmdbSeries:94951",
+      "id": Any<String>,
+      "movedAt": Any<String>,
+      "rating": 7,
+      "seasons": Array [
+        Object {
+          "__typename": "TvSeason",
+          "seasonNumber": 1,
+        },
+      ],
+      "shelf": Object {
+        "__typename": "TvSeriesShelf",
+        "id": "Watching",
+      },
+    },
+    "shelf": Object {
+      "__typename": "TvSeasonShelf",
+      "id": "Watching",
+    },
+    "title": "Mythic Quest",
+  },
+}
+`;
+
+exports[`can import external tv series 1`] = `
+Object {
+  "importExternalTvSeries": Object {
+    "__typename": "TvSeries",
+    "externalId": "tmdbSeries:87917",
+    "id": Any<String>,
+    "movedAt": Any<String>,
+    "seasons": Array [],
+    "shelf": Object {
+      "__typename": "TvSeriesShelf",
+      "id": "Watching",
+    },
+    "title": "For All Mankind",
+  },
+}
+`;
+
+exports[`can import first tv season for already imported tv series 1`] = `
 Object {
   "importExternalTvSeason": Object {
     "__typename": "TvSeason",
     "externalId": "tmdbSeason:87917:1",
     "id": Any<String>,
     "movedAt": Any<String>,
-    "rating": null,
+    "rating": 9,
     "series": Object {
       "__typename": "TvSeries",
       "id": Any<String>,
@@ -76,14 +127,14 @@ Object {
 }
 `;
 
-exports[`can import external tv season when tv series not yet imported 1`] = `
+exports[`can import second tv season for already imported tv series 1`] = `
 Object {
   "importExternalTvSeason": Object {
     "__typename": "TvSeason",
-    "externalId": "tmdbSeason:94951:1",
+    "externalId": "tmdbSeason:94951:2",
     "id": Any<String>,
     "movedAt": Any<String>,
-    "rating": 7,
+    "rating": 6,
     "series": Object {
       "__typename": "TvSeries",
       "externalId": "tmdbSeries:94951",
@@ -95,34 +146,21 @@ Object {
           "__typename": "TvSeason",
           "seasonNumber": 1,
         },
+        Object {
+          "__typename": "TvSeason",
+          "seasonNumber": 2,
+        },
       ],
       "shelf": Object {
         "__typename": "TvSeriesShelf",
-        "id": "Watched",
+        "id": "Watching",
       },
     },
     "shelf": Object {
       "__typename": "TvSeasonShelf",
-      "id": "Watched",
-    },
-    "title": "Mythic Quest",
-  },
-}
-`;
-
-exports[`can import external tv series 1`] = `
-Object {
-  "importExternalTvSeries": Object {
-    "__typename": "TvSeries",
-    "externalId": "tmdbSeries:87917",
-    "id": Any<String>,
-    "movedAt": Any<String>,
-    "seasons": Array [],
-    "shelf": Object {
-      "__typename": "TvSeriesShelf",
       "id": "Watching",
     },
-    "title": "For All Mankind",
+    "title": "Mythic Quest",
   },
 }
 `;

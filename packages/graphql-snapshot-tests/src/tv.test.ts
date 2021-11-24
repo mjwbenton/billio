@@ -12,6 +12,7 @@ let FOR_ALL_MANKIND_SERIES_ID: string = "";
 let FOR_ALL_MANKIND_SEASON_1_ID: string = "";
 let MYTHIC_QUEST_SERIES_ID: string = "";
 let MYTHIC_QUEST_SEASON_1_ID: string = "";
+let MYTHIC_QUEST_SEASON_2_ID: string = "";
 
 jest.setTimeout(10_000);
 
@@ -109,13 +110,14 @@ test("can import external tv series", async () => {
   });
 });
 
-test("can import external tv season for already imported tv series", async () => {
+test("can import first tv season for already imported tv series", async () => {
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_ImportTvSeason1 {
         importExternalTvSeason(
           externalId: "tmdbSeason:87917:1"
           shelfId: Watched
+          overrides: { rating: 9 }
         ) {
           id
           externalId
@@ -150,25 +152,24 @@ test("can import external tv season for already imported tv series", async () =>
   expect(data.importExternalTvSeason.series.id).toEqual(
     FOR_ALL_MANKIND_SERIES_ID
   );
-  // TODO: Currently fails
   /*expect(data.importExternalTvSeason.shelf.id).toEqual(
     data.importExternalTvSeason.series.shelf.id
-  );*/
+  );
   expect(data.importExternalTvSeason.rating).toEqual(
     data.importExternalTvSeason.rating
-  );
+  ); 
   expect(data.importExternalTvSeason.movedAt).toEqual(
     data.importExternalTvSeason.movedAt
-  );
+  ); */
 });
 
 test("can import external tv season when tv series not yet imported", async () => {
   const { data } = await client.mutate({
     mutation: gql`
-      mutation Test_ImportExternalTvSeason2 {
+      mutation Test_ImportTvSeason2 {
         importExternalTvSeason(
           externalId: "tmdbSeason:94951:1"
-          shelfId: Watched
+          shelfId: Watching
           overrides: { rating: 7 }
         ) {
           id
@@ -212,6 +213,59 @@ test("can import external tv season when tv series not yet imported", async () =
   expect(data.importExternalTvSeason.movedAt).toEqual(
     data.importExternalTvSeason.movedAt
   );
+});
+
+test("can import second tv season for already imported tv series", async () => {
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_ImportTvSeason3 {
+        importExternalTvSeason(
+          externalId: "tmdbSeason:94951:2"
+          shelfId: Watching
+          overrides: { rating: 6 }
+        ) {
+          id
+          externalId
+          title
+          shelf {
+            id
+          }
+          movedAt
+          rating
+          series {
+            id
+            externalId
+            seasons {
+              seasonNumber
+            }
+            shelf {
+              id
+            }
+            rating
+            movedAt
+          }
+        }
+      }
+    `,
+  });
+  MYTHIC_QUEST_SEASON_2_ID = data.importExternalTvSeason.id;
+  expect(data).toMatchSnapshot({
+    importExternalTvSeason: {
+      ...ITEM_MATCHER,
+      series: ITEM_MATCHER,
+    },
+  });
+  expect(data.importExternalTvSeason.series.id).toEqual(MYTHIC_QUEST_SERIES_ID);
+  // TODO: Currently fails
+  /*expect(data.importExternalTvSeason.shelf.id).toEqual(
+    data.importExternalTvSeason.series.shelf.id
+  );
+  expect(data.importExternalTvSeason.rating).toEqual(
+    data.importExternalTvSeason.rating
+  ); 
+  expect(data.importExternalTvSeason.movedAt).toEqual(
+    data.importExternalTvSeason.movedAt
+  ); */
 });
 
 test("can query seasons on tv series", async () => {
@@ -280,6 +334,182 @@ test("can search for external tv series", async () => {
   });
 });
 
+test.skip("When last seasons rating is updated, the series rating is updated", async () => {
+  const rating = 8;
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_UpdateRating($id: ID!, $rating: Rating!) {
+        updateTvSeason(id: $id, item: { rating: $rating }) {
+          rating
+          series {
+            rating
+          }
+        }
+      }
+    `,
+    variables: {
+      id: MYTHIC_QUEST_SEASON_2_ID,
+      rating,
+    },
+  });
+  expect(data.updateTvSeason.rating).toEqual(rating);
+  expect(data.updateTvSeason.series.rating).toEqual(rating);
+});
+
+test("When earlier seasons rating is updated, the series rating is not updated", async () => {
+  const rating = 9;
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_UpdateRating($id: ID!, $rating: Rating!) {
+        updateTvSeason(id: $id, item: { rating: $rating }) {
+          rating
+          series {
+            rating
+          }
+        }
+      }
+    `,
+    variables: {
+      id: MYTHIC_QUEST_SEASON_1_ID,
+      rating,
+    },
+  });
+  expect(data.updateTvSeason.rating).toEqual(rating);
+  expect(data.updateTvSeason.series.rating).not.toEqual(rating);
+});
+
+test.skip("When the shelf of the last season is updated, the series movedAt and shelf is updated", async () => {
+  const shelf = "Watched";
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_UpdateShelf($id: ID!, $shelf: TvShelfId!) {
+        updateTvSeason(id: $id, item: { shelfId: $shelf }) {
+          shelf {
+            id
+          }
+          movedAt
+          series {
+            shelf {
+              id
+            }
+            movedAt
+          }
+        }
+      }
+    `,
+    variables: {
+      id: MYTHIC_QUEST_SEASON_2_ID,
+      shelf,
+    },
+  });
+  expect(data.updateTvSeason.shelf.id).toEqual(shelf);
+  expect(data.updateTvSeason.series.shelf.id).toEqual(shelf);
+  expect(data.updateTvSeason.series.movedAt).toEqual(
+    data.updateTvSeason.movedAt
+  );
+});
+
+test.skip("When the last seasons movedAt is updated, the series movedAt is updated", async () => {
+  const movedAt = new Date().toISOString();
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_UpdateMovedAt($id: ID!, $movedAt: Date!) {
+        updateTvSeason(id: $id, item: { movedAt: $movedAt }) {
+          movedAt
+          series {
+            movedAt
+          }
+        }
+      }
+    `,
+    variables: {
+      id: MYTHIC_QUEST_SEASON_2_ID,
+      movedAt,
+    },
+  });
+  expect(data.updateTvSeason.movedAt).toEqual(movedAt);
+  expect(data.updateTvSeason.series.movedAt).toEqual(movedAt);
+});
+
+test.skip("When the shelf of an earlier season is updated, the series shelf is not updated", async () => {
+  const shelf = "GaveUp";
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_UpdateShelf($id: ID!, $shelf: TvShelfId!) {
+        updateTvSeason(id: $id, item: { shelfId: $shelf }) {
+          shelf {
+            id
+          }
+          movedAt
+          series {
+            shelf {
+              id
+            }
+            movedAt
+          }
+        }
+      }
+    `,
+    variables: {
+      id: MYTHIC_QUEST_SEASON_1_ID,
+      shelf,
+    },
+  });
+  expect(data.updateTvSeason.shelf.id).toEqual(shelf);
+  expect(data.updateTvSeason.series.shelf.id).not.toEqual(shelf);
+  expect(data.updateTvSeason.series.movedAt).not.toEqual(
+    data.updateTvSeason.movedAt
+  );
+});
+
+test.skip("Cannot add a season without an attached series", async () => {
+  const executeMutation = client.mutate({
+    mutation: gql`
+      mutation Test_AddWithInvalidSeries {
+        createTvSeason(
+          item: {
+            title: "Test"
+            seriesId: "INVALID"
+            seasonNumber: 1
+            shelfId: "Watched"
+          }
+        )
+      }
+    `,
+  });
+  expect(executeMutation).rejects.toBeTruthy();
+});
+
+test.skip("Cannot move a season to an invalid series", async () => {
+  const executeMutation = client.mutate({
+    mutation: gql`
+      mutation Test_UpdateToInvalidSeries($id: ID!) {
+        updateTvSeason(id: $id, item: { seriesId: "INVALID" })
+      }
+    `,
+    variables: {
+      id: MYTHIC_QUEST_SEASON_2_ID,
+    },
+  });
+  expect(executeMutation).rejects.toBeTruthy();
+});
+
+test.skip("Cannot delete a series with an attached season", async () => {
+  const executeMutation = client.mutate({
+    mutation: gql`
+      mutation Test_DeleteSeriesWithAttachedSeason($id: ID!) {
+        updateTvSeries(id: $id) {
+          id
+        }
+      }
+    `,
+    variables: {
+      id: MYTHIC_QUEST_SERIES_ID,
+    },
+  });
+  expect(executeMutation).rejects.toBeTruthy();
+});
+
 test("can delete Tv (cleanup)", async () => {
   const { data } = await client.mutate({
     mutation: gql`
@@ -327,11 +557,3 @@ test("can delete Tv (cleanup)", async () => {
   expect(data.deleteSeason2.id).toEqual(FOR_ALL_MANKIND_SEASON_1_ID);
   expect(data.deleteSeason3.id).toEqual(MYTHIC_QUEST_SEASON_1_ID);
 });
-
-// TODO: When last seasons rating is updated, the series rating is updated
-// TODO: When an earlier seasons rating is updated, the series rating is not updated
-// TODO: When the shelf of the last season is updated, the series movedAt and shelf is updated
-// TODO: When the last seasons movedAt is updated, the series movedAt is updated
-// TODO: When the shelf of an earlier season is updated, the series shelf is not updated
-// TODO: Cannot create a season without an attached series
-// TODO: Cannot delete a series with an attached season
