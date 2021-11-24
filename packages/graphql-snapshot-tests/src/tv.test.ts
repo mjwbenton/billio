@@ -334,7 +334,7 @@ test("can search for external tv series", async () => {
   });
 });
 
-test.skip("When last seasons rating is updated, the series rating is updated", async () => {
+test("When last seasons rating is updated, the series rating is updated", async () => {
   const rating = 8;
   const { data } = await client.mutate({
     mutation: gql`
@@ -378,7 +378,7 @@ test("When earlier seasons rating is updated, the series rating is not updated",
   expect(data.updateTvSeason.series.rating).not.toEqual(rating);
 });
 
-test.skip("When the shelf of the last season is updated, the series movedAt and shelf is updated", async () => {
+test("When the shelf of the last season is updated, the series movedAt and shelf is updated", async () => {
   const shelf = "Watched";
   const { data } = await client.mutate({
     mutation: gql`
@@ -409,11 +409,11 @@ test.skip("When the shelf of the last season is updated, the series movedAt and 
   );
 });
 
-test.skip("When the last seasons movedAt is updated, the series movedAt is updated", async () => {
+test("When the last seasons movedAt is updated, the series movedAt is updated", async () => {
   const movedAt = new Date().toISOString();
   const { data } = await client.mutate({
     mutation: gql`
-      mutation Test_UpdateMovedAt($id: ID!, $movedAt: Date!) {
+      mutation Test_UpdateMovedAt($id: ID!, $movedAt: DateTime!) {
         updateTvSeason(id: $id, item: { movedAt: $movedAt }) {
           movedAt
           series {
@@ -431,7 +431,7 @@ test.skip("When the last seasons movedAt is updated, the series movedAt is updat
   expect(data.updateTvSeason.series.movedAt).toEqual(movedAt);
 });
 
-test.skip("When the shelf of an earlier season is updated, the series shelf is not updated", async () => {
+test("When the shelf of an earlier season is updated, the series shelf is not updated", async () => {
   const shelf = "GaveUp";
   const { data } = await client.mutate({
     mutation: gql`

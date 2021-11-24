@@ -289,13 +289,30 @@ const addTvSeason = async (
   _: unknown,
   { item }: { item: AddTvSeasonInput }
 ) => {
-  const newItem = await resolveAddItem<TvSeason, TvShelfId, AddTvSeasonInput>(
+  const savedItem = await resolveAddItem<TvSeason, TvShelfId, AddTvSeasonInput>(
     TV_SEASON,
     ADD_SEASON_INPUT_TRANSFORM,
     OUTPUT_SEASON_TRANSFORM
   )(_, { item });
-  await updateTvSeriesToMatchLastSeason(item.seriesId);
-  return newItem;
+  await updateTvSeriesToMatchLastSeason(savedItem.seriesId);
+  return savedItem;
+};
+
+const updateTvSeason = async (
+  _: unknown,
+  { id, item }: { id: string; item: UpdateTvSeasonInput }
+) => {
+  const savedItem = await resolveUpdateItem<
+    TvSeason,
+    TvShelfId,
+    UpdateTvSeasonInput
+  >(
+    TV_SEASON,
+    UPDATE_SEASON_INPUT_TRANSFORM,
+    OUTPUT_SEASON_TRANSFORM
+  )(_, { id, item });
+  await updateTvSeriesToMatchLastSeason(savedItem.seriesId);
+  return savedItem;
 };
 
 /*
@@ -450,11 +467,7 @@ export const resolvers: PartialResolvers = {
       ADD_SERIES_INPUT_TRANSFORM,
       OUTPUT_SERIES_TRANSFORM
     ),
-    updateTvSeason: resolveUpdateItem<TvSeason, TvShelfId, UpdateTvSeasonInput>(
-      TV_SEASON,
-      UPDATE_SEASON_INPUT_TRANSFORM,
-      OUTPUT_SEASON_TRANSFORM
-    ),
+    updateTvSeason,
     updateTvSeries,
     deleteTvSeason: resolveDeleteItem(TV_SEASON),
     deleteTvSeries: resolveDeleteItem(TV_SERIES),
