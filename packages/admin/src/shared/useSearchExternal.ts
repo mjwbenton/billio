@@ -17,14 +17,14 @@ export default function useSearchExternal<TOption extends Option = Option>({
 
   const resource = resourceFromProp ?? resourceFromContext;
 
-  const performSearch = useCallback(
-    (term) => {
+  const performSearch = useCallback<(term: string) => Promise<any>>(
+    (term: string) => {
       if (!term || term.length < 3) {
         return Promise.resolve({ data: [] });
       }
       return dataProvider.searchExternal(resource, {
         term,
-      });
+      }) as Promise<any>;
     },
     [dataProvider, resource]
   );
