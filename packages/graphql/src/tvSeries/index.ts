@@ -285,6 +285,19 @@ const updateTvSeries = resolveUpdateItem<
   UpdateTvSeriesInput
 >(TV_SERIES, UPDATE_SERIES_INPUT_TRANSFORM, OUTPUT_SERIES_TRANSFORM);
 
+const addTvSeason = async (
+  _: unknown,
+  { item }: { item: AddTvSeasonInput }
+) => {
+  const newItem = await resolveAddItem<TvSeason, TvShelfId, AddTvSeasonInput>(
+    TV_SEASON,
+    ADD_SEASON_INPUT_TRANSFORM,
+    OUTPUT_SEASON_TRANSFORM
+  )(_, { item });
+  await updateTvSeriesToMatchLastSeason(item.seriesId);
+  return newItem;
+};
+
 /*
  * Special case for TvSeason. We want to make sure we have the TvSeries imported whenever
  * we import a season of that series. If its not already imported, then we import it here
@@ -431,11 +444,7 @@ export const resolvers: PartialResolvers = {
   Mutation: {
     importExternalTvSeason,
     importExternalTvSeries,
-    addTvSeason: resolveAddItem<TvSeason, TvShelfId, AddTvSeasonInput>(
-      TV_SEASON,
-      ADD_SEASON_INPUT_TRANSFORM,
-      OUTPUT_SEASON_TRANSFORM
-    ),
+    addTvSeason,
     addTvSeries: resolveAddItem<TvSeries, TvShelfId, AddTvSeriesInput>(
       TV_SERIES,
       ADD_SERIES_INPUT_TRANSFORM,

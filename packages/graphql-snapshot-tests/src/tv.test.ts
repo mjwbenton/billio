@@ -65,6 +65,7 @@ test("can add a tv season", async () => {
           rating
           series {
             title
+            rating
             seasons {
               seasonNumber
             }

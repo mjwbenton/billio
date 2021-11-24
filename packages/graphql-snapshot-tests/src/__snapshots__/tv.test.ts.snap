@@ -9,6 +9,7 @@ Object {
     "rating": 1,
     "series": Object {
       "__typename": "TvSeries",
+      "rating": 1,
       "seasons": Array [
         Object {
           "__typename": "TvSeason",
