@@ -1,4 +1,4 @@
-import { source, importer } from "../imdbRatingsExport";
+import { source, importer } from "../imdbMovieImport";
 import { runImport } from "../index";
 
 (async () => {
