@@ -10,9 +10,11 @@ const API_KEY = process.env.TMDB_API_KEY!;
 
 const SERIES_ID_NAMESPACE = "tmdbSeries";
 const SEASON_ID_NAMESPACE = "tmdbSeason";
+const IMDB_NAMESPACE = "imdb";
 
 const BASE_URL = "https://api.themoviedb.org/3";
 const GET_ENDPOINT = `${BASE_URL}/tv`;
+const FIND_ENDPOINT = `${BASE_URL}/find`;
 const SEASON_SUBENDPOINT = "season";
 const SEARCH_ENDPOINT = `${BASE_URL}/search/tv`;
 
@@ -23,6 +25,11 @@ const IMAGE_BASE = "http://image.tmdb.org/t/p/w780";
 const BASE_PARAMS = {
   api_key: API_KEY,
   language: "en-US",
+};
+
+const FIND_PARAMS = {
+  ...BASE_PARAMS,
+  external_source: "imdb_id",
 };
 
 const SEARCH_PARAMS = {
@@ -57,15 +64,27 @@ export class TmdbSeriesApi implements ExternalApi<ExternalTvSeries> {
   }
 
   public async get({ id }: { id: string }): Promise<ExternalTvSeries | null> {
-    const { externalId } = parseNamespacedId(id, {
-      assertNamespace: SERIES_ID_NAMESPACE,
-    });
-    const url = `${GET_ENDPOINT}/${externalId}?${qs.stringify(BASE_PARAMS)}`;
-    const result = (await axios.get(url)).data;
-    if (!result.id) {
-      return null;
+    const { namespace, externalId } = parseNamespacedId(id);
+    if (namespace === SERIES_ID_NAMESPACE) {
+      const url = `${GET_ENDPOINT}/${externalId}?${qs.stringify(BASE_PARAMS)}`;
+      const result = (await axios.get(url)).data;
+      if (!result.id) {
+        return null;
+      }
+      return transformSeries(result);
     }
-    return transformSeries(result);
+    if (namespace === IMDB_NAMESPACE) {
+      const url = `${FIND_ENDPOINT}/${externalId}?${qs.stringify(FIND_PARAMS)}`;
+      const result = (await axios.get(url)).data;
+      const series = result?.tv_results?.[0];
+      if (!series) {
+        return null;
+      }
+      return transformSeries(series);
+    }
+    throw new Error(
+      `Invalid id, support namespaces tmdbSeries and imdb: ${id}`
+    );
   }
 }
 
