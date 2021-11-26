@@ -136,7 +136,7 @@ function transformSeason({
   season: any;
 }): ExternalTvSeason {
   return {
-    title: series.name,
+    title: `${series.name}: ${season.name}`,
     id: buildNamespacedId({
       namespace: SEASON_ID_NAMESPACE,
       externalId: series.id,
