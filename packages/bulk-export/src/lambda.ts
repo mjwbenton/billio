@@ -1,7 +1,7 @@
 import { S3 } from "aws-sdk";
 import { fetchAllForType } from ".";
 
-const types = ["Book", "VideoGame"];
+const types = ["Book", "VideoGame", "Movie", "TvSeries", "TvSeason"];
 
 const BUCKET = process.env.BILLIO_BACKUP_BUCKET!;
 const s3 = new S3();
