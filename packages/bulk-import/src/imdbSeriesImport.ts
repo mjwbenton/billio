@@ -49,7 +49,7 @@ export const importer: Importer = {
         mutation: gql`
           mutation BulkImportTvSeries(
             $id: ID!
-            $shelf: TvShelfId!
+            $shelf: TvSeriesShelfId!
             $overrides: UpdateTvSeriesInput!
           ) {
             importExternalTvSeries(
