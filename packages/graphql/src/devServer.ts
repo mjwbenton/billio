@@ -13,6 +13,11 @@ const STACKS = {
     BILLIO_IMAGE_BUCKET: "billiotestimage-imagebucket97210811-jdlm9v72wtlf",
     BILLIO_IMAGE_DOMAIN: "https://image-cdn-test.billio.mattb.tech",
   },
+  prod: {
+    BILLIO_TABLE: "BillioData-ItemTable276B2AC8-1HIYN64N2BKA1",
+    BILLIO_IMAGE_BUCKET: "billioimage-imagebucket97210811-1aeflaj405d4g",
+    BILLIO_IMAGE_DOMAIN: "https://image-cdn.billio.mattb.tech",
+  },
 };
 const stack: keyof typeof STACKS =
   (process.env.INFRA_STACK as keyof typeof STACKS) ?? "local";
