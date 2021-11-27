@@ -8,9 +8,6 @@ fragment TvSeason on TvSeason {
   image {
     url
   }
-  series {
-    id
-  }
   releaseYear
   rating
   seasonNumber

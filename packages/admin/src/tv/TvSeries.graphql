@@ -8,9 +8,6 @@ fragment TvSeries on TvSeries {
   image {
     url
   }
-  seasons {
-    id
-  }
   releaseYear
   rating
   movedAt
