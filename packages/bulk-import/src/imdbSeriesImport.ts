@@ -31,7 +31,7 @@ export const source: Source = {
           id,
           rating,
           title,
-          shelf: "Watched",
+          shelf: "FinishedSeason",
           addedAt: date,
           movedAt: date,
           notes: "Imported from IMDb.",

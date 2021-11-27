@@ -21,7 +21,12 @@ test("can add a tv series", async () => {
     mutation: gql`
       mutation Test_AddTvSeries {
         addTvSeries(
-          item: { title: "Test TV Series", shelfId: GaveUp, rating: 1 }
+          item: {
+            title: "Test TV Series"
+            shelfId: GaveUp
+            rating: 1
+            releaseYear: "2021"
+          }
         ) {
           id
           movedAt
@@ -54,6 +59,7 @@ test("can add a tv season", async () => {
             rating: 1
             seriesId: $seriesId
             seasonNumber: 1
+            releaseYear: "2021"
           }
         ) {
           id
@@ -117,7 +123,7 @@ test("can import first tv season for already imported tv series", async () => {
       mutation Test_ImportTvSeason1 {
         importExternalTvSeason(
           externalId: "tmdbSeason:87917:1"
-          shelfId: Watched
+          shelfId: FinishedSeason
           overrides: { rating: 9 }
         ) {
           id
@@ -379,10 +385,10 @@ test("When earlier seasons rating is updated, the series rating is not updated",
 });
 
 test("When the shelf of the last season is updated, the series movedAt and shelf is updated", async () => {
-  const shelf = "Watched";
+  const shelf = "FinishedSeason";
   const { data } = await client.mutate({
     mutation: gql`
-      mutation Test_UpdateShelf($id: ID!, $shelf: TvShelfId!) {
+      mutation Test_UpdateShelf($id: ID!, $shelf: TvSeasonShelfId!) {
         updateTvSeason(id: $id, item: { shelfId: $shelf }) {
           shelf {
             id
@@ -435,7 +441,7 @@ test("When the shelf of an earlier season is updated, the series shelf is not up
   const shelf = "GaveUp";
   const { data } = await client.mutate({
     mutation: gql`
-      mutation Test_UpdateShelf($id: ID!, $shelf: TvShelfId!) {
+      mutation Test_UpdateShelf($id: ID!, $shelf: TvSeasonShelfId!) {
         updateTvSeason(id: $id, item: { shelfId: $shelf }) {
           shelf {
             id
@@ -471,7 +477,7 @@ test("Cannot add a season without an attached series", async () => {
             title: "Test"
             seriesId: "INVALID"
             seasonNumber: 1
-            shelfId: "Watched"
+            shelfId: FinishedSeason
           }
         )
       }

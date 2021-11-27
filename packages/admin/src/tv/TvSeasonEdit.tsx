@@ -3,12 +3,12 @@ import Import from "../import/Import";
 import { baseMetaInputs, Create, Edit } from "../shared/Edit";
 import transform from "../shared/transform";
 import SearchExternalTvSeasonInput from "./SearchExternalTvSeasonInput";
-import SHELVES from "./TvShelves";
+import { SEASON_SHELVES } from "./TvShelves";
 
 const TRANSFORM = transform();
 
 export const TvSeasonCreate = (props) => (
-  <Create {...props} transform={TRANSFORM} shelves={SHELVES}>
+  <Create {...props} transform={TRANSFORM} shelves={SEASON_SHELVES}>
     <TextInput source="seasonTitle" />
     <NumberInput source="seasonNumber" />
     <TextInput source="releaseYear" />
@@ -16,7 +16,7 @@ export const TvSeasonCreate = (props) => (
 );
 
 export const TvSeasonEdit = (props) => (
-  <Edit {...props} transform={TRANSFORM} shelves={SHELVES}>
+  <Edit {...props} transform={TRANSFORM} shelves={SEASON_SHELVES}>
     <TextInput source="seasonTitle" />
     <NumberInput source="seasonNumber" />
     <TextInput source="releaseYear" />
@@ -27,7 +27,7 @@ export const TvSeasonImport = () => (
   <Import transform={TRANSFORM}>
     <SimpleForm>
       <SearchExternalTvSeasonInput />
-      {baseMetaInputs(SHELVES)}
+      {baseMetaInputs(SEASON_SHELVES)}
     </SimpleForm>
   </Import>
 );

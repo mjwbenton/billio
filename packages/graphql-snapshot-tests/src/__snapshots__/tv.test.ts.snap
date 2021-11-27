@@ -73,7 +73,7 @@ Object {
       "__typename": "TvSeasonShelf",
       "id": "Watching",
     },
-    "title": "Mythic Quest",
+    "title": "Mythic Quest: Raven's Banquet",
   },
 }
 `;
@@ -116,14 +116,14 @@ Object {
       ],
       "shelf": Object {
         "__typename": "TvSeriesShelf",
-        "id": "Watched",
+        "id": "FinishedSeason",
       },
     },
     "shelf": Object {
       "__typename": "TvSeasonShelf",
-      "id": "Watched",
+      "id": "FinishedSeason",
     },
-    "title": "For All Mankind",
+    "title": "For All Mankind: Season 1",
   },
 }
 `;
@@ -161,7 +161,7 @@ Object {
       "__typename": "TvSeasonShelf",
       "id": "Watching",
     },
-    "title": "Mythic Quest",
+    "title": "Mythic Quest: Season 2",
   },
 }
 `;

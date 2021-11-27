@@ -2,11 +2,12 @@ import { gql } from "apollo-server-lambda";
 import {
   AddTvSeasonInput,
   TvSeason,
-  TvShelfId,
   UpdateTvSeasonInput,
   TvSeries,
   AddTvSeriesInput,
   UpdateTvSeriesInput,
+  TvSeasonShelfId,
+  TvSeriesShelfId,
 } from "../generated/graphql";
 import { Query as DataQuery } from "@mattb.tech/billio-data";
 import resolveAddItem from "../resolvers/resolveAddItem";
@@ -44,8 +45,8 @@ export const typeDefs = gql`
     tvSeriesSingle(id: ID!): TvSeries
     tvSeasons(after: ID, first: Int!): TvSeasonPage!
     tvSeries(after: ID, first: Int!): TvSeriesPage!
-    tvSeasonShelf(id: TvShelfId!): TvSeasonShelf
-    tvSeriesShelf(id: TvShelfId!): TvSeriesShelf
+    tvSeasonShelf(id: TvSeasonShelfId!): TvSeasonShelf
+    tvSeriesShelf(id: TvSeriesShelfId!): TvSeriesShelf
     searchExternalTvSeries(term: String!): [ExternalTvSeries!]!
   }
 
@@ -80,20 +81,27 @@ export const typeDefs = gql`
   }
 
   type TvSeasonShelf {
-    id: TvShelfId!
+    id: TvSeasonShelfId!
     name: String!
     items(after: ID, first: Int!): TvSeasonPage!
   }
 
   type TvSeriesShelf {
-    id: TvShelfId!
+    id: TvSeriesShelfId!
     name: String!
     items(after: ID, first: Int!): TvSeriesPage!
   }
 
-  enum TvShelfId {
+  enum TvSeriesShelfId {
     Watching
-    Watched
+    FinishedSeason
+    GaveUp
+    Finished
+  }
+
+  enum TvSeasonShelfId {
+    Watching
+    FinishedSeason
     GaveUp
   }
 
@@ -139,12 +147,12 @@ export const typeDefs = gql`
     deleteTvSeries(id: ID!): DeleteItemOutput!
     importExternalTvSeason(
       externalId: ID!
-      shelfId: TvShelfId!
+      shelfId: TvSeasonShelfId!
       overrides: UpdateTvSeasonInput
     ): TvSeason!
     importExternalTvSeries(
       externalId: ID!
-      shelfId: TvShelfId!
+      shelfId: TvSeriesShelfId!
       overrides: UpdateTvSeriesInput
     ): TvSeries!
   }
@@ -155,7 +163,7 @@ export const typeDefs = gql`
     seriesId: ID!
     seasonNumber: Int!
     seasonTitle: String
-    shelfId: TvShelfId!
+    shelfId: TvSeasonShelfId!
     rating: Rating
     imageUrl: String
     addedAt: DateTime
@@ -167,7 +175,7 @@ export const typeDefs = gql`
   input AddTvSeriesInput {
     title: String!
     releaseYear: String!
-    shelfId: TvShelfId!
+    shelfId: TvSeriesShelfId!
     rating: Rating
     imageUrl: String
     addedAt: DateTime
@@ -182,7 +190,7 @@ export const typeDefs = gql`
     seasonNumber: Int
     seasonTitle: String
     seriesId: ID
-    shelfId: TvShelfId
+    shelfId: TvSeasonShelfId
     rating: Rating
     imageUrl: String
     addedAt: DateTime
@@ -194,7 +202,7 @@ export const typeDefs = gql`
   input UpdateTvSeriesInput {
     title: String
     releaseYear: String
-    shelfId: TvShelfId
+    shelfId: TvSeriesShelfId
     rating: Rating
     imageUrl: String
     addedAt: DateTime
@@ -207,15 +215,16 @@ export const typeDefs = gql`
 const TV_SEASON = "TvSeason";
 const TV_SERIES = "TvSeries";
 
-const SHELF_NAMES: { [key in TvShelfId]: string } = {
+const SHELF_NAMES: { [key in TvSeasonShelfId | TvSeriesShelfId]: string } = {
   Watching: "Watching",
-  Watched: "Watched",
+  Finished: "Finished",
+  FinishedSeason: "FinishedSeason",
   GaveUp: "Gave Up",
 };
 
 const ADD_SEASON_INPUT_TRANSFORM: AddInputTransform<
   AddTvSeasonInput,
-  TvShelfId
+  TvSeasonShelfId
 > = (input) => ({
   seriesId: input.seriesId,
   seasonNumber: input.seasonNumber,
@@ -225,14 +234,14 @@ const ADD_SEASON_INPUT_TRANSFORM: AddInputTransform<
 
 const ADD_SERIES_INPUT_TRANSFORM: AddInputTransform<
   AddTvSeriesInput,
-  TvShelfId
+  TvSeriesShelfId
 > = (input) => ({
   releaseYear: input.releaseYear,
 });
 
 const UPDATE_SEASON_INPUT_TRANSFORM: UpdateInputTransform<
   UpdateTvSeasonInput,
-  TvShelfId
+  TvSeasonShelfId
 > = (input) => ({
   ...(input.seriesId ? { seriesId: input.seriesId } : {}),
   ...(input.seasonNumber ? { seasonNumber: input.seasonNumber } : {}),
@@ -242,12 +251,12 @@ const UPDATE_SEASON_INPUT_TRANSFORM: UpdateInputTransform<
 
 const UPDATE_SERIES_INPUT_TRANSFORM: UpdateInputTransform<
   UpdateTvSeriesInput,
-  TvShelfId
+  TvSeriesShelfId
 > = (input) => ({
   ...(input.releaseYear ? { releaseYear: input.releaseYear } : {}),
 });
 
-const OUTPUT_SEASON_TRANSFORM: OutputTransform<TvSeason, TvShelfId> = (
+const OUTPUT_SEASON_TRANSFORM: OutputTransform<TvSeason, TvSeasonShelfId> = (
   data
 ) => ({
   seasonNumber: data.seasonNumber,
@@ -256,7 +265,7 @@ const OUTPUT_SEASON_TRANSFORM: OutputTransform<TvSeason, TvShelfId> = (
   releaseYear: data.releaseYear,
 });
 
-const OUTPUT_SERIES_TRANSFORM: OutputTransform<TvSeries, TvShelfId> = (
+const OUTPUT_SERIES_TRANSFORM: OutputTransform<TvSeries, TvSeriesShelfId> = (
   data
 ) => ({
   releaseYear: data.releaseYear,
@@ -265,7 +274,7 @@ const OUTPUT_SERIES_TRANSFORM: OutputTransform<TvSeries, TvShelfId> = (
 const EXTERNAL_SERIES_TRANSFORM: ExternalToInputTransform<
   ExternalTvSeries,
   AddTvSeriesInput,
-  TvShelfId
+  TvSeriesShelfId
 > = (external) => ({
   releaseYear: external.releaseYear,
 });
@@ -273,7 +282,7 @@ const EXTERNAL_SERIES_TRANSFORM: ExternalToInputTransform<
 const EXTERNAL_SEASON_TRANSFORM: ExternalToInputTransform<
   ExternalTvSeason,
   AddTvSeasonInput,
-  TvShelfId
+  TvSeasonShelfId
 > = (external) => ({
   seasonNumber: external.seasonNumber,
   seasonTitle: external.seasonTitle,
@@ -287,7 +296,7 @@ const SEASON_API = new TmdbSeasonApi();
 
 const importExternalTvSeries = resolveImportExternal<
   TvSeries,
-  TvShelfId,
+  TvSeriesShelfId,
   AddTvSeriesInput,
   ExternalTvSeries
 >(
@@ -300,7 +309,7 @@ const importExternalTvSeries = resolveImportExternal<
 
 const updateTvSeries = resolveUpdateItem<
   TvSeries,
-  TvShelfId,
+  TvSeriesShelfId,
   UpdateTvSeriesInput
 >(TV_SERIES, UPDATE_SERIES_INPUT_TRANSFORM, OUTPUT_SERIES_TRANSFORM);
 
@@ -309,7 +318,11 @@ const addTvSeason = async (
   { item }: { item: AddTvSeasonInput }
 ) => {
   await assertTvSeriesExists(item.seriesId);
-  const savedItem = await resolveAddItem<TvSeason, TvShelfId, AddTvSeasonInput>(
+  const savedItem = await resolveAddItem<
+    TvSeason,
+    TvSeasonShelfId,
+    AddTvSeasonInput
+  >(
     TV_SEASON,
     ADD_SEASON_INPUT_TRANSFORM,
     OUTPUT_SEASON_TRANSFORM
@@ -327,7 +340,7 @@ const updateTvSeason = async (
   }
   const savedItem = await resolveUpdateItem<
     TvSeason,
-    TvShelfId,
+    TvSeasonShelfId,
     UpdateTvSeasonInput
   >(
     TV_SEASON,
@@ -350,7 +363,7 @@ const importExternalTvSeason = async (
     shelfId,
     overrides,
   }: {
-    shelfId: TvShelfId;
+    shelfId: TvSeasonShelfId;
     externalId: string;
     overrides?: ItemOverrides<AddTvSeasonInput> | null;
   }
@@ -377,7 +390,7 @@ const importExternalTvSeason = async (
   // Import new season
   const newTvSeason = await resolveImportExternal<
     TvSeason,
-    TvShelfId,
+    TvSeasonShelfId,
     AddTvSeasonInput,
     ExternalTvSeason
   >(
@@ -442,30 +455,30 @@ async function updateTvSeriesToMatchLastSeason(
 
 export const resolvers: PartialResolvers = {
   Query: {
-    tvSeason: resolveForId<TvSeason, TvShelfId>(
+    tvSeason: resolveForId<TvSeason, TvSeasonShelfId>(
       TV_SEASON,
       OUTPUT_SEASON_TRANSFORM
     ),
-    tvSeriesSingle: resolveForId<TvSeries, TvShelfId>(
+    tvSeriesSingle: resolveForId<TvSeries, TvSeriesShelfId>(
       TV_SERIES,
       OUTPUT_SERIES_TRANSFORM
     ),
-    tvSeasons: resolveForType<TvSeason, TvShelfId>(
+    tvSeasons: resolveForType<TvSeason, TvSeasonShelfId>(
       TV_SEASON,
       OUTPUT_SEASON_TRANSFORM
     ),
-    tvSeries: resolveForType<TvSeries, TvShelfId>(
+    tvSeries: resolveForType<TvSeries, TvSeriesShelfId>(
       TV_SERIES,
       OUTPUT_SERIES_TRANSFORM
     ),
-    tvSeasonShelf: resolveShelfArgs<TvShelfId>(SHELF_NAMES),
-    tvSeriesShelf: resolveShelfArgs<TvShelfId>(SHELF_NAMES),
+    tvSeasonShelf: resolveShelfArgs<TvSeasonShelfId>(SHELF_NAMES),
+    tvSeriesShelf: resolveShelfArgs<TvSeriesShelfId>(SHELF_NAMES),
     searchExternalTvSeries: resolveExternal<ExternalTvSeries>(SERIES_API),
   },
   TvSeason: {
-    shelf: resolveShelfParent<TvShelfId>(SHELF_NAMES),
+    shelf: resolveShelfParent<TvSeasonShelfId>(SHELF_NAMES),
     series: async ({ seriesId }) => {
-      const series = await resolveForId<TvSeries, TvShelfId>(
+      const series = await resolveForId<TvSeries, TvSeriesShelfId>(
         TV_SERIES,
         OUTPUT_SERIES_TRANSFORM
       )(null, { id: seriesId });
@@ -476,7 +489,7 @@ export const resolvers: PartialResolvers = {
     },
   },
   TvSeries: {
-    shelf: resolveShelfParent<TvShelfId>(SHELF_NAMES),
+    shelf: resolveShelfParent<TvSeriesShelfId>(SHELF_NAMES),
     seasons: async ({ id }) => {
       const seasons = await DataQuery.withSeriesId({ seriesId: id });
       return seasons.map((season) =>
@@ -485,13 +498,13 @@ export const resolvers: PartialResolvers = {
     },
   },
   TvSeasonShelf: {
-    items: resolveShelfItems<TvSeason, TvShelfId>(
+    items: resolveShelfItems<TvSeason, TvSeasonShelfId>(
       TV_SEASON,
       OUTPUT_SEASON_TRANSFORM
     ),
   },
   TvSeriesShelf: {
-    items: resolveShelfItems<TvSeries, TvShelfId>(
+    items: resolveShelfItems<TvSeries, TvSeriesShelfId>(
       TV_SERIES,
       OUTPUT_SERIES_TRANSFORM
     ),
@@ -506,7 +519,7 @@ export const resolvers: PartialResolvers = {
     importExternalTvSeason,
     importExternalTvSeries,
     addTvSeason,
-    addTvSeries: resolveAddItem<TvSeries, TvShelfId, AddTvSeriesInput>(
+    addTvSeries: resolveAddItem<TvSeries, TvSeriesShelfId, AddTvSeriesInput>(
       TV_SERIES,
       ADD_SERIES_INPUT_TRANSFORM,
       OUTPUT_SERIES_TRANSFORM

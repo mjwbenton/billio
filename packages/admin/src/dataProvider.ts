@@ -35,14 +35,14 @@ const RESOURCE_CONFIGURATION = {
     querySingle: "tvSeriesSingle",
     queryList: "tvSeries",
     capitalized: "TvSeries",
-    shelfType: "TvShelfId",
+    shelfType: "TvSeriesShelfId",
   },
   TvSeason: {
     fragment: loader("./tv/TvSeason.graphql"),
     querySingle: "tvSeason",
     queryList: "tvSeasons",
     capitalized: "TvSeason",
-    shelfType: "TvShelfId",
+    shelfType: "TvSeasonShelfId",
   },
 };
 
