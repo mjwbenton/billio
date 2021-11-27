@@ -67,10 +67,19 @@ export const importer: Importer = {
           overrides,
         },
       });
-      console.log(`Imported ${item.title} as ${data.importExternalMovie.id}`);
-    } catch (e) {
-      console.log(`Failed importing ${title} with id ${id}`);
-      console.log(JSON.stringify(e, null, 2));
+      return {
+        success: true,
+        externalId: id,
+        title,
+        id: data.importExternalMovie.id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        externalId: id,
+        title,
+        error,
+      };
     }
   },
 };
