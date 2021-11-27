@@ -11,6 +11,7 @@ export const TvSeasonCreate = (props) => (
   <Create {...props} transform={TRANSFORM} shelves={SHELVES}>
     <TextInput source="seasonTitle" />
     <NumberInput source="seasonNumber" />
+    <TextInput source="releaseYear" />
   </Create>
 );
 
@@ -18,6 +19,7 @@ export const TvSeasonEdit = (props) => (
   <Edit {...props} transform={TRANSFORM} shelves={SHELVES}>
     <TextInput source="seasonTitle" />
     <NumberInput source="seasonNumber" />
+    <TextInput source="releaseYear" />
   </Edit>
 );
 

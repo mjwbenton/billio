@@ -62,6 +62,7 @@ export const typeDefs = gql`
     seasonTitle: String
     shelf: TvSeasonShelf!
     series: TvSeries!
+    releaseYear: String!
   }
 
   type TvSeries implements Item {
@@ -75,6 +76,7 @@ export const typeDefs = gql`
     image: Image
     shelf: TvSeriesShelf!
     seasons: [TvSeason!]!
+    releaseYear: String!
   }
 
   type TvSeasonShelf {
@@ -114,6 +116,7 @@ export const typeDefs = gql`
     title: String!
     imageUrl: String
     seasons: [ExternalTvSeason!]!
+    releaseYear: String!
     importedItem: TvSeries
   }
 
@@ -123,6 +126,7 @@ export const typeDefs = gql`
     seasonNumber: Int!
     imageUrl: String
     title: String!
+    releaseYear: String!
     importedItem: TvSeason
   }
 
@@ -147,6 +151,7 @@ export const typeDefs = gql`
 
   input AddTvSeasonInput {
     title: String!
+    releaseYear: String!
     seriesId: ID!
     seasonNumber: Int!
     seasonTitle: String
@@ -161,6 +166,7 @@ export const typeDefs = gql`
 
   input AddTvSeriesInput {
     title: String!
+    releaseYear: String!
     shelfId: TvShelfId!
     rating: Rating
     imageUrl: String
@@ -187,6 +193,7 @@ export const typeDefs = gql`
 
   input UpdateTvSeriesInput {
     title: String
+    releaseYear: String
     shelfId: TvShelfId
     rating: Rating
     imageUrl: String
@@ -212,13 +219,16 @@ const ADD_SEASON_INPUT_TRANSFORM: AddInputTransform<
 > = (input) => ({
   seriesId: input.seriesId,
   seasonNumber: input.seasonNumber,
+  releaseYear: input.releaseYear,
   ...(input.seasonTitle ? { seasonTitle: input.seasonTitle } : {}),
 });
 
 const ADD_SERIES_INPUT_TRANSFORM: AddInputTransform<
   AddTvSeriesInput,
   TvShelfId
-> = () => ({});
+> = (input) => ({
+  releaseYear: input.releaseYear,
+});
 
 const UPDATE_SEASON_INPUT_TRANSFORM: UpdateInputTransform<
   UpdateTvSeasonInput,
@@ -227,12 +237,15 @@ const UPDATE_SEASON_INPUT_TRANSFORM: UpdateInputTransform<
   ...(input.seriesId ? { seriesId: input.seriesId } : {}),
   ...(input.seasonNumber ? { seasonNumber: input.seasonNumber } : {}),
   ...(input.seasonTitle ? { seasonTitle: input.seasonTitle } : {}),
+  ...(input.releaseYear ? { releaseYear: input.releaseYear } : {}),
 });
 
 const UPDATE_SERIES_INPUT_TRANSFORM: UpdateInputTransform<
   UpdateTvSeriesInput,
   TvShelfId
-> = () => ({});
+> = (input) => ({
+  ...(input.releaseYear ? { releaseYear: input.releaseYear } : {}),
+});
 
 const OUTPUT_SEASON_TRANSFORM: OutputTransform<TvSeason, TvShelfId> = (
   data
@@ -240,17 +253,22 @@ const OUTPUT_SEASON_TRANSFORM: OutputTransform<TvSeason, TvShelfId> = (
   seasonNumber: data.seasonNumber,
   seasonTitle: data.seasonTitle ?? null,
   seriesId: data.seriesId,
+  releaseYear: data.releaseYear,
 });
 
 const OUTPUT_SERIES_TRANSFORM: OutputTransform<TvSeries, TvShelfId> = (
   data
-) => ({});
+) => ({
+  releaseYear: data.releaseYear,
+});
 
 const EXTERNAL_SERIES_TRANSFORM: ExternalToInputTransform<
   ExternalTvSeries,
   AddTvSeriesInput,
   TvShelfId
-> = (external) => ({});
+> = (external) => ({
+  releaseYear: external.releaseYear,
+});
 
 const EXTERNAL_SEASON_TRANSFORM: ExternalToInputTransform<
   ExternalTvSeason,
@@ -259,6 +277,7 @@ const EXTERNAL_SEASON_TRANSFORM: ExternalToInputTransform<
 > = (external) => ({
   seasonNumber: external.seasonNumber,
   seasonTitle: external.seasonTitle,
+  releaseYear: external.releaseYear,
   // This is fake because we know it gets overridden later in the custom import resolver
   seriesId: "",
 });

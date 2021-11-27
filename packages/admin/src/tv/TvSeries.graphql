@@ -11,6 +11,7 @@ fragment TvSeries on TvSeries {
   seasons {
     id
   }
+  releaseYear
   rating
   movedAt
   addedAt

@@ -125,6 +125,7 @@ function transformSeries(item: any): ExternalTvSeries {
       item?.seasons?.map((season: any) =>
         transformSeason({ season, series: item })
       ) ?? [],
+    releaseYear: item.first_air_date?.split("-")?.[0] ?? null,
   };
 }
 
@@ -147,6 +148,7 @@ function transformSeason({
     seasonTitle: season.name?.match(SEASON_BASIC_TITLE_REGEX)
       ? null
       : season.name,
+    releaseYear: season.air_date?.split("-")?.[0] ?? null,
   };
 }
 

@@ -11,6 +11,7 @@ fragment TvSeason on TvSeason {
   series {
     id
   }
+  releaseYear
   rating
   seasonNumber
   seasonTitle

@@ -5,6 +5,7 @@ export const TvSeasonShow = (props) => (
   <Show {...props}>
     <NumberField source="seasonNumber" sortable={false} />
     <TextField source="seasonTitle" sortable={false} />
+    <TextField source="releaseYear" sortable={false} />
   </Show>
 );
 
@@ -12,5 +13,6 @@ export const TvSeasonList = (props) => (
   <List {...props}>
     <NumberField source="seasonNumber" sortable={false} />
     <TextField source="seasonTitle" sortable={false} />
+    <TextField source="releaseYear" sortable={false} />
   </List>
 );
