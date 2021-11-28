@@ -7,11 +7,13 @@ import { fetchAllForType } from "../index";
 import fs from "fs/promises";
 
 (async () => {
-  const date = new Date().toISOString();
   await Promise.all(
     TYPES.map(async (type) => {
       const result = await fetchAllForType(type);
-      await fs.writeFile(`./${type}.json`, JSON.stringify(result, null, 2));
+      await fs.writeFile(
+        `./local/${type}.json`,
+        JSON.stringify(result, null, 2)
+      );
     })
   );
 })();
