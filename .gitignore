@@ -6,6 +6,9 @@ cdk.out
 generated
 build
 .env
-book.json
-videogame.json
-imdb-ratings.csv
+VideoGame.json
+Book.json
+Movie.json
+TvSeason.json
+TvSeries.json
+*.csv
