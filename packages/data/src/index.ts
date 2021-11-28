@@ -199,7 +199,10 @@ export const Query = {
 };
 
 export const Mutate = {
-  async createItem({ id, type, ...rest }: CreateItem): Promise<Item> {
+  async createItem(
+    { id, type, ...rest }: CreateItem,
+    { updateIfExists = false }: { updateIfExists?: boolean } = {}
+  ): Promise<Item> {
     const date = new Date();
     const withTimestamps = {
       id,
@@ -209,12 +212,17 @@ export const Mutate = {
       // movedAt and addedAt will be overriden if provided
       ...rest,
     };
-    await ItemModel.create({
-      ...withTimestamps,
-      ...combinedKey(withTimestamps, TYPE_ID),
-      ...combinedKey(withTimestamps, TYPE_SHELF),
-      ...combinedKey(withTimestamps, MOVED_AT_TYPE_ID),
-    });
+    await ItemModel.create(
+      {
+        ...withTimestamps,
+        ...combinedKey(withTimestamps, TYPE_ID),
+        ...combinedKey(withTimestamps, TYPE_SHELF),
+        ...combinedKey(withTimestamps, MOVED_AT_TYPE_ID),
+      },
+      {
+        overwrite: updateIfExists,
+      }
+    );
     return (await Query.withId({ type, id }, { consistent: true }))!;
   },
   async deleteItem({ id, type }: ItemKey): Promise<void> {
