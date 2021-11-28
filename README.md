@@ -55,13 +55,13 @@ The package containing the admin UI. Deployed to an S3 bucket behind Cloudfront.
 
 Package containing tests for the GraphQL layer that calls the GraphQL API.
 
-### @mattb.tech/billio-bulk-export
+### @mattb.tech/billio-backup
 
 Package that exports the data from the data layer to flat files for backup. Could also be used for any data restructuring or migrations. CDK package deploys this as a lambda function that takes a backup on the first day of every month.
 
 ### @mattb.tech/billio-bulk-import
 
-Package to enable bulk import of data. Only used at this point for the initial import of book data from goodreads.
+Package to enable bulk import of data from external sources. Currently handles books from goodreads and movies / TV series from IMDb.
 
 ## Operations
 

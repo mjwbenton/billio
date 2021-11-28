@@ -1,8 +1,8 @@
 {
-  "name": "@mattb.tech/billio-bulk-export",
+  "name": "@mattb.tech/billio-backup",
   "private": true,
   "version": "1.0.0",
-  "description": "Bulk export from billio",
+  "description": "Backup from billio",
   "main": "dist/index.js",
   "author": "Matt Benton <m@mattb.tech>",
   "license": "MIT",

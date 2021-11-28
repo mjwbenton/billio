@@ -26,7 +26,7 @@ export default class BillioBackupStack extends Stack {
     const backupBucket = new Bucket(this, "BackupBucket");
 
     const lambdaFunction = new NodejsFunction(this, "LambdaFunction", {
-      entry: path.join(__dirname, "../../bulk-export/dist/lambda.js"),
+      entry: path.join(__dirname, "../../backup/dist/lambda.js"),
       handler: "handler",
       bundling: {
         target: "es2020",
