@@ -1,0 +1,26 @@
+{
+  "name": "@mattb.tech/billio-restore",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Restore backups to billio",
+  "main": "dist/index.js",
+  "author": "Matt Benton <m@mattb.tech>",
+  "license": "MIT",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "clean": "../../scripts/clean.sh",
+    "fix": "../../scripts/fix.sh",
+    "check": "../../scripts/check.sh",
+    "watch": "../../scripts/watch.sh"
+  },
+  "devDependencies": {
+    "@types/lodash.chunk": "^4.2.6",
+    "prettier": "^2.4.1",
+    "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "@mattb.tech/billio-config": "1.0.0",
+    "@mattb.tech/billio-data": "1.0.0",
+    "lodash.chunk": "^4.2.0"
+  }
+}
