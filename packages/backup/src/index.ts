@@ -2,8 +2,6 @@ import { Query } from "@mattb.tech/billio-data";
 
 const FIRST = 50;
 
-export const TYPES = ["Book", "VideoGame", "Movie", "TvSeries", "TvSeason"];
-
 export async function fetchAllForType(type: string): Promise<unknown[]> {
   const result = [];
   let remaining = true;

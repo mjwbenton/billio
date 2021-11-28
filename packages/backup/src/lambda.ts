@@ -1,5 +1,6 @@
 import { S3 } from "aws-sdk";
-import { fetchAllForType, TYPES } from ".";
+import { fetchAllForType } from ".";
+import { TYPES } from "@mattb.tech/billio-config";
 
 const BUCKET = process.env.BILLIO_BACKUP_BUCKET!;
 const s3 = new S3();
