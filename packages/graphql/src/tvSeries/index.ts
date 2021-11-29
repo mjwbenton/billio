@@ -267,9 +267,10 @@ const OUTPUT_SEASON_TRANSFORM: OutputTransform<TvSeason, TvSeasonShelfId> = (
   releaseYear: data.releaseYear,
 });
 
-const OUTPUT_SERIES_TRANSFORM: OutputTransform<TvSeries, TvSeriesShelfId> = (
-  data
-) => ({
+export const OUTPUT_SERIES_TRANSFORM: OutputTransform<
+  TvSeries,
+  TvSeriesShelfId
+> = (data) => ({
   releaseYear: data.releaseYear,
 });
 

@@ -5,6 +5,10 @@ import {
   resolvers as sharedResolvers,
 } from "./shared/schema";
 import {
+  typeDefs as watchingTypeDefs,
+  resolvers as watchingResolvers,
+} from "./watching";
+import {
   typeDefs as videoGameTypeDefs,
   resolvers as videoGameResolvers,
 } from "./videogame";
@@ -27,13 +31,15 @@ const schema = makeExecutableSchema({
     bookTypeDefs,
     movieTypeDefs,
     tvSeriesTypeDefs,
+    watchingTypeDefs,
   ],
   resolvers: merge(
     sharedResolvers,
     videoGameResolvers,
     bookResolvers,
     movieResolvers,
-    tvSeriesResolvers
+    tvSeriesResolvers,
+    watchingResolvers
   ) as Resolvers,
 });
 

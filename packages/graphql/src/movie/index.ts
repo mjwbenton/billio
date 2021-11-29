@@ -113,7 +113,9 @@ const SHELF_NAMES: { [key in MovieShelfId]: string } = {
   Watched: "Watched",
 };
 
-const OUTPUT_TRANSFORM: OutputTransform<Movie, MovieShelfId> = (input) => ({
+export const OUTPUT_TRANSFORM: OutputTransform<Movie, MovieShelfId> = (
+  input
+) => ({
   releaseYear: input.releaseYear,
 });
 
