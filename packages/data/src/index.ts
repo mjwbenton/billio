@@ -60,6 +60,13 @@ const ItemModel = dynamoose.model<ItemDocument>(
           rangeKey: "movedAt:type:id",
         },
       },
+      category: {
+        type: String,
+        index: {
+          name: "category",
+          rangeKey: "movedAt:type:id",
+        },
+      },
       "type:id": {
         type: String,
         hashKey: true,
@@ -143,6 +150,39 @@ export const Query = {
       .eq(type)
       .sort(SortOrder.descending)
       .using("type")
+      .limit(first);
+    const { lastKey, countSoFar }: After = after
+      ? fromBase64(after)
+      : { countSoFar: 0 };
+    const data = await (lastKey
+      ? baseQuery.startAt(lastKey)
+      : baseQuery
+    ).exec();
+    const newCountSoFar = countSoFar + data.count;
+    const newLastKey =
+      count > newCountSoFar && data.lastKey
+        ? toBase64({ countSoFar: newCountSoFar, lastKey: data.lastKey })
+        : undefined;
+    return {
+      items: Array.from(data),
+      count,
+      lastKey: newLastKey,
+    };
+  },
+  forCategory: async (
+    { category }: { category: string },
+    { first, after }: { first: number; after?: string }
+  ): Promise<QueryResponse> => {
+    const { count } = await ItemModel.query("category")
+      .eq(category)
+      .using("category")
+      .all()
+      .count()
+      .exec();
+    const baseQuery = ItemModel.query("category")
+      .eq(category)
+      .sort(SortOrder.descending)
+      .using("category")
       .limit(first);
     const { lastKey, countSoFar }: After = after
       ? fromBase64(after)
