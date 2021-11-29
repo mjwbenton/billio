@@ -1,4 +1,4 @@
-import { Mutate, UpdateItem } from "@mattb.tech/billio-data";
+import { CreateItem, Mutate, UpdateItem } from "@mattb.tech/billio-data";
 import chunk from "lodash.chunk";
 
 const BATCH = 10;
@@ -20,17 +20,7 @@ export async function writeAll(data: any[]): Promise<Array<Success | Failure>> {
       const results = [];
       for (const item of chunk) {
         try {
-          const { movedAt, addedAt, ...rest } = item;
-          delete rest["type:id"];
-          delete rest["type:shelf"];
-          await Mutate.createItem(
-            {
-              movedAt: new Date(movedAt),
-              addedAt: new Date(addedAt),
-              ...rest,
-            },
-            { updateIfExists: true }
-          );
+          await Mutate.createItem(transform(item), { updateIfExists: true });
           results.push({
             success: true as const,
             id: item.id,
@@ -47,4 +37,21 @@ export async function writeAll(data: any[]): Promise<Array<Success | Failure>> {
     })
   );
   return results.flat();
+}
+
+const CATEGORIES = {
+  Movie: "Watching",
+  TvSeries: "Watching",
+};
+
+function transform(data: any): CreateItem {
+  const { movedAt, addedAt, type, ...rest } = data;
+  const category = CATEGORIES[type as keyof typeof CATEGORIES];
+  return {
+    type,
+    movedAt: new Date(movedAt),
+    addedAt: new Date(addedAt),
+    ...(category ? { category } : {}),
+    ...rest,
+  };
 }
