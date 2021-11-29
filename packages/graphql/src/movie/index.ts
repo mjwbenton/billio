@@ -3,7 +3,6 @@ import {
   AddMovieInput,
   Movie,
   MovieShelfId,
-  Resolvers,
   UpdateMovieInput,
 } from "../generated/graphql";
 import resolveAddItem from "../resolvers/resolveAddItem";
@@ -25,6 +24,7 @@ import { TmdbApi } from "./TmdbApi";
 import resolveImportedItem from "../resolvers/resolveImportedItem";
 import { ExternalMovie } from "./types";
 import { PartialResolvers } from "../shared/types";
+import { WATCHING } from "../watching/constants";
 
 export const typeDefs = gql`
   extend type Query {
@@ -129,6 +129,7 @@ const ADD_INPUT_TRANSFORM: AddInputTransform<AddMovieInput, MovieShelfId> = (
   input
 ) => ({
   releaseYear: input.releaseYear,
+  category: WATCHING,
 });
 
 const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<

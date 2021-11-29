@@ -38,6 +38,7 @@ import {
   resolveShelfParent,
 } from "../resolvers/resolveShelf";
 import { PartialResolvers } from "../shared/types";
+import { WATCHING } from "../watching/constants";
 
 export const typeDefs = gql`
   extend type Query {
@@ -237,6 +238,7 @@ const ADD_SERIES_INPUT_TRANSFORM: AddInputTransform<
   TvSeriesShelfId
 > = (input) => ({
   releaseYear: input.releaseYear,
+  category: WATCHING,
 });
 
 const UPDATE_SEASON_INPUT_TRANSFORM: UpdateInputTransform<
