@@ -7,6 +7,7 @@ import { Item, ItemInput, ItemOverrides } from "./Item";
 import { storeImage, selectImage } from "./Image";
 import { Unresolved } from "./types";
 import { ExternalItem } from "../external/ExternalApi";
+import deleteNullOrUndefined from "./deleteNullOrUndefined";
 
 const IMAGE_DOMAIN = process.env.BILLIO_IMAGE_DOMAIN!;
 
@@ -119,11 +120,13 @@ export async function transformAddItemInput<
           image: await storeImage({ imageUrl }),
         }
       : {}),
-    ...(movedAt ? { movedAt } : {}),
-    ...(addedAt ? { addedAt } : {}),
-    ...(rating ? { rating } : {}),
-    ...(notes ? { notes } : {}),
-    ...(externalId ? { externalId } : {}),
+    ...deleteNullOrUndefined({
+      movedAt,
+      addedAt,
+      rating,
+      notes,
+      externalId,
+    }),
   };
 }
 
@@ -166,13 +169,14 @@ export async function transformUpdateItemInput<
           image: await storeImage({ imageUrl }),
         }
       : {}),
-    // TODO: Simplify this with a removeNullAndUndefined utility?
-    ...(shelf ? { shelf } : {}),
-    ...(title ? { title } : {}),
-    ...(movedAt ? { movedAt } : {}),
-    ...(addedAt ? { addedAt } : {}),
-    ...(rating ? { rating } : {}),
-    ...(notes ? { notes } : {}),
-    ...(externalId ? { externalId } : {}),
+    ...deleteNullOrUndefined({
+      shelf,
+      title,
+      movedAt,
+      addedAt,
+      rating,
+      notes,
+      externalId,
+    }),
   };
 }

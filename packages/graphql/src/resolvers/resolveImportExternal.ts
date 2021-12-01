@@ -11,6 +11,7 @@ import {
   transformItem,
 } from "../shared/transforms";
 import { ExternalItem, GetExternalApi } from "../external/ExternalApi";
+import deleteNullOrUndefined from "../shared/deleteNullOrUndefined";
 
 export default function resolveImportExternal<
   TItem extends Item<TShelfId>,
@@ -54,26 +55,11 @@ export default function resolveImportExternal<
       type,
       {
         ...inputItem,
-        ...nullToUndefined(overrides ?? {}),
+        ...(overrides ? deleteNullOrUndefined(overrides) : {}),
       },
       inputTransform
     );
     const outputItem = await DataMutate.createItem(createItem);
     return transformItem(outputItem, outputTransform);
   };
-}
-
-// TODO: Should these be deleting keys rather than making them undefined?
-function nullToUndefined<TInput extends Record<string, unknown>>(
-  input: TInput
-): {
-  [Key in keyof TInput]: TInput[Key] extends null
-    ? Exclude<TInput[Key], null> | undefined
-    : TInput[Key];
-} {
-  const result: any = {};
-  Object.entries(input).forEach(([key, value]) => {
-    result[key] = value === null ? undefined : value;
-  });
-  return result;
 }

@@ -21,7 +21,6 @@ export default function resolveUpdateItem<
     _: unknown,
     { id, item }: { id: string; item: TUpdateItemInput }
   ) => {
-    // TODO: Does this need to transform nulls into undefined like the external import does?
     const outputItem = await DataMutate.updateItem(
       await transformUpdateItemInput(id, type, item, inputTransform)
     );
