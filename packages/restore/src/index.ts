@@ -46,6 +46,9 @@ const CATEGORIES = {
 
 function transform(data: any): CreateItem {
   const { movedAt, addedAt, type, ...rest } = data;
+  // Fix for old bad code - remove platformIds from the data, data is stored in "platforms" instead
+  delete rest.platformIds;
+  // Data migration - include categories
   const category = CATEGORIES[type as keyof typeof CATEGORIES];
   return {
     type,
