@@ -219,7 +219,7 @@ const TV_SERIES = "TvSeries";
 const SHELF_NAMES: { [key in TvSeasonShelfId | TvSeriesShelfId]: string } = {
   Watching: "Watching",
   Finished: "Finished",
-  FinishedSeason: "FinishedSeason",
+  FinishedSeason: "Finished Season",
   GaveUp: "Gave Up",
 };
 
