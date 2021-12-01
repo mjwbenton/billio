@@ -1,12 +1,12 @@
 import { Primitive } from "type-fest";
-import { Book, Resolvers } from "../generated/graphql";
+import { Resolvers } from "../generated/graphql";
 
 /*
  * Partial resolvers to allow bits of the resolvers set to be implemented in different places
  */
-export type PartialResolvers = Partial<
-  { [Type in keyof Resolvers]: Partial<Resolvers[Type]> }
->;
+export type PartialResolvers = Partial<{
+  [Type in keyof Resolvers]: Partial<Resolvers[Type]>;
+}>;
 
 /*
  * Type that is applied to find the return type of all resolvers and the
@@ -40,19 +40,6 @@ type IdIfOriginalPresent<T, Field extends string> = T extends Record<
 >
   ? Record<`${Field}Id`, T[Field]["id"]>
   : {};
-
-const x: Unresolved<Book> = {
-  id: "whatever",
-  title: "whatever",
-  addedAt: new Date(),
-  movedAt: new Date(),
-  author: "whatever",
-  notes: null,
-  rating: null,
-  externalId: null,
-  image: null,
-  shelfId: "Read",
-};
 
 type PageLike = { total: number; hasNextPage: boolean; items: unknown };
 type ItemsIfPageLike<T> = T extends PageLike
