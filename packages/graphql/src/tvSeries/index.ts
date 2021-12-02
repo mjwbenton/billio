@@ -216,10 +216,16 @@ export const typeDefs = gql`
 const TV_SEASON = "TvSeason";
 const TV_SERIES = "TvSeries";
 
-const SHELF_NAMES: { [key in TvSeasonShelfId | TvSeriesShelfId]: string } = {
+const SERIES_SHELF_NAMES: { [key in TvSeriesShelfId]: string } = {
   Watching: "Watching",
   Finished: "Finished",
-  FinishedSeason: "Finished Season",
+  FinishedSeason: "Between Seasons",
+  GaveUp: "Gave Up",
+};
+
+const SEASON_SHELF_NAMES: { [key in TvSeasonShelfId]: string } = {
+  Watching: "Watching",
+  FinishedSeason: "Finished",
   GaveUp: "Gave Up",
 };
 
@@ -474,12 +480,12 @@ export const resolvers: PartialResolvers = {
       TV_SERIES,
       OUTPUT_SERIES_TRANSFORM
     ),
-    tvSeasonShelf: resolveShelfArgs<TvSeasonShelfId>(SHELF_NAMES),
-    tvSeriesShelf: resolveShelfArgs<TvSeriesShelfId>(SHELF_NAMES),
+    tvSeasonShelf: resolveShelfArgs<TvSeasonShelfId>(SEASON_SHELF_NAMES),
+    tvSeriesShelf: resolveShelfArgs<TvSeriesShelfId>(SERIES_SHELF_NAMES),
     searchExternalTvSeries: resolveExternal<ExternalTvSeries>(SERIES_API),
   },
   TvSeason: {
-    shelf: resolveShelfParent<TvSeasonShelfId>(SHELF_NAMES),
+    shelf: resolveShelfParent<TvSeasonShelfId>(SEASON_SHELF_NAMES),
     series: async ({ seriesId }) => {
       const series = await resolveForId<TvSeries, TvSeriesShelfId>(
         TV_SERIES,
@@ -492,7 +498,7 @@ export const resolvers: PartialResolvers = {
     },
   },
   TvSeries: {
-    shelf: resolveShelfParent<TvSeriesShelfId>(SHELF_NAMES),
+    shelf: resolveShelfParent<TvSeriesShelfId>(SERIES_SHELF_NAMES),
     seasons: async ({ id }) => {
       const seasons = await DataQuery.withSeriesId({ seriesId: id });
       return seasons.map((season) =>
