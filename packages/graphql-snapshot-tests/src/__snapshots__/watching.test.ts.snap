@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`watching returns both movies and Tv 1`] = `
+Object {
+  "watching": Object {
+    "__typename": "WatchingPage",
+    "items": Array [
+      Object {
+        "__typename": "TvSeries",
+        "releaseYear": "2019",
+        "seasons": Array [
+          Object {
+            "__typename": "TvSeason",
+            "seasonNumber": 1,
+            "title": "For All Mankind: Season 1",
+          },
+        ],
+        "title": "For All Mankind",
+      },
+      Object {
+        "__typename": "Movie",
+        "releaseYear": "2003",
+        "title": "Lost in Translation",
+      },
+    ],
+    "total": 2,
+  },
+}
+`;

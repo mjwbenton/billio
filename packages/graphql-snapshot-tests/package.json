@@ -12,8 +12,8 @@
     "fix": "../../scripts/fix.sh",
     "check": "../../scripts/check.sh",
     "watch": "../../scripts/watch.sh",
-    "test-local": "BILLIO_ENDPOINT=http://localhost:4000 jest",
-    "test-integration": "BILLIO_ENDPOINT=https://api-test.billio.mattb.tech jest"
+    "test-local": "BILLIO_ENDPOINT=http://localhost:4000 jest -i",
+    "test-integration": "BILLIO_ENDPOINT=https://api-test.billio.mattb.tech jest -i"
   },
   "devDependencies": {
     "@apollo/client": "^3.5.5",
