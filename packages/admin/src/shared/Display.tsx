@@ -8,6 +8,7 @@ import {
   Show as RAShow,
   SimpleShowLayout,
   TextField,
+  TextInput,
 } from "react-admin";
 import Title from "./Title";
 import EmptyPage from "./EmptyPage";
@@ -36,6 +37,8 @@ function baseMetaFields() {
   ];
 }
 
+const FILTERS = [<TextInput source="q" label="Search" alwaysOn />];
+
 export const List = (props) => {
   return (
     <RAList
@@ -45,6 +48,7 @@ export const List = (props) => {
       empty={<EmptyPage />}
       pagination={<CursorPagination />}
       perPage={50}
+      filters={FILTERS}
     >
       <Datagrid rowClick="show">
         {baseDataFields()}

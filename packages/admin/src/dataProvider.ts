@@ -56,8 +56,8 @@ const QUERIES = {
     ${RESOURCE_CONFIGURATION[resourceName].fragment}`,
 
   GET_LIST: (resourceName: string) => gql`
-    query GET_LIST_${resourceName}($first: Int!) {
-      page: ${RESOURCE_CONFIGURATION[resourceName].queryList}(first: $first) {
+    query GET_LIST_${resourceName}($first: Int!, $searchTerm: String) {
+      page: ${RESOURCE_CONFIGURATION[resourceName].queryList}(first: $first, searchTerm: $searchTerm) {
         total
         items: items {
           ...${resourceName}
@@ -112,6 +112,7 @@ const dataProvider: DataProvider = {
       query: QUERIES.GET_LIST(resourceName),
       variables: {
         first: params.pagination.perPage,
+        ...(params.filter.q ? { searchTerm: params.filter.q } : {}),
       },
     });
     return {
