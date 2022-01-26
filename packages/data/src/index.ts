@@ -45,10 +45,18 @@ const ItemModel = dynamoose.model<ItemDocument>(
       id: String,
       type: {
         type: String,
-        index: {
-          name: "type",
-          rangeKey: "movedAt:type:id",
-        },
+        index: [
+          {
+            global: true,
+            name: "type",
+            rangeKey: "movedAt:type:id",
+          },
+          {
+            global: true,
+            name: "title",
+            rangeKey: "title",
+          },
+        ],
       },
       shelf: String,
       addedAt: Date,
@@ -56,13 +64,18 @@ const ItemModel = dynamoose.model<ItemDocument>(
       externalId: {
         type: String,
         index: {
+          global: true,
           name: "externalId",
           rangeKey: "movedAt:type:id",
         },
       },
+      title: {
+        type: String,
+      },
       category: {
         type: String,
         index: {
+          global: true,
           name: "category",
           rangeKey: "movedAt:type:id",
         },
@@ -77,6 +90,7 @@ const ItemModel = dynamoose.model<ItemDocument>(
       "type:shelf": {
         type: String,
         index: {
+          global: true,
           name: "shelf",
           rangeKey: "movedAt:type:id",
         },
@@ -85,6 +99,7 @@ const ItemModel = dynamoose.model<ItemDocument>(
       seriesId: {
         type: String,
         index: {
+          global: true,
           name: "seriesId",
           rangeKey: "movedAt:type:id",
         },
@@ -150,6 +165,42 @@ export const Query = {
       .eq(type)
       .sort(SortOrder.descending)
       .using("type")
+      .limit(first);
+    const { lastKey, countSoFar }: After = after
+      ? fromBase64(after)
+      : { countSoFar: 0 };
+    const data = await (lastKey
+      ? baseQuery.startAt(lastKey)
+      : baseQuery
+    ).exec();
+    const newCountSoFar = countSoFar + data.count;
+    const newLastKey =
+      count > newCountSoFar && data.lastKey
+        ? toBase64({ countSoFar: newCountSoFar, lastKey: data.lastKey })
+        : undefined;
+    return {
+      items: Array.from(data),
+      count,
+      lastKey: newLastKey,
+    };
+  },
+  searchType: async (
+    { type }: TypeKey,
+    { first, after, query }: { first: number; after?: string; query: string }
+  ): Promise<QueryResponse> => {
+    const { count } = await ItemModel.query("type")
+      .eq(type)
+      .where("title")
+      .beginsWith(query)
+      .using("title")
+      .all()
+      .count()
+      .exec();
+    const baseQuery = ItemModel.query("type")
+      .eq(type)
+      .where("title")
+      .beginsWith(query)
+      .using("title")
       .limit(first);
     const { lastKey, countSoFar }: After = after
       ? fromBase64(after)
