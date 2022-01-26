@@ -44,8 +44,8 @@ export const typeDefs = gql`
   extend type Query {
     tvSeason(id: ID!): TvSeason
     tvSeriesSingle(id: ID!): TvSeries
-    tvSeasons(after: ID, first: Int!): TvSeasonPage!
-    tvSeries(after: ID, first: Int!): TvSeriesPage!
+    tvSeasons(after: ID, first: Int!, searchTerm: String): TvSeasonPage!
+    tvSeries(after: ID, first: Int!, searchTerm: String): TvSeriesPage!
     tvSeasonShelf(id: TvSeasonShelfId!): TvSeasonShelf
     tvSeriesShelf(id: TvSeriesShelfId!): TvSeriesShelf
     searchExternalTvSeries(term: String!): [ExternalTvSeries!]!

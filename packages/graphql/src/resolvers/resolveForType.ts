@@ -8,12 +8,21 @@ export default function resolveForType<
 >(type: string, transform: OutputTransform<TItem, TShelfId>) {
   return async (
     _: unknown,
-    { first, after }: { first: number; after?: string | null }
+    {
+      first,
+      after,
+      searchTerm,
+    }: { first: number; after?: string | null; searchTerm?: string | null }
   ) => {
-    const { count, items, lastKey } = await DataQuery.ofType(
-      { type: type },
-      { first, after: after ?? undefined }
-    );
+    const { count, items, lastKey } = searchTerm
+      ? await DataQuery.searchType(
+          { type: type },
+          { first, after: after ?? undefined, query: searchTerm }
+        )
+      : await DataQuery.ofType(
+          { type: type },
+          { first, after: after ?? undefined }
+        );
     return {
       total: count,
       hasNextPage: !!lastKey,

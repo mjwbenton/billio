@@ -33,7 +33,7 @@ export const typeDefs = gql`
   extend type Query {
     videoGame(id: ID!): VideoGame
     videoGameShelf(id: VideoGameShelfId!): VideoGameShelf
-    videoGames(after: ID, first: Int!): VideoGamePage!
+    videoGames(after: ID, first: Int!, searchTerm: String): VideoGamePage!
     searchExternalVideoGame(term: String!): [ExternalVideoGame!]!
   }
 

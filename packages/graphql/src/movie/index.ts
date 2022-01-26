@@ -29,7 +29,7 @@ import { WATCHING } from "../watching/constants";
 export const typeDefs = gql`
   extend type Query {
     movie(id: ID!): Movie
-    movies(after: ID, first: Int!): MoviePage!
+    movies(after: ID, first: Int!, searchTerm: String): MoviePage!
     searchExternalMovie(term: String!): [ExternalMovie!]!
   }
 
