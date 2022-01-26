@@ -96,6 +96,7 @@ export const typeDefs = gql`
   enum TvSeriesShelfId {
     Watching
     FinishedSeason
+    MidSeasonBreak
     GaveUp
     Finished
   }
@@ -103,6 +104,7 @@ export const typeDefs = gql`
   enum TvSeasonShelfId {
     Watching
     FinishedSeason
+    MidSeasonBreak
     GaveUp
   }
 
@@ -220,12 +222,14 @@ const SERIES_SHELF_NAMES: { [key in TvSeriesShelfId]: string } = {
   Watching: "Watching",
   Finished: "Finished",
   FinishedSeason: "Between Seasons",
+  MidSeasonBreak: "Mid-season Break",
   GaveUp: "Gave Up",
 };
 
 const SEASON_SHELF_NAMES: { [key in TvSeasonShelfId]: string } = {
   Watching: "Watching",
   FinishedSeason: "Finished",
+  MidSeasonBreak: "Mid-season Break",
   GaveUp: "Gave Up",
 };
 
