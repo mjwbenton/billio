@@ -143,12 +143,19 @@ const dataProvider: DataProvider = {
     };
   },
   async update(resourceName, params) {
-    const { id, ...item } = params.data;
+    const { id, shelfId, ...item } = params.data;
     const result = await client.mutate({
       mutation: QUERIES.UPDATE(resourceName),
       variables: {
         id,
-        item,
+        item: {
+          ...item,
+          // Do not send the shelfId on update unless it was different from the previous value
+          // This avoids the dates being automatically updated when the shelf hasn't changed
+          ...(shelfId && shelfId != params.previousData.shelf.id
+            ? { shelfId }
+            : {}),
+        },
       },
     });
     return {
