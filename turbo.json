@@ -1,0 +1,26 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "baseBranch": "origin/main",
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"]
+    },
+    "check": {
+      "outputs": []
+    },
+    "fix": {
+      "outputs": []
+    },
+    "clean": {},
+    "deploy": {
+      "outputs": []
+    },
+    "@mattb.tech/billio-cdk#deploy": {
+      "dependsOn": [
+        "@mattb.tech/billio-admin#build",
+        "@mattb.tech/billio-graphql#build",
+        "@mattb.tech/billio-backup#build"
+      ]
+    }
+  }
+}
