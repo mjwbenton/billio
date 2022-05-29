@@ -61,6 +61,7 @@ export const typeDefs = gql`
     Played
     Completed
     GaveUp
+    Paused
   }
 
   type VideoGamePage {
@@ -133,6 +134,7 @@ const SHELF_NAMES: { [key in VideoGameShelfId]: string } = {
   Played: "Played",
   Completed: "Completed",
   GaveUp: "Gave Up",
+  Paused: "Paused",
 };
 
 const PLATFORM_NAMES: { [key in VideoGamePlatformId]: string } = {
