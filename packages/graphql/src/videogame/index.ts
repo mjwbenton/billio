@@ -77,6 +77,7 @@ export const typeDefs = gql`
   }
 
   enum VideoGamePlatformId {
+    SteamDeck
     Playstation4
     NintendoSwitch
     Nintendo3DS
@@ -138,6 +139,7 @@ const SHELF_NAMES: { [key in VideoGameShelfId]: string } = {
 };
 
 const PLATFORM_NAMES: { [key in VideoGamePlatformId]: string } = {
+  SteamDeck: "Steam Deck",
   Playstation4: "Playstation 4",
   NintendoSwitch: "Nintendo Switch",
   Nintendo3DS: "Nintendo 3DS",

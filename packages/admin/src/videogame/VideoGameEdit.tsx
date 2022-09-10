@@ -5,6 +5,10 @@ import SHELVES from "./VideoGameShelves";
 
 const PLATFORMS = [
   {
+    id: "SteamDeck",
+    name: "Steam Deck",
+  },
+  {
     id: "Playstation4",
     name: "Playstation 4",
   },
