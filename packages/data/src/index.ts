@@ -199,7 +199,7 @@ export const Query = {
       .eq(type)
       .sort(SortOrder.descending)
       .where(SORT_FIELD_MAP[sortBy])
-      .between(startDate.getTime().toString(), endDate.getTime().toString())
+      .between(...betweenDates(SORT_FIELD_MAP[sortBy], startDate, endDate))
       .using(`type${SORT_INDEX_MAP[sortBy]}`)
       .all()
       .count()
@@ -208,7 +208,7 @@ export const Query = {
       .eq(type)
       .sort(SortOrder.descending)
       .where(SORT_FIELD_MAP[sortBy])
-      .between(startDate.getTime().toString(), endDate.getTime().toString())
+      .between(...betweenDates(SORT_FIELD_MAP[sortBy], startDate, endDate))
       .using(`type${SORT_INDEX_MAP[sortBy]}`);
     const { lastKey, countSoFar }: After = after
       ? fromBase64(after)
@@ -432,4 +432,18 @@ function toBase64(lastKey: After): string {
 
 function fromBase64(lastKey: string): After {
   return JSON.parse(Buffer.from(lastKey, "base64").toString("utf-8"));
+}
+
+// This is currently a bit of a hack. For sorting by movedAt we use the combined movedAt:type:id field,
+// which is a string, whereas for addedAt we use the number field addedAt. This function generates
+// parameters to the `between` function which are of the right type
+function betweenDates(
+  fieldName: "movedAt:type:id" | "addedAt",
+  startDate: Date,
+  endDate: Date
+) {
+  if (fieldName === "movedAt:type:id") {
+    return [startDate.getTime().toString(), endDate.getTime().toString()];
+  }
+  return [startDate.getTime(), endDate.getTime()];
 }
