@@ -1,4 +1,5 @@
 import { Query as DataQuery } from "@mattb.tech/billio-data";
+import { SortBy } from "../generated/graphql";
 import { Item } from "../shared/Item";
 import { OutputTransform, transformItem } from "../shared/transforms";
 
@@ -14,12 +15,14 @@ export default function resolveForType<
       searchTerm,
       startDate,
       endDate,
+      sortBy,
     }: {
       first: number;
       after?: string | null;
       searchTerm?: string | null;
       startDate?: Date | null;
       endDate?: Date | null;
+      sortBy?: SortBy | null;
     }
   ) => {
     if (searchTerm && (startDate || endDate)) {
@@ -37,6 +40,7 @@ export default function resolveForType<
             after: after ?? undefined,
             startDate: startDate ?? undefined,
             endDate: endDate ?? undefined,
+            sortBy: sortBy ?? undefined,
           }
         );
     return {

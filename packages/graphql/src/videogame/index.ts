@@ -39,6 +39,7 @@ export const typeDefs = gql`
       searchTerm: String
       startDate: DateTime
       endDate: DateTime
+      sortBy: SortBy
     ): VideoGamePage!
     searchExternalVideoGame(term: String!): [ExternalVideoGame!]!
   }

@@ -38,6 +38,7 @@ export const typeDefs = gql`
       searchTerm: String
       startDate: DateTime
       endDate: DateTime
+      sortBy: SortBy
     ): BookPage!
     searchExternalBook(term: String!): [ExternalBook!]!
   }

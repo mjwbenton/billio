@@ -11,6 +11,11 @@ export const typeDefs = gql`
 
   scalar Rating
 
+  enum SortBy {
+    MOVED_AT
+    ADDED_AT
+  }
+
   interface Item {
     id: ID!
     addedAt: DateTime!

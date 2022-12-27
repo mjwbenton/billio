@@ -16,6 +16,19 @@ const MOVED_AT_TYPE_ID = ["movedAt", "type", "id"] as const;
 
 const DEFAULT_START = new Date("2010-01-01T00:00:00");
 const DEFAULT_END = new Date("2200-01-01T00:00:00");
+const DEFAULT_SORT = "MOVED_AT";
+
+type SortBy = "MOVED_AT" | "ADDED_AT";
+
+const SORT_FIELD_MAP = {
+  MOVED_AT: "movedAt:type:id",
+  ADDED_AT: "addedAt",
+} as const;
+
+const SORT_INDEX_MAP = {
+  MOVED_AT: "",
+  ADDED_AT: "-addedAt",
+} as const;
 
 export interface Item {
   type: string;
@@ -59,6 +72,11 @@ const ItemModel = dynamoose.model<ItemDocument>(
             name: "title",
             rangeKey: "title",
           },
+          {
+            global: true,
+            name: "type-addedAt",
+            rangeKey: "addedAt",
+          },
         ],
       },
       shelf: String,
@@ -92,11 +110,18 @@ const ItemModel = dynamoose.model<ItemDocument>(
       },
       "type:shelf": {
         type: String,
-        index: {
-          global: true,
-          name: "shelf",
-          rangeKey: "movedAt:type:id",
-        },
+        index: [
+          {
+            global: true,
+            name: "shelf",
+            rangeKey: "movedAt:type:id",
+          },
+          {
+            global: true,
+            name: "shelf-addedAt",
+            rangeKey: "addedAt",
+          },
+        ],
       },
       // Tv Series only
       seriesId: {
@@ -161,23 +186,30 @@ export const Query = {
       after,
       startDate = DEFAULT_START,
       endDate = DEFAULT_END,
-    }: { first: number; after?: string; startDate?: Date; endDate?: Date }
+      sortBy = "MOVED_AT",
+    }: {
+      first: number;
+      after?: string;
+      startDate?: Date;
+      endDate?: Date;
+      sortBy?: SortBy;
+    }
   ): Promise<QueryResponse> => {
     const { count } = await ItemModel.query("type")
       .eq(type)
       .sort(SortOrder.descending)
-      .where("movedAt:type:id")
+      .where(SORT_FIELD_MAP[sortBy])
       .between(startDate.getTime().toString(), endDate.getTime().toString())
-      .using("type")
+      .using(`type${SORT_INDEX_MAP[sortBy]}`)
       .all()
       .count()
       .exec();
     const baseQuery = ItemModel.query("type")
       .eq(type)
       .sort(SortOrder.descending)
-      .where("movedAt:type:id")
+      .where(SORT_FIELD_MAP[sortBy])
       .between(startDate.getTime().toString(), endDate.getTime().toString())
-      .using("type");
+      .using(`type${SORT_INDEX_MAP[sortBy]}`);
     const { lastKey, countSoFar }: After = after
       ? fromBase64(after)
       : { countSoFar: 0 };

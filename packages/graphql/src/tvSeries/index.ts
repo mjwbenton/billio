@@ -50,6 +50,7 @@ export const typeDefs = gql`
       searchTerm: String
       startDate: DateTime
       endDate: DateTime
+      sortBy: SortBy
     ): TvSeasonPage!
     tvSeries(
       after: ID
@@ -57,6 +58,7 @@ export const typeDefs = gql`
       searchTerm: String
       startDate: DateTime
       endDate: DateTime
+      sortBy: SortBy
     ): TvSeriesPage!
     tvSeasonShelf(id: TvSeasonShelfId!): TvSeasonShelf
     tvSeriesShelf(id: TvSeriesShelfId!): TvSeriesShelf
