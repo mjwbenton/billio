@@ -12,8 +12,19 @@ export default function resolveForType<
       first,
       after,
       searchTerm,
-    }: { first: number; after?: string | null; searchTerm?: string | null }
+      startDate,
+      endDate,
+    }: {
+      first: number;
+      after?: string | null;
+      searchTerm?: string | null;
+      startDate?: Date | null;
+      endDate?: Date | null;
+    }
   ) => {
+    if (searchTerm && (startDate || endDate)) {
+      throw new Error("Cannot combine search and date queries");
+    }
     const { count, items, lastKey } = searchTerm
       ? await DataQuery.searchType(
           { type: type },
@@ -21,7 +32,12 @@ export default function resolveForType<
         )
       : await DataQuery.ofType(
           { type: type },
-          { first, after: after ?? undefined }
+          {
+            first,
+            after: after ?? undefined,
+            startDate: startDate ?? undefined,
+            endDate: endDate ?? undefined,
+          }
         );
     return {
       total: count,

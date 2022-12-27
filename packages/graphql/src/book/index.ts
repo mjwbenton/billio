@@ -32,7 +32,13 @@ export const typeDefs = gql`
   extend type Query {
     book(id: ID!): Book
     bookShelf(id: BookShelfId!): BookShelf
-    books(after: ID, first: Int!, searchTerm: String): BookPage!
+    books(
+      after: ID
+      first: Int!
+      searchTerm: String
+      startDate: DateTime
+      endDate: DateTime
+    ): BookPage!
     searchExternalBook(term: String!): [ExternalBook!]!
   }
 

@@ -14,6 +14,9 @@ const TYPE_ID = ["type", "id"] as const;
 const TYPE_SHELF = ["type", "shelf"] as const;
 const MOVED_AT_TYPE_ID = ["movedAt", "type", "id"] as const;
 
+const DEFAULT_START = new Date("2010-01-01T00:00:00");
+const DEFAULT_END = new Date("2200-01-01T00:00:00");
+
 export interface Item {
   type: string;
   id: string;
@@ -153,10 +156,18 @@ export const Query = {
   },
   ofType: async (
     { type }: TypeKey,
-    { first, after }: { first: number; after?: string }
+    {
+      first,
+      after,
+      startDate = DEFAULT_START,
+      endDate = DEFAULT_END,
+    }: { first: number; after?: string; startDate?: Date; endDate?: Date }
   ): Promise<QueryResponse> => {
     const { count } = await ItemModel.query("type")
       .eq(type)
+      .sort(SortOrder.descending)
+      .where("movedAt:type:id")
+      .between(startDate.getTime().toString(), endDate.getTime().toString())
       .using("type")
       .all()
       .count()
@@ -164,14 +175,15 @@ export const Query = {
     const baseQuery = ItemModel.query("type")
       .eq(type)
       .sort(SortOrder.descending)
-      .using("type")
-      .limit(first);
+      .where("movedAt:type:id")
+      .between(startDate.getTime().toString(), endDate.getTime().toString())
+      .using("type");
     const { lastKey, countSoFar }: After = after
       ? fromBase64(after)
       : { countSoFar: 0 };
     const data = await (lastKey
-      ? baseQuery.startAt(lastKey)
-      : baseQuery
+      ? baseQuery.limit(first).startAt(lastKey)
+      : baseQuery.limit(first)
     ).exec();
     const newCountSoFar = countSoFar + data.count;
     const newLastKey =
