@@ -8,14 +8,29 @@ export default function resolveShelfItems<
 >(type: string, transform: OutputTransform<TItem, TShelfId>) {
   return async (
     { id }: { id?: TShelfId },
-    { first, after }: { first: number; after?: string | null }
+    {
+      first,
+      after,
+      startDate,
+      endDate,
+    }: {
+      first: number;
+      after?: string | null;
+      startDate?: Date | null;
+      endDate?: Date | null;
+    }
   ) => {
     if (!id) {
       throw new Error(`Missing id`);
     }
     const { count, items, lastKey } = await DataQuery.onShelf(
       { type, shelf: id },
-      { first, after: after ?? undefined }
+      {
+        first,
+        after: after ?? undefined,
+        startDate: startDate ?? undefined,
+        endDate: endDate ?? undefined,
+      }
     );
     return {
       total: count,

@@ -96,13 +96,23 @@ export const typeDefs = gql`
   type TvSeasonShelf {
     id: TvSeasonShelfId!
     name: String!
-    items(after: ID, first: Int!): TvSeasonPage!
+    items(
+      after: ID
+      first: Int!
+      startDate: DateTime
+      endDate: DateTime
+    ): TvSeasonPage!
   }
 
   type TvSeriesShelf {
     id: TvSeriesShelfId!
     name: String!
-    items(after: ID, first: Int!): TvSeriesPage!
+    items(
+      after: ID
+      first: Int!
+      startDate: DateTime
+      endDate: DateTime
+    ): TvSeriesPage!
   }
 
   enum TvSeriesShelfId {

@@ -58,7 +58,12 @@ export const typeDefs = gql`
   type BookShelf {
     id: BookShelfId!
     name: String!
-    items(after: ID, first: Int!): BookPage!
+    items(
+      after: ID
+      first: Int!
+      startDate: DateTime
+      endDate: DateTime
+    ): BookPage!
   }
 
   enum BookShelfId {

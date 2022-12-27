@@ -267,11 +267,19 @@ export const Query = {
   },
   onShelf: async (
     { type, shelf }: ShelfKey,
-    { first, after }: { first: number; after?: string }
+    {
+      first,
+      after,
+      startDate = DEFAULT_START,
+      endDate = DEFAULT_END,
+    }: { first: number; after?: string; startDate?: Date; endDate?: Date }
   ): Promise<QueryResponse> => {
     const key = combineValue({ type, shelf }, TYPE_SHELF);
     const { count } = await ItemModel.query(combineKey(TYPE_SHELF))
       .eq(key)
+      .sort(SortOrder.descending)
+      .where("movedAt:type:id")
+      .between(startDate.getTime().toString(), endDate.getTime().toString())
       .using("shelf")
       .all()
       .count()
@@ -279,6 +287,8 @@ export const Query = {
     const baseQuery = ItemModel.query(combineKey(TYPE_SHELF))
       .eq(key)
       .sort(SortOrder.descending)
+      .where("movedAt:type:id")
+      .between(startDate.getTime().toString(), endDate.getTime().toString())
       .using("shelf")
       .limit(first);
     const { lastKey, countSoFar }: After = after

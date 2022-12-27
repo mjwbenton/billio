@@ -11,7 +11,10 @@ import resolveExternal from "../resolvers/resolveExternal";
 import resolveForId from "../resolvers/resolveForId";
 import resolveForType from "../resolvers/resolveForType";
 import resolveImportExternal from "../resolvers/resolveImportExternal";
-import { resolveShelfParent } from "../resolvers/resolveShelf";
+import {
+  resolveShelfArgs,
+  resolveShelfParent,
+} from "../resolvers/resolveShelf";
 import resolveShelfItems from "../resolvers/resolveShelfItems";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
 import {
@@ -29,6 +32,7 @@ import { WATCHING } from "../watching/constants";
 export const typeDefs = gql`
   extend type Query {
     movie(id: ID!): Movie
+    movieShelf(id: MovieShelfId!): MovieShelf
     movies(
       after: ID
       first: Int!
@@ -55,7 +59,12 @@ export const typeDefs = gql`
   type MovieShelf {
     id: MovieShelfId!
     name: String!
-    items(after: ID, first: Int!): MoviePage!
+    items(
+      after: ID
+      first: Int!
+      startDate: DateTime
+      endDate: DateTime
+    ): MoviePage!
   }
 
   enum MovieShelfId {
@@ -153,6 +162,7 @@ export const resolvers: PartialResolvers = {
   Query: {
     movie: resolveForId<Movie, MovieShelfId>(TYPE, OUTPUT_TRANSFORM),
     movies: resolveForType<Movie, MovieShelfId>(TYPE, OUTPUT_TRANSFORM),
+    movieShelf: resolveShelfArgs<MovieShelfId>(SHELF_NAMES),
     searchExternalMovie: resolveExternal<ExternalMovie>(TMDB_API),
   },
   Movie: {

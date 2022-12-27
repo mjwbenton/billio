@@ -59,7 +59,12 @@ export const typeDefs = gql`
   type VideoGameShelf {
     id: VideoGameShelfId!
     name: String!
-    items(after: ID, first: Int!): VideoGamePage!
+    items(
+      after: ID
+      first: Int!
+      startDate: DateTime
+      endDate: DateTime
+    ): VideoGamePage!
   }
 
   enum VideoGameShelfId {
