@@ -64,6 +64,7 @@ export const typeDefs = gql`
       first: Int!
       startDate: DateTime
       endDate: DateTime
+      sortBy: SortBy
     ): BookPage!
   }
 

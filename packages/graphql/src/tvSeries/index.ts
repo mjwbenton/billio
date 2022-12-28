@@ -103,6 +103,7 @@ export const typeDefs = gql`
       first: Int!
       startDate: DateTime
       endDate: DateTime
+      sortBy: SortBy
     ): TvSeasonPage!
   }
 
@@ -114,6 +115,7 @@ export const typeDefs = gql`
       first: Int!
       startDate: DateTime
       endDate: DateTime
+      sortBy: SortBy
     ): TvSeriesPage!
   }
 

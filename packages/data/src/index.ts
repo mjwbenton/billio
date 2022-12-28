@@ -304,24 +304,31 @@ export const Query = {
       after,
       startDate = DEFAULT_START,
       endDate = DEFAULT_END,
-    }: { first: number; after?: string; startDate?: Date; endDate?: Date }
+      sortBy = "MOVED_AT",
+    }: {
+      first: number;
+      after?: string;
+      startDate?: Date;
+      endDate?: Date;
+      sortBy?: SortBy;
+    }
   ): Promise<QueryResponse> => {
     const key = combineValue({ type, shelf }, TYPE_SHELF);
     const { count } = await ItemModel.query(combineKey(TYPE_SHELF))
       .eq(key)
       .sort(SortOrder.descending)
-      .where("movedAt:type:id")
-      .between(startDate.getTime().toString(), endDate.getTime().toString())
-      .using("shelf")
+      .where(SORT_FIELD_MAP[sortBy])
+      .between(...betweenDates(SORT_FIELD_MAP[sortBy], startDate, endDate))
+      .using(`shelf${SORT_INDEX_MAP[sortBy]}`)
       .all()
       .count()
       .exec();
     const baseQuery = ItemModel.query(combineKey(TYPE_SHELF))
       .eq(key)
       .sort(SortOrder.descending)
-      .where("movedAt:type:id")
-      .between(startDate.getTime().toString(), endDate.getTime().toString())
-      .using("shelf")
+      .where(SORT_FIELD_MAP[sortBy])
+      .between(...betweenDates(SORT_FIELD_MAP[sortBy], startDate, endDate))
+      .using(`shelf${SORT_INDEX_MAP[sortBy]}`)
       .limit(first);
     const { lastKey, countSoFar }: After = after
       ? fromBase64(after)
