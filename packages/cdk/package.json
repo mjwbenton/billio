@@ -12,7 +12,8 @@
     "fix": "../../scripts/fix.sh",
     "check": "../../scripts/check.sh",
     "watch": "../../scripts/watch.sh",
-    "deploy": "yarn build && cdk deploy --profile mattb.tech-deploy --require-approval never --all"
+    "deploy": "yarn build && cdk deploy --require-approval never --all",
+    "bootstrap": "yarn build && cdk deploy --profile cdk-deploy --require-approval never --all"
   },
   "devDependencies": {
     "@aws-cdk/aws-apigatewayv2-alpha": "^2.88.0-alpha.0",

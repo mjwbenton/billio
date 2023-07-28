@@ -16,6 +16,7 @@
     "check": "yarn turbo run check",
     "fix": "yarn turbo run fix",
     "deploy": "yarn turbo run deploy",
+    "bootstrap": "yarn turbo run bootstrap",
     "start:graphql": "yarn workspace @mattb.tech/billio-graphql start",
     "start:admin": "yarn workspace @mattb.tech/billio-admin start",
     "test:graphql-local": "yarn workspace @mattb.tech/billio-graphql-snapshot-tests test-local",
