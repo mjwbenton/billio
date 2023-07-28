@@ -1,12 +1,12 @@
-import { App, Stack } from "@aws-cdk/core";
+import { App, Stack } from "aws-cdk-lib";
 import {
   UserPool,
   UserPoolClient,
   CfnIdentityPool,
   AccountRecovery,
   CfnIdentityPoolRoleAttachment,
-} from "@aws-cdk/aws-cognito";
-import { Role, IRole, FederatedPrincipal } from "@aws-cdk/aws-iam";
+} from "aws-cdk-lib/aws-cognito";
+import { Role, IRole, FederatedPrincipal } from "aws-cdk-lib/aws-iam";
 
 export default class BillioAuthStack extends Stack {
   public readonly authenticatedUserRole: IRole;

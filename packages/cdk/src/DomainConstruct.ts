@@ -1,18 +1,19 @@
-import { Stack, Duration, Construct } from "@aws-cdk/core";
+import { Duration } from "aws-cdk-lib";
+import { Construct } from "constructs";
 import {
   RecordTarget,
   IAliasRecordTarget,
   ARecord,
   HostedZone,
   IHostedZone,
-} from "@aws-cdk/aws-route53";
-import { ApiGatewayv2DomainProperties } from "@aws-cdk/aws-route53-targets";
+} from "aws-cdk-lib/aws-route53";
+import { ApiGatewayv2DomainProperties } from "aws-cdk-lib/aws-route53-targets";
 import {
   Certificate,
   CertificateValidation,
   ICertificate,
-} from "@aws-cdk/aws-certificatemanager";
-import { DomainName } from "@aws-cdk/aws-apigatewayv2";
+} from "aws-cdk-lib/aws-certificatemanager";
+import { DomainName } from "@aws-cdk/aws-apigatewayv2-alpha";
 
 const HOSTED_ZONE = "mattb.tech";
 const HOSTED_ZONE_ID = "Z2GPSB1CDK86DH";

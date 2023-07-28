@@ -1,18 +1,19 @@
-import { Stack, Construct } from "@aws-cdk/core";
-import { Bucket } from "@aws-cdk/aws-s3";
-import { Rule, Schedule } from "@aws-cdk/aws-events";
-import { LambdaFunction } from "@aws-cdk/aws-events-targets";
-import { NodejsFunction } from "@aws-cdk/aws-lambda-nodejs";
-import { Runtime } from "@aws-cdk/aws-lambda";
+import { Stack } from "aws-cdk-lib";
+import { Construct } from "constructs";
+import { Bucket } from "aws-cdk-lib/aws-s3";
+import { Rule, Schedule } from "aws-cdk-lib/aws-events";
+import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { Runtime } from "aws-cdk-lib/aws-lambda";
 import path from "path";
 import BillioDataStack from "./BillioDataStack";
 import {
   Alarm,
   ComparisonOperator,
   TreatMissingData,
-} from "@aws-cdk/aws-cloudwatch";
-import { SnsAction } from "@aws-cdk/aws-cloudwatch-actions";
-import { Topic } from "@aws-cdk/aws-sns";
+} from "aws-cdk-lib/aws-cloudwatch";
+import { SnsAction } from "aws-cdk-lib/aws-cloudwatch-actions";
+import { Topic } from "aws-cdk-lib/aws-sns";
 
 const ALARM_TOPIC = "arn:aws:sns:us-east-1:858777967843:general-alarms";
 

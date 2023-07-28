@@ -1,7 +1,8 @@
-import { Stack, Construct } from "@aws-cdk/core";
-import { Distribution, ViewerProtocolPolicy } from "@aws-cdk/aws-cloudfront";
-import { S3Origin } from "@aws-cdk/aws-cloudfront-origins";
-import { CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
+import { Stack } from "aws-cdk-lib";
+import { Construct } from "constructs";
+import { Distribution, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
+import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
+import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 import DomainConstruct from "./DomainConstruct";
 import BillioImageStack from "./BillioImageStack";
 

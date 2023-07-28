@@ -1,4 +1,4 @@
-import { App } from "@aws-cdk/core";
+import { App } from "aws-cdk-lib";
 import BillioAdminStack from "./BillioAdminStack";
 import BillioApiStack from "./BillioApiStack";
 import BillioAuthStack from "./BillioAuthStack";

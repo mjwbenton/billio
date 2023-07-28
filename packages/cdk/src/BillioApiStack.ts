@@ -1,6 +1,6 @@
-import { App, Stack } from "@aws-cdk/core";
-import { NodejsFunction } from "@aws-cdk/aws-lambda-nodejs";
-import { Runtime, IFunction } from "@aws-cdk/aws-lambda";
+import { App, Stack } from "aws-cdk-lib";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { Runtime } from "aws-cdk-lib/aws-lambda";
 import {
   HttpApi,
   HttpRoute,
@@ -8,10 +8,10 @@ import {
   CorsHttpMethod,
   HttpRouteKey,
   HttpMethod,
-  CfnRoute,
-} from "@aws-cdk/aws-apigatewayv2";
-import { IIdentity, PolicyStatement, Effect } from "@aws-cdk/aws-iam";
-import { LambdaProxyIntegration } from "@aws-cdk/aws-apigatewayv2-integrations";
+} from "@aws-cdk/aws-apigatewayv2-alpha";
+import { CfnRoute } from "aws-cdk-lib/aws-apigatewayv2";
+import { IIdentity, PolicyStatement, Effect } from "aws-cdk-lib/aws-iam";
+import { HttpLambdaIntegration } from "@aws-cdk/aws-apigatewayv2-integrations-alpha";
 import path from "path";
 import BillioDataStack from "./BillioDataStack";
 import DomainConstruct from "./DomainConstruct";
@@ -102,8 +102,7 @@ export default class BillioApiStack extends Stack {
 
     const graphqlRoute = new HttpRoute(this, "Route", {
       httpApi: this.api,
-      integration: new LambdaProxyIntegration({
-        handler: lambdaFunction,
+      integration: new HttpLambdaIntegration("Integration", lambdaFunction, {
         payloadFormatVersion: PayloadFormatVersion.VERSION_1_0,
       }),
       routeKey: HttpRouteKey.with("/", HttpMethod.POST),

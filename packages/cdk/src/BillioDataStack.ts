@@ -1,10 +1,11 @@
-import { Stack, StackProps, Construct } from "@aws-cdk/core";
+import { Stack } from "aws-cdk-lib";
+import { Construct } from "constructs";
 import {
   AttributeType,
   BillingMode,
   ITable,
   Table,
-} from "@aws-cdk/aws-dynamodb";
+} from "aws-cdk-lib/aws-dynamodb";
 
 export default class BillioDataStack extends Stack {
   public readonly itemTable: ITable;

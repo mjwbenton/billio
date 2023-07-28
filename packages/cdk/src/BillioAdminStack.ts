@@ -1,9 +1,10 @@
-import { Stack, StackProps, Construct } from "@aws-cdk/core";
-import { Bucket } from "@aws-cdk/aws-s3";
-import { Distribution, ViewerProtocolPolicy } from "@aws-cdk/aws-cloudfront";
-import { S3Origin } from "@aws-cdk/aws-cloudfront-origins";
-import { CloudFrontTarget } from "@aws-cdk/aws-route53-targets";
-import { BucketDeployment, Source } from "@aws-cdk/aws-s3-deployment";
+import { Stack } from "aws-cdk-lib";
+import { Construct } from "constructs";
+import { Bucket } from "aws-cdk-lib/aws-s3";
+import { Distribution, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
+import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
+import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
+import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import path from "path";
 import DomainConstruct from "./DomainConstruct";
 
