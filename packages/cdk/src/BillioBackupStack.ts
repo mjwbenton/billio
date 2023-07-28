@@ -1,4 +1,4 @@
-import { Stack } from "aws-cdk-lib";
+import { RemovalPolicy, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { Bucket } from "aws-cdk-lib/aws-s3";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
@@ -24,7 +24,9 @@ export default class BillioBackupStack extends Stack {
     { dataStack }: { dataStack: BillioDataStack }
   ) {
     super(scope, id);
-    const backupBucket = new Bucket(this, "BackupBucket");
+    const backupBucket = new Bucket(this, "BackupBucket", {
+      removalPolicy: RemovalPolicy.RETAIN,
+    });
 
     const lambdaFunction = new NodejsFunction(this, "LambdaFunction", {
       entry: path.join(__dirname, "../../backup/dist/lambda.js"),
