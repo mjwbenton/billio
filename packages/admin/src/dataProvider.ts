@@ -152,7 +152,7 @@ const dataProvider: DataProvider = {
           ...item,
           // Do not send the shelfId on update unless it was different from the previous value
           // This avoids the dates being automatically updated when the shelf hasn't changed
-          ...(shelfId && shelfId != params.previousData.shelf.id
+          ...(shelfId && shelfId !== params.previousData.shelf.id
             ? { shelfId }
             : {}),
         },
