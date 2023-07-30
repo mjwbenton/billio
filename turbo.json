@@ -12,16 +12,12 @@
     },
     "clean": {},
     "deploy": {
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["build", "^check", "check"]
     },
     "bootstrap": {
-      "outputs": []
-    },
-    "@mattb.tech/billio-cdk#deploy": {
-      "dependsOn": ["^build", "^check"]
-    },
-    "@mattb.tech/billio-cdk#bootstrap": {
-      "dependsOn": ["^build", "^check"]
+      "outputs": [],
+      "dependsOn": ["build", "^check", "check"]
     }
   }
 }
