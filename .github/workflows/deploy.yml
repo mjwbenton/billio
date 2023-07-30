@@ -23,7 +23,7 @@ jobs:
           aws-region: us-east-1
 
       - name: create graphql .env
-        run: printf "IGDB_CLIENT_ID=${{ secrets.IGDB_CLIENT_ID }}\nIGDB_CLIENT_SECRET=${{ secrets.IGDB_CLIENT_SECRET }}\nTMDB_API_KEY=${{ secrets.TMDB_API_KEY }}\n" > graphql/.env
+        run: printf "IGDB_CLIENT_ID=${{ secrets.IGDB_CLIENT_ID }}\nIGDB_CLIENT_SECRET=${{ secrets.IGDB_CLIENT_SECRET }}\nTMDB_API_KEY=${{ secrets.TMDB_API_KEY }}\n" > packages/graphql/.env
 
       - run: yarn install --frozen-lockfile
       - run: yarn deploy
