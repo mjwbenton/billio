@@ -14,8 +14,8 @@ const RESOURCE_CONFIGURATION = {
     shelfType: "BookShelfId",
   },
   VideoGame: {
-    fragment: loader("./videoGame/VideoGame.graphql"),
-    externalFragment: loader("./videoGame/ExternalVideoGame.graphql"),
+    fragment: loader("./videogame/VideoGame.graphql"),
+    externalFragment: loader("./videogame/ExternalVideoGame.graphql"),
     querySingle: "videoGame",
     queryList: "videoGames",
     capitalized: "VideoGame",
