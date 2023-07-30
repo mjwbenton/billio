@@ -14,7 +14,7 @@
     "graphql": "^15.5.1",
     "graphql.macro": "^1.4.2",
     "react": "^17.0.2",
-    "react-admin": "^3.19.2",
+    "react-admin": "^3.19.12",
     "react-apollo": "^3.1.5",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
