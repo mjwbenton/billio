@@ -27,3 +27,14 @@ jobs:
 
       - run: yarn install --frozen-lockfile
       - run: yarn deploy
+  graphql-tests:
+    needs: deploy
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+      - run: yarn install --frozen-lockfile
+      - run: yarn test:graphql-integration
