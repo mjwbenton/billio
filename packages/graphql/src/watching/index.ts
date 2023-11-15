@@ -1,4 +1,4 @@
-import { gql } from "apollo-server-lambda";
+import gql from "graphql-tag";
 import resolveForCategory from "../resolvers/resolveForCategory";
 import { PartialResolvers } from "../shared/types";
 import { OUTPUT_SERIES_TRANSFORM } from "../tvSeries";

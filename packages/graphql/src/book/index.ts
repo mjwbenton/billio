@@ -1,4 +1,4 @@
-import { gql } from "apollo-server-lambda";
+import gql from "graphql-tag";
 import {
   AddBookInput,
   Book,
@@ -179,7 +179,6 @@ const resolvers: PartialResolvers = {
   ExternalBook: {
     importedItem: resolveImportedItem<Book, BookShelfId>(OUTPUT_TRANSFORM),
   },
-  Mutation: {},
 };
 
 const mutationResolvers: PartialResolvers["Mutation"] = {

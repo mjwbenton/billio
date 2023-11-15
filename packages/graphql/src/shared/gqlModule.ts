@@ -1,7 +1,7 @@
-import { gql } from "apollo-server-lambda";
 import { DocumentNode } from "graphql";
 import merge from "lodash.merge";
 import { PartialResolvers } from "./types";
+import gql from "graphql-tag";
 
 export default class GqlModule {
   constructor(
@@ -13,13 +13,13 @@ export default class GqlModule {
     }
   ) {}
 
-  public schema(includeMutations: boolean = true) {
-    const {
-      mutationTypeDefs,
-      mutationResolvers = {},
-      typeDefs,
-      resolvers = {},
-    } = this.config;
+  public schema(includeMutations: boolean = true): {
+    typeDefs: DocumentNode;
+    // TODO: Fix any
+    resolvers: any;
+  } {
+    const { mutationTypeDefs, mutationResolvers, typeDefs, resolvers } =
+      this.config;
     return {
       typeDefs: gql`
         ${typeDefs ?? ""}

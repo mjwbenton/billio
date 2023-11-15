@@ -1,4 +1,3 @@
-import { makeExecutableSchema } from "@graphql-tools/schema";
 import sharedModule from "./shared/schema";
 import watchingModule from "./watching";
 import videogameModule from "./videogame";
@@ -9,13 +8,11 @@ import { combineModules } from "./shared/gqlModule";
 
 const ENABLE_MUTATIONS = !!parseInt(process.env.ENABLE_MUTATIONS ?? "0");
 
-export default makeExecutableSchema(
-  combineModules(
-    sharedModule,
-    bookModule,
-    watchingModule,
-    videogameModule,
-    movieModule,
-    tvSeriesModule
-  ).schema(ENABLE_MUTATIONS)
-);
+export default combineModules(
+  sharedModule,
+  bookModule,
+  watchingModule,
+  videogameModule,
+  movieModule,
+  tvSeriesModule
+).schema(ENABLE_MUTATIONS);

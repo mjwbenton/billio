@@ -29,14 +29,18 @@ process.env.BILLIO_IMAGE_DOMAIN = STACKS[stack].BILLIO_IMAGE_DOMAIN;
 process.env.ENABLE_MUTATIONS = "1";
 
 import schema from "./schema";
-import { ApolloServer } from "apollo-server";
-import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
+import { ApolloServer } from "@apollo/server";
+import { startStandaloneServer } from "@apollo/server/standalone";
+import { buildSubgraphSchema } from "@apollo/subgraph";
 
 (async () => {
   const server = new ApolloServer({
-    schema,
-    plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+    schema: buildSubgraphSchema(schema),
   });
-  const { url } = await server.listen(4000);
-  console.log(`Server running on ${url}`);
+
+  const { url } = await startStandaloneServer(server, {
+    listen: { port: 4000 },
+  });
+
+  console.log(`🚀  Server ready at: ${url}`);
 })();

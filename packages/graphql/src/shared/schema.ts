@@ -1,13 +1,9 @@
-import { gql } from "apollo-server-lambda";
+import gql from "graphql-tag";
 import Rating from "./Rating";
 import { DateTimeResolver as DateTime } from "graphql-scalars";
 import GqlModule from "./gqlModule";
 
 const typeDefs = gql`
-  type Query
-
-  type Mutation
-
   scalar DateTime
 
   scalar Rating
