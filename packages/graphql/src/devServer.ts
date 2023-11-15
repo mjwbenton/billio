@@ -1,5 +1,6 @@
 require("dotenv").config();
-process.env.AWS_PROFILE = "mattb.tech-deploy";
+process.env.AWS_SDK_LOAD_CONFIG = "1";
+process.env.AWS_PROFILE = "admin-legacy-sso";
 process.env.AWS_REGION = "us-east-1";
 
 const STACKS = {
