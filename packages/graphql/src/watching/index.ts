@@ -4,8 +4,9 @@ import { PartialResolvers } from "../shared/types";
 import { OUTPUT_SERIES_TRANSFORM } from "../tvSeries";
 import { OUTPUT_TRANSFORM as OUTPUT_MOVIE_TRANSFORM } from "../movie";
 import { WATCHING } from "./constants";
+import GqlModule from "../shared/gqlModule";
 
-export const typeDefs = gql`
+const typeDefs = gql`
   extend type Query {
     watching(after: ID, first: Int!): WatchingPage!
   }
@@ -25,8 +26,13 @@ const TRANSFORMS = {
   Movie: OUTPUT_MOVIE_TRANSFORM,
 };
 
-export const resolvers: PartialResolvers = {
+const resolvers: PartialResolvers = {
   Query: {
     watching: resolveForCategory(WATCHING, TRANSFORMS),
   },
 };
+
+export default new GqlModule({
+  typeDefs,
+  resolvers,
+});

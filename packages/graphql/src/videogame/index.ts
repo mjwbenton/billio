@@ -28,8 +28,9 @@ import resolveUpdateItem from "../resolvers/resolveUpdateItem";
 import { ExternalVideoGame } from "./types";
 import resolveImportedItem from "../resolvers/resolveImportedItem";
 import { PartialResolvers } from "../shared/types";
+import GqlModule from "../shared/gqlModule";
 
-export const typeDefs = gql`
+const typeDefs = gql`
   extend type Query {
     videoGame(id: ID!): VideoGame
     videoGameShelf(id: VideoGameShelfId!): VideoGameShelf
@@ -104,7 +105,9 @@ export const typeDefs = gql`
     imageUrl: String
     importedItem: VideoGame
   }
+`;
 
+const mutationTypeDefs = gql`
   extend type Mutation {
     addVideoGame(item: AddVideoGameInput!): VideoGame!
     updateVideoGame(id: ID!, item: UpdateVideoGameInput!): VideoGame!
@@ -195,7 +198,7 @@ const EXTERNAL_TRANSFORM: ExternalToInputTransform<
   platformIds: [],
 });
 
-export const resolvers: PartialResolvers = {
+const resolvers: PartialResolvers = {
   Query: {
     videoGame: resolveForId<VideoGame, VideoGameShelfId>(
       TYPE,
@@ -220,29 +223,31 @@ export const resolvers: PartialResolvers = {
   ExternalVideoGame: {
     importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
   },
-  Mutation: {
-    importExternalVideoGame: resolveImportExternal<
-      VideoGame,
-      VideoGameShelfId,
-      AddVideoGameInput,
-      ExternalVideoGame
-    >(
-      TYPE,
-      OUTPUT_TRANSFORM,
-      ADD_INPUT_TRANSFORM,
-      EXTERNAL_TRANSFORM,
-      IGDB_API
-    ),
-    addVideoGame: resolveAddItem<
-      VideoGame,
-      VideoGameShelfId,
-      AddVideoGameInput
-    >(TYPE, ADD_INPUT_TRANSFORM, OUTPUT_TRANSFORM),
-    updateVideoGame: resolveUpdateItem<
-      VideoGame,
-      VideoGameShelfId,
-      UpdateVideoGameInput
-    >(TYPE, UPDATE_INPUT_TRANSFORM, OUTPUT_TRANSFORM),
-    deleteVideoGame: resolveDeleteItem(TYPE),
-  },
 };
+
+const mutationResolvers: PartialResolvers["Mutation"] = {
+  importExternalVideoGame: resolveImportExternal<
+    VideoGame,
+    VideoGameShelfId,
+    AddVideoGameInput,
+    ExternalVideoGame
+  >(TYPE, OUTPUT_TRANSFORM, ADD_INPUT_TRANSFORM, EXTERNAL_TRANSFORM, IGDB_API),
+  addVideoGame: resolveAddItem<VideoGame, VideoGameShelfId, AddVideoGameInput>(
+    TYPE,
+    ADD_INPUT_TRANSFORM,
+    OUTPUT_TRANSFORM
+  ),
+  updateVideoGame: resolveUpdateItem<
+    VideoGame,
+    VideoGameShelfId,
+    UpdateVideoGameInput
+  >(TYPE, UPDATE_INPUT_TRANSFORM, OUTPUT_TRANSFORM),
+  deleteVideoGame: resolveDeleteItem(TYPE),
+};
+
+export default new GqlModule({
+  typeDefs,
+  resolvers,
+  mutationTypeDefs,
+  mutationResolvers,
+});

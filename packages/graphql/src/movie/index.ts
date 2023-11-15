@@ -28,8 +28,9 @@ import resolveImportedItem from "../resolvers/resolveImportedItem";
 import { ExternalMovie } from "./types";
 import { PartialResolvers } from "../shared/types";
 import { WATCHING } from "../watching/constants";
+import GqlModule from "../shared/gqlModule";
 
-export const typeDefs = gql`
+const typeDefs = gql`
   extend type Query {
     movie(id: ID!): Movie
     movieShelf(id: MovieShelfId!): MovieShelf
@@ -87,7 +88,9 @@ export const typeDefs = gql`
     imageUrl: String
     importedItem: Movie
   }
+`;
 
+const mutationTypeDefs = gql`
   extend type Mutation {
     addMovie(item: AddMovieInput!): Movie!
     updateMovie(id: ID!, item: UpdateMovieInput!): Movie!
@@ -160,7 +163,7 @@ const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
 
 const TMDB_API = new TmdbApi();
 
-export const resolvers: PartialResolvers = {
+const resolvers: PartialResolvers = {
   Query: {
     movie: resolveForId<Movie, MovieShelfId>(TYPE, OUTPUT_TRANSFORM),
     movies: resolveForType<Movie, MovieShelfId>(TYPE, OUTPUT_TRANSFORM),
@@ -176,29 +179,31 @@ export const resolvers: PartialResolvers = {
   ExternalMovie: {
     importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
   },
-  Mutation: {
-    importExternalMovie: resolveImportExternal<
-      Movie,
-      MovieShelfId,
-      AddMovieInput,
-      ExternalMovie
-    >(
-      TYPE,
-      OUTPUT_TRANSFORM,
-      ADD_INPUT_TRANSFORM,
-      EXTERNAL_TRANSFORM,
-      TMDB_API
-    ),
-    addMovie: resolveAddItem<Movie, MovieShelfId, AddMovieInput>(
-      TYPE,
-      ADD_INPUT_TRANSFORM,
-      OUTPUT_TRANSFORM
-    ),
-    updateMovie: resolveUpdateItem<Movie, MovieShelfId, UpdateMovieInput>(
-      TYPE,
-      UPDATE_INPUT_TRANSFORM,
-      OUTPUT_TRANSFORM
-    ),
-    deleteMovie: resolveDeleteItem(TYPE),
-  },
 };
+
+const mutationResolvers: PartialResolvers["Mutation"] = {
+  importExternalMovie: resolveImportExternal<
+    Movie,
+    MovieShelfId,
+    AddMovieInput,
+    ExternalMovie
+  >(TYPE, OUTPUT_TRANSFORM, ADD_INPUT_TRANSFORM, EXTERNAL_TRANSFORM, TMDB_API),
+  addMovie: resolveAddItem<Movie, MovieShelfId, AddMovieInput>(
+    TYPE,
+    ADD_INPUT_TRANSFORM,
+    OUTPUT_TRANSFORM
+  ),
+  updateMovie: resolveUpdateItem<Movie, MovieShelfId, UpdateMovieInput>(
+    TYPE,
+    UPDATE_INPUT_TRANSFORM,
+    OUTPUT_TRANSFORM
+  ),
+  deleteMovie: resolveDeleteItem(TYPE),
+};
+
+export default new GqlModule({
+  typeDefs,
+  resolvers,
+  mutationTypeDefs,
+  mutationResolvers,
+});

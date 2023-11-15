@@ -27,8 +27,9 @@ import {
 } from "../shared/transforms";
 import { ExternalBook } from "./types";
 import { PartialResolvers } from "../shared/types";
+import GqlModule from "../shared/gqlModule";
 
-export const typeDefs = gql`
+const typeDefs = gql`
   extend type Query {
     book(id: ID!): Book
     bookShelf(id: BookShelfId!): BookShelf
@@ -88,7 +89,9 @@ export const typeDefs = gql`
     imageUrl: String
     importedItem: Book
   }
+`;
 
+const mutationTypeDefs = gql`
   extend type Mutation {
     addBook(item: AddBookInput!): Book!
     updateBook(id: ID!, item: UpdateBookInput!): Book!
@@ -160,7 +163,7 @@ const EXTERNAL_TRANSFORM: ExternalToInputTransform<
 
 const GOOGLEBOOKS_API = new GoogleBooksApi();
 
-export const resolvers: PartialResolvers = {
+const resolvers: PartialResolvers = {
   Query: {
     book: resolveForId<Book, BookShelfId>(TYPE, OUTPUT_TRANSFORM),
     books: resolveForType<Book, BookShelfId>(TYPE, OUTPUT_TRANSFORM),
@@ -176,29 +179,38 @@ export const resolvers: PartialResolvers = {
   ExternalBook: {
     importedItem: resolveImportedItem<Book, BookShelfId>(OUTPUT_TRANSFORM),
   },
-  Mutation: {
-    importExternalBook: resolveImportExternal<
-      Book,
-      BookShelfId,
-      AddBookInput,
-      ExternalBook
-    >(
-      TYPE,
-      OUTPUT_TRANSFORM,
-      ADD_INPUT_TRANSFORM,
-      EXTERNAL_TRANSFORM,
-      GOOGLEBOOKS_API
-    ),
-    addBook: resolveAddItem<Book, BookShelfId, AddBookInput>(
-      TYPE,
-      ADD_INPUT_TRANSFORM,
-      OUTPUT_TRANSFORM
-    ),
-    updateBook: resolveUpdateItem<Book, BookShelfId, UpdateBookInput>(
-      TYPE,
-      UPDATE_INPUT_TRANSFORM,
-      OUTPUT_TRANSFORM
-    ),
-    deleteBook: resolveDeleteItem(TYPE),
-  },
+  Mutation: {},
 };
+
+const mutationResolvers: PartialResolvers["Mutation"] = {
+  importExternalBook: resolveImportExternal<
+    Book,
+    BookShelfId,
+    AddBookInput,
+    ExternalBook
+  >(
+    TYPE,
+    OUTPUT_TRANSFORM,
+    ADD_INPUT_TRANSFORM,
+    EXTERNAL_TRANSFORM,
+    GOOGLEBOOKS_API
+  ),
+  addBook: resolveAddItem<Book, BookShelfId, AddBookInput>(
+    TYPE,
+    ADD_INPUT_TRANSFORM,
+    OUTPUT_TRANSFORM
+  ),
+  updateBook: resolveUpdateItem<Book, BookShelfId, UpdateBookInput>(
+    TYPE,
+    UPDATE_INPUT_TRANSFORM,
+    OUTPUT_TRANSFORM
+  ),
+  deleteBook: resolveDeleteItem(TYPE),
+};
+
+export default new GqlModule({
+  typeDefs,
+  mutationTypeDefs,
+  resolvers,
+  mutationResolvers,
+});

@@ -39,6 +39,7 @@ import {
 } from "../resolvers/resolveShelf";
 import { PartialResolvers } from "../shared/types";
 import { WATCHING } from "../watching/constants";
+import GqlModule from "../shared/gqlModule";
 
 export const typeDefs = gql`
   extend type Query {
@@ -166,7 +167,9 @@ export const typeDefs = gql`
     releaseYear: String!
     importedItem: TvSeason
   }
+`;
 
+const mutationTypeDefs = gql`
   extend type Mutation {
     addTvSeason(item: AddTvSeasonInput!): TvSeason!
     addTvSeries(item: AddTvSeriesInput!): TvSeries!
@@ -492,7 +495,7 @@ async function updateTvSeriesToMatchLastSeason(
   });
 }
 
-export const resolvers: PartialResolvers = {
+const resolvers: PartialResolvers = {
   Query: {
     tvSeason: resolveForId<TvSeason, TvSeasonShelfId>(
       TV_SEASON,
@@ -554,18 +557,26 @@ export const resolvers: PartialResolvers = {
   ExternalTvSeries: {
     importedItem: resolveImportedItem(OUTPUT_SERIES_TRANSFORM),
   },
-  Mutation: {
-    importExternalTvSeason,
-    importExternalTvSeries,
-    addTvSeason,
-    addTvSeries: resolveAddItem<TvSeries, TvSeriesShelfId, AddTvSeriesInput>(
-      TV_SERIES,
-      ADD_SERIES_INPUT_TRANSFORM,
-      OUTPUT_SERIES_TRANSFORM
-    ),
-    updateTvSeason,
-    updateTvSeries,
-    deleteTvSeason: resolveDeleteItem(TV_SEASON),
-    deleteTvSeries,
-  },
 };
+
+const mutationResolvers: PartialResolvers["Mutation"] = {
+  importExternalTvSeason,
+  importExternalTvSeries,
+  addTvSeason,
+  addTvSeries: resolveAddItem<TvSeries, TvSeriesShelfId, AddTvSeriesInput>(
+    TV_SERIES,
+    ADD_SERIES_INPUT_TRANSFORM,
+    OUTPUT_SERIES_TRANSFORM
+  ),
+  updateTvSeason,
+  updateTvSeries,
+  deleteTvSeason: resolveDeleteItem(TV_SEASON),
+  deleteTvSeries,
+};
+
+export default new GqlModule({
+  typeDefs,
+  resolvers,
+  mutationTypeDefs,
+  mutationResolvers,
+});
