@@ -45,9 +45,7 @@ const typeDefs = gql`
     searchExternalBook(term: String!): [ExternalBook!]!
   }
 
-  
-  type Book implements Item {
-    @key(fields: "id")
+  type Book implements Item @key(fields: "id") {
     id: ID!
     externalId: ID
     addedAt: DateTime!
