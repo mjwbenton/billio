@@ -28,6 +28,7 @@ import {
 import { ExternalBook } from "./types";
 import { PartialResolvers } from "../shared/types";
 import GqlModule from "../shared/gqlModule";
+import resolveReference from "../resolvers/resolveReference";
 
 const typeDefs = gql`
   extend type Query {
@@ -44,7 +45,9 @@ const typeDefs = gql`
     searchExternalBook(term: String!): [ExternalBook!]!
   }
 
+  
   type Book implements Item {
+    @key(fields: "id")
     id: ID!
     externalId: ID
     addedAt: DateTime!
@@ -172,6 +175,10 @@ const resolvers: PartialResolvers = {
   },
   Book: {
     shelf: resolveShelfParent<BookShelfId>(SHELF_NAMES),
+    __resolveReference: resolveReference<Book, BookShelfId>(
+      TYPE,
+      OUTPUT_TRANSFORM
+    ),
   },
   BookShelf: {
     items: resolveShelfItems<Book, BookShelfId>(TYPE, OUTPUT_TRANSFORM),
