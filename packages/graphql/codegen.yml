@@ -25,3 +25,4 @@ generates:
       scalars:
         DateTime: Date
         Rating: number
+      federation: true
