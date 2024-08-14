@@ -19,6 +19,12 @@ export default class BillioAdminStack extends Stack {
     const websiteBucket = new Bucket(this, "WebsiteBucket", {
       websiteIndexDocument: "index.html",
       publicReadAccess: true,
+      blockPublicAccess: {
+        blockPublicAcls: false,
+        blockPublicPolicy: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false,
+      },
     });
 
     const domain = new DomainConstruct(this, "Domain", {
