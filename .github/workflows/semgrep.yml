@@ -10,7 +10,7 @@ jobs:
       image: semgrep/semgrep
     steps:
       - uses: actions/checkout@v4
-      - run: semgrep ci --quiet --sarif > semgrep.sarif
+      - run: semgrep ci --sarif > semgrep.sarif
         env:
           SEMGREP_RULES: p/default
       - name: Upload SARIF file for GitHub Advanced Security Dashboard
