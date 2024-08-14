@@ -37,7 +37,7 @@ export default class BillioBackupStack extends Stack {
           NODE_ENV: "production",
         },
       },
-      runtime: Runtime.NODEJS_14_X,
+      runtime: Runtime.NODEJS_20_X,
       memorySize: 3008,
       environment: {
         BILLIO_TABLE: dataStack.itemTable.tableName,

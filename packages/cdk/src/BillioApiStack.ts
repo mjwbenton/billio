@@ -58,7 +58,7 @@ export default class BillioApiStack extends Stack {
           },
         },
       },
-      runtime: Runtime.NODEJS_14_X,
+      runtime: Runtime.NODEJS_20_X,
       memorySize: 2048,
       timeout: Duration.seconds(10),
       environment: {
