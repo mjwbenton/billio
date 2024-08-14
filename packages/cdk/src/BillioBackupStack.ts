@@ -4,7 +4,7 @@ import { Bucket } from "aws-cdk-lib/aws-s3";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { Runtime } from "aws-cdk-lib/aws-lambda";
+import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
 import path from "path";
 import BillioDataStack from "./BillioDataStack";
 import {
@@ -43,6 +43,7 @@ export default class BillioBackupStack extends Stack {
         BILLIO_TABLE: dataStack.itemTable.tableName,
         BILLIO_BACKUP_BUCKET: backupBucket.bucketName,
       },
+      architecture: Architecture.ARM_64,
     });
 
     backupBucket.grantWrite(lambdaFunction);

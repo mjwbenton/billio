@@ -1,6 +1,6 @@
 import { App, Duration, Stack } from "aws-cdk-lib";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { Runtime } from "aws-cdk-lib/aws-lambda";
+import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
 import {
   HttpApi,
   HttpRoute,
@@ -67,6 +67,7 @@ export default class BillioApiStack extends Stack {
         BILLIO_IMAGE_DOMAIN: cdnStack.endpoint,
         ENABLE_MUTATIONS: enableMutations ? "1" : "0",
       },
+      architecture: Architecture.ARM_64,
     });
 
     if (enableMutations) {
