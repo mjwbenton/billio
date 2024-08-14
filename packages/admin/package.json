@@ -22,8 +22,8 @@
     "url": "^0.11.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts --openssl-legacy-provider build",
     "codegen": "graphql-codegen --config codegen.yml",
     "check": "echo 'not implemented'"
   },
