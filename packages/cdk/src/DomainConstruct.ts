@@ -26,7 +26,7 @@ export default class DomainConstruct extends Construct {
   constructor(
     scope: Construct,
     id: string,
-    { domainName }: { domainName: string }
+    { domainName }: { domainName: string },
   ) {
     super(scope, id);
     this.name = domainName;
@@ -48,8 +48,8 @@ export default class DomainConstruct extends Construct {
     this.pointAt(
       new ApiGatewayv2DomainProperties(
         apiDomainName.regionalDomainName,
-        apiDomainName.regionalHostedZoneId
-      )
+        apiDomainName.regionalHostedZoneId,
+      ),
     );
     return apiDomainName;
   }

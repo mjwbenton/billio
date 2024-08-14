@@ -60,7 +60,7 @@ async function uploadOriginal(data: Buffer): Promise<Image> {
 }
 
 async function uploadResized(
-  data: Buffer
+  data: Buffer,
 ): Promise<(Image & { size: ImageSize }) | null> {
   const jimpImage = await Jimp.read(data);
   if (jimpImage.getWidth() <= STANDARD_V1_WIDTH) {
@@ -88,7 +88,7 @@ async function uploadResized(
 }
 
 export function selectImage(
-  imageData: ImageData | undefined
+  imageData: ImageData | undefined,
 ): Image | undefined {
   return (
     imageData?.sizes?.find(({ size }) => size === STANDARD_V1_SIZE) ?? imageData

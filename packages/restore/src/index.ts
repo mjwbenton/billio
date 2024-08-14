@@ -34,7 +34,7 @@ export async function writeAll(data: any[]): Promise<Array<Success | Failure>> {
         }
       }
       return results;
-    })
+    }),
   );
   return results.flat();
 }

@@ -136,8 +136,8 @@ const ItemModel = dynamoose.model<ItemDocument>(
     {
       saveUnknown: true,
       timestamps: false,
-    }
-  )
+    },
+  ),
 );
 
 type QueryResponse = {
@@ -154,7 +154,7 @@ type After = {
 export const Query = {
   withId: async (
     { type, id }: ItemKey,
-    { consistent = false }: { consistent?: boolean } = {}
+    { consistent = false }: { consistent?: boolean } = {},
   ): Promise<Item | undefined> =>
     ItemModel.get(combinedKey({ type, id }, TYPE_ID), {
       consistent,
@@ -193,7 +193,7 @@ export const Query = {
       startDate?: Date;
       endDate?: Date;
       sortBy?: SortBy;
-    }
+    },
   ): Promise<QueryResponse> => {
     const { count } = await ItemModel.query("type")
       .eq(type)
@@ -213,9 +213,8 @@ export const Query = {
     const { lastKey, countSoFar }: After = after
       ? fromBase64(after)
       : { countSoFar: 0 };
-    const data = await (lastKey
-      ? baseQuery.limit(first).startAt(lastKey)
-      : baseQuery.limit(first)
+    const data = await (
+      lastKey ? baseQuery.limit(first).startAt(lastKey) : baseQuery.limit(first)
     ).exec();
     const newCountSoFar = countSoFar + data.count;
     const newLastKey =
@@ -230,7 +229,7 @@ export const Query = {
   },
   searchType: async (
     { type }: TypeKey,
-    { first, after, query }: { first: number; after?: string; query: string }
+    { first, after, query }: { first: number; after?: string; query: string },
   ): Promise<QueryResponse> => {
     const { count } = await ItemModel.query("type")
       .eq(type)
@@ -249,9 +248,8 @@ export const Query = {
     const { lastKey, countSoFar }: After = after
       ? fromBase64(after)
       : { countSoFar: 0 };
-    const data = await (lastKey
-      ? baseQuery.startAt(lastKey)
-      : baseQuery
+    const data = await (
+      lastKey ? baseQuery.startAt(lastKey) : baseQuery
     ).exec();
     const newCountSoFar = countSoFar + data.count;
     const newLastKey =
@@ -266,7 +264,7 @@ export const Query = {
   },
   forCategory: async (
     { category }: { category: string },
-    { first, after }: { first: number; after?: string }
+    { first, after }: { first: number; after?: string },
   ): Promise<QueryResponse> => {
     const { count } = await ItemModel.query("category")
       .eq(category)
@@ -282,9 +280,8 @@ export const Query = {
     const { lastKey, countSoFar }: After = after
       ? fromBase64(after)
       : { countSoFar: 0 };
-    const data = await (lastKey
-      ? baseQuery.startAt(lastKey)
-      : baseQuery
+    const data = await (
+      lastKey ? baseQuery.startAt(lastKey) : baseQuery
     ).exec();
     const newCountSoFar = countSoFar + data.count;
     const newLastKey =
@@ -311,7 +308,7 @@ export const Query = {
       startDate?: Date;
       endDate?: Date;
       sortBy?: SortBy;
-    }
+    },
   ): Promise<QueryResponse> => {
     const key = combineValue({ type, shelf }, TYPE_SHELF);
     const { count } = await ItemModel.query(combineKey(TYPE_SHELF))
@@ -333,9 +330,8 @@ export const Query = {
     const { lastKey, countSoFar }: After = after
       ? fromBase64(after)
       : { countSoFar: 0 };
-    const data = await (lastKey
-      ? baseQuery.startAt(lastKey)
-      : baseQuery
+    const data = await (
+      lastKey ? baseQuery.startAt(lastKey) : baseQuery
     ).exec();
     const newCountSoFar = countSoFar + data.count;
     const newLastKey =
@@ -353,7 +349,7 @@ export const Query = {
 export const Mutate = {
   async createItem(
     { id, type, ...rest }: CreateItem,
-    { updateIfExists = false }: { updateIfExists?: boolean } = {}
+    { updateIfExists = false }: { updateIfExists?: boolean } = {},
   ): Promise<Item> {
     const date = new Date();
     const withTimestamps = {
@@ -373,7 +369,7 @@ export const Mutate = {
       },
       {
         overwrite: updateIfExists,
-      }
+      },
     );
     return (await Query.withId({ type, id }, { consistent: true }))!;
   },
@@ -403,7 +399,7 @@ export const Mutate = {
               movedAt: updates.movedAt,
               ...combinedKey(
                 { movedAt: updates.movedAt, type, id },
-                MOVED_AT_TYPE_ID
+                MOVED_AT_TYPE_ID,
               ),
             }
           : {}),
@@ -411,7 +407,7 @@ export const Mutate = {
       },
       {
         condition: new dynamoose.Condition().filter("type:id").exists(),
-      }
+      },
     );
     const item = await Query.withId({ type, id }, { consistent: true });
     return item!;
@@ -447,7 +443,7 @@ function fromBase64(lastKey: string): After {
 function betweenDates(
   fieldName: "movedAt:type:id" | "addedAt",
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ) {
   if (fieldName === "movedAt:type:id") {
     return [startDate.getTime().toString(), endDate.getTime().toString()];

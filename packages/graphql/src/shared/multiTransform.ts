@@ -7,12 +7,12 @@ export type TransformsIndex = {
 
 export function multiTransform(
   input: DataItem,
-  transformsByType: TransformsIndex
+  transformsByType: TransformsIndex,
 ) {
   const transform = transformsByType[input.type];
   if (!transform) {
     throw new Error(
-      `Missing transform in multiTransform for type ${input.type}`
+      `Missing transform in multiTransform for type ${input.type}`,
     );
   }
   return {

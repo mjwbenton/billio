@@ -22,6 +22,6 @@ export default new ApolloClient({
     new HttpLink({
       uri: "http://localhost:4000",
       fetch,
-    })
+    }),
   ),
 });

@@ -3,15 +3,15 @@ import { multiTransform, TransformsIndex } from "../shared/multiTransform";
 
 export default function resolveForCategory(
   category: string,
-  transforms: TransformsIndex
+  transforms: TransformsIndex,
 ) {
   return async (
     _: unknown,
-    { first, after }: { first: number; after?: string | null }
+    { first, after }: { first: number; after?: string | null },
   ) => {
     const { count, items, lastKey } = await DataQuery.forCategory(
       { category },
-      { first, after: after ?? undefined }
+      { first, after: after ?? undefined },
     );
     return {
       total: count,

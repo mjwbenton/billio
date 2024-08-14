@@ -17,6 +17,6 @@ export const handler = async () => {
           Body: JSON.stringify(result, null, 2),
         })
         .promise();
-    })
+    }),
   );
 };

@@ -48,7 +48,7 @@ export default class BillioAuthStack extends Stack {
             "cognito-identity.amazonaws.com:amr": "authenticated",
           },
         },
-        "sts:AssumeRoleWithWebIdentity"
+        "sts:AssumeRoleWithWebIdentity",
       ),
     });
 

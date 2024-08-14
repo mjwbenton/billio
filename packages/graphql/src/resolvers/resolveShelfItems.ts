@@ -5,7 +5,7 @@ import { OutputTransform, transformItem } from "../shared/transforms";
 
 export default function resolveShelfItems<
   TItem extends Item<TShelfId>,
-  TShelfId extends string
+  TShelfId extends string,
 >(type: string, transform: OutputTransform<TItem, TShelfId>) {
   return async (
     { id }: { id?: TShelfId },
@@ -21,7 +21,7 @@ export default function resolveShelfItems<
       startDate?: Date | null;
       endDate?: Date | null;
       sortBy?: SortBy | null;
-    }
+    },
   ) => {
     if (!id) {
       throw new Error(`Missing id`);
@@ -34,7 +34,7 @@ export default function resolveShelfItems<
         startDate: startDate ?? undefined,
         endDate: endDate ?? undefined,
         sortBy: sortBy ?? undefined,
-      }
+      },
     );
     return {
       total: count,

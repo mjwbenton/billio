@@ -298,7 +298,7 @@ const UPDATE_SERIES_INPUT_TRANSFORM: UpdateInputTransform<
 });
 
 const OUTPUT_SEASON_TRANSFORM: OutputTransform<TvSeason, TvSeasonShelfId> = (
-  data
+  data,
 ) => ({
   seasonNumber: data.seasonNumber,
   seasonTitle: data.seasonTitle ?? null,
@@ -346,7 +346,7 @@ const importExternalTvSeries = resolveImportExternal<
   OUTPUT_SERIES_TRANSFORM,
   ADD_SERIES_INPUT_TRANSFORM,
   EXTERNAL_SERIES_TRANSFORM,
-  SERIES_API
+  SERIES_API,
 );
 
 const updateTvSeries = resolveUpdateItem<
@@ -357,7 +357,7 @@ const updateTvSeries = resolveUpdateItem<
 
 const addTvSeason = async (
   _: unknown,
-  { item }: { item: AddTvSeasonInput }
+  { item }: { item: AddTvSeasonInput },
 ) => {
   await assertTvSeriesExists(item.seriesId);
   const savedItem = await resolveAddItem<
@@ -367,7 +367,7 @@ const addTvSeason = async (
   >(
     TV_SEASON,
     ADD_SEASON_INPUT_TRANSFORM,
-    OUTPUT_SEASON_TRANSFORM
+    OUTPUT_SEASON_TRANSFORM,
   )(_, { item });
   await updateTvSeriesToMatchLastSeason(item.seriesId);
   return savedItem;
@@ -375,7 +375,7 @@ const addTvSeason = async (
 
 const updateTvSeason = async (
   _: unknown,
-  { id, item }: { id: string; item: UpdateTvSeasonInput }
+  { id, item }: { id: string; item: UpdateTvSeasonInput },
 ) => {
   if (item.seriesId) {
     await assertTvSeriesExists(item.seriesId);
@@ -387,7 +387,7 @@ const updateTvSeason = async (
   >(
     TV_SEASON,
     UPDATE_SEASON_INPUT_TRANSFORM,
-    OUTPUT_SEASON_TRANSFORM
+    OUTPUT_SEASON_TRANSFORM,
   )(_, { id, item });
   await updateTvSeriesToMatchLastSeason(savedItem.seriesId);
   return savedItem;
@@ -408,7 +408,7 @@ const importExternalTvSeason = async (
     shelfId: TvSeasonShelfId;
     externalId: string;
     overrides?: ItemOverrides<AddTvSeasonInput> | null;
-  }
+  },
 ) => {
   const seriesExternalId = seriesExternalIdForSeasonExternalId(externalId);
 
@@ -440,7 +440,7 @@ const importExternalTvSeason = async (
     OUTPUT_SEASON_TRANSFORM,
     ADD_SEASON_INPUT_TRANSFORM,
     EXTERNAL_SEASON_TRANSFORM,
-    SEASON_API
+    SEASON_API,
   )(_, {
     externalId,
     shelfId,
@@ -472,18 +472,18 @@ async function assertNoTvSeasonsExist(seriesId: string): Promise<void> {
   const seasons = await DataQuery.withSeriesId({ seriesId });
   if (seasons.length) {
     throw new Error(
-      `Series ${seriesId} has ${seasons.length} attached seasons`
+      `Series ${seriesId} has ${seasons.length} attached seasons`,
     );
   }
 }
 
 async function updateTvSeriesToMatchLastSeason(
-  seriesId: string
+  seriesId: string,
 ): Promise<void> {
   const seasons = await DataQuery.withSeriesId({ seriesId });
   const lastSeason = transformItem(
     seasons[seasons.length - 1],
-    OUTPUT_SERIES_TRANSFORM
+    OUTPUT_SERIES_TRANSFORM,
   );
   await updateTvSeries(null, {
     id: seriesId,
@@ -499,19 +499,19 @@ const resolvers: PartialResolvers = {
   Query: {
     tvSeason: resolveForId<TvSeason, TvSeasonShelfId>(
       TV_SEASON,
-      OUTPUT_SEASON_TRANSFORM
+      OUTPUT_SEASON_TRANSFORM,
     ),
     tvSeriesSingle: resolveForId<TvSeries, TvSeriesShelfId>(
       TV_SERIES,
-      OUTPUT_SERIES_TRANSFORM
+      OUTPUT_SERIES_TRANSFORM,
     ),
     tvSeasons: resolveForType<TvSeason, TvSeasonShelfId>(
       TV_SEASON,
-      OUTPUT_SEASON_TRANSFORM
+      OUTPUT_SEASON_TRANSFORM,
     ),
     tvSeries: resolveForType<TvSeries, TvSeriesShelfId>(
       TV_SERIES,
-      OUTPUT_SERIES_TRANSFORM
+      OUTPUT_SERIES_TRANSFORM,
     ),
     tvSeasonShelf: resolveShelfArgs<TvSeasonShelfId>(SEASON_SHELF_NAMES),
     tvSeriesShelf: resolveShelfArgs<TvSeriesShelfId>(SERIES_SHELF_NAMES),
@@ -522,7 +522,7 @@ const resolvers: PartialResolvers = {
     series: async ({ seriesId }) => {
       const series = await resolveForId<TvSeries, TvSeriesShelfId>(
         TV_SERIES,
-        OUTPUT_SERIES_TRANSFORM
+        OUTPUT_SERIES_TRANSFORM,
       )(null, { id: seriesId });
       if (!series) {
         throw new Error("Invalid link from season to series");
@@ -535,20 +535,20 @@ const resolvers: PartialResolvers = {
     seasons: async ({ id }) => {
       const seasons = await DataQuery.withSeriesId({ seriesId: id });
       return seasons.map((season) =>
-        transformItem(season, OUTPUT_SEASON_TRANSFORM)
+        transformItem(season, OUTPUT_SEASON_TRANSFORM),
       );
     },
   },
   TvSeasonShelf: {
     items: resolveShelfItems<TvSeason, TvSeasonShelfId>(
       TV_SEASON,
-      OUTPUT_SEASON_TRANSFORM
+      OUTPUT_SEASON_TRANSFORM,
     ),
   },
   TvSeriesShelf: {
     items: resolveShelfItems<TvSeries, TvSeriesShelfId>(
       TV_SERIES,
-      OUTPUT_SERIES_TRANSFORM
+      OUTPUT_SERIES_TRANSFORM,
     ),
   },
   ExternalTvSeason: {
@@ -566,7 +566,7 @@ const mutationResolvers: PartialResolvers["Mutation"] = {
   addTvSeries: resolveAddItem<TvSeries, TvSeriesShelfId, AddTvSeriesInput>(
     TV_SERIES,
     ADD_SERIES_INPUT_TRANSFORM,
-    OUTPUT_SERIES_TRANSFORM
+    OUTPUT_SERIES_TRANSFORM,
   ),
   updateTvSeason,
   updateTvSeries,

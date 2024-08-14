@@ -12,8 +12,8 @@ import fs from "fs/promises";
       const result = await fetchAllForType(type);
       await fs.writeFile(
         `./local/${type}.json`,
-        JSON.stringify(result, null, 2)
+        JSON.stringify(result, null, 2),
       );
-    })
+    }),
   );
 })();

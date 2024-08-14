@@ -67,7 +67,7 @@ export const source: Source = {
             movedAt: `${read_at ?? started_at}T00:00:00Z`,
             rating: rating ? rating * 2 : null,
           };
-        }
+        },
       )
       .filter((i: ImportItem | null) => i);
   },

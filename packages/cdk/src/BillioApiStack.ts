@@ -38,7 +38,7 @@ export default class BillioApiStack extends Stack {
       enableMutations: boolean;
       enableIam: boolean;
       domainName: string;
-    }
+    },
   ) {
     super(app, id);
 
@@ -123,7 +123,7 @@ export default class BillioApiStack extends Stack {
         resources: [
           `arn:aws:execute-api:${this.region}:${this.account}:${this.api.httpApiId}/*/*/*`,
         ],
-      })
+      }),
     );
   }
 }

@@ -13,17 +13,17 @@ const IMAGE_DOMAIN = process.env.BILLIO_IMAGE_DOMAIN!;
 
 export type OutputTransform<
   TItem extends Item<TShelfId>,
-  TShelfId extends string
+  TShelfId extends string,
 > = (
-  data: DataItem
+  data: DataItem,
 ) => Omit<Unresolved<TItem>, keyof Unresolved<Item<TShelfId>>>;
 
 export function transformItem<
   TItem extends Item<TShelfId>,
-  TShelfId extends string
+  TShelfId extends string,
 >(
   input: DataItem,
-  fieldTransform: OutputTransform<TItem, TShelfId>
+  fieldTransform: OutputTransform<TItem, TShelfId>,
 ): Omit<Unresolved<TItem>, keyof Unresolved<Item<TShelfId>>> &
   Unresolved<Item<TShelfId>> {
   const { image } = input;
@@ -55,17 +55,17 @@ export function transformItem<
 export type ExternalToInputTransform<
   TExternalItem extends ExternalItem,
   TItemInput extends ItemInput<TShelfId>,
-  TShelfId extends string
+  TShelfId extends string,
 > = (item: TExternalItem) => Omit<TItemInput, keyof ItemInput<TShelfId>>;
 
 export function transformExternalItem<
   TExternalItem extends ExternalItem,
   TItemInput extends ItemInput<TShelfId>,
-  TShelfId extends string
+  TShelfId extends string,
 >(
   input: TExternalItem,
   shelfId: TShelfId,
-  transform: ExternalToInputTransform<TExternalItem, TItemInput, TShelfId>
+  transform: ExternalToInputTransform<TExternalItem, TItemInput, TShelfId>,
 ): Omit<TItemInput, keyof ItemInput<TShelfId>> & ItemInput<TShelfId> {
   const transformed = transform(input);
   const base: ItemInput<TShelfId> = {
@@ -82,21 +82,21 @@ export function transformExternalItem<
 
 export type AddInputTransform<
   TItemInput extends ItemInput<TShelfId>,
-  TShelfId extends string
+  TShelfId extends string,
 > = (
-  input: Omit<TItemInput, keyof ItemInput<TShelfId>> & ItemInput<TShelfId>
+  input: Omit<TItemInput, keyof ItemInput<TShelfId>> & ItemInput<TShelfId>,
 ) => {
   [additional: string]: any;
 };
 
 export async function transformAddItemInput<
   TItemInput extends ItemInput<TShelfId>,
-  TShelfId extends string
+  TShelfId extends string,
 >(
   id: string,
   type: string,
   input: Omit<TItemInput, keyof ItemInput<TShelfId>> & ItemInput<TShelfId>,
-  fieldTransform: AddInputTransform<TItemInput, TShelfId>
+  fieldTransform: AddInputTransform<TItemInput, TShelfId>,
 ): Promise<DataCreateItem> {
   const {
     shelfId: shelf,
@@ -132,22 +132,22 @@ export async function transformAddItemInput<
 
 export type UpdateInputTransform<
   TItemInput extends ItemOverrides<ItemInput<TShelfId>>,
-  TShelfId extends string
+  TShelfId extends string,
 > = (
   input: Omit<TItemInput, keyof ItemInput<TShelfId>> &
-    ItemOverrides<ItemInput<TShelfId>>
+    ItemOverrides<ItemInput<TShelfId>>,
 ) => {
   [additional: string]: any;
 };
 
 export async function transformUpdateItemInput<
   TItemInput extends ItemOverrides<ItemInput<TShelfId>>,
-  TShelfId extends string
+  TShelfId extends string,
 >(
   id: string,
   type: string,
   input: TItemInput,
-  fieldTransform: UpdateInputTransform<TItemInput, TShelfId>
+  fieldTransform: UpdateInputTransform<TItemInput, TShelfId>,
 ): Promise<DataUpdateItem> {
   const {
     shelfId: shelf,

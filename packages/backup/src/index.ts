@@ -9,7 +9,7 @@ export async function fetchAllForType(type: string): Promise<unknown[]> {
   while (remaining) {
     const { items, count, lastKey } = await Query.ofType(
       { type },
-      { first: FIRST, after }
+      { first: FIRST, after },
     );
     result.push(...items);
     if (count <= result.length) {

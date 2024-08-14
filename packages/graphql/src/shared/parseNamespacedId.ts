@@ -3,7 +3,7 @@ export default function parseNamespacedId(
   {
     assertNamespace,
     idSections = 2,
-  }: { assertNamespace?: string; idSections?: number } = {}
+  }: { assertNamespace?: string; idSections?: number } = {},
 ) {
   const [namespace, innerId, ...more] = namespacedId.split(":");
 
@@ -13,13 +13,13 @@ export default function parseNamespacedId(
 
   if (assertNamespace && namespace !== assertNamespace) {
     throw new Error(
-      `Incorrect namespace on id "${namespacedId}", expecting ${assertNamespace}`
+      `Incorrect namespace on id "${namespacedId}", expecting ${assertNamespace}`,
     );
   }
 
   if (more.length != idSections - 2) {
     throw new Error(
-      `Invalid number of sections ${more.length + 2}, expecting ${idSections}`
+      `Invalid number of sections ${more.length + 2}, expecting ${idSections}`,
     );
   }
 

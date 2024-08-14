@@ -15,8 +15,8 @@
   },
   "devDependencies": {
     "@types/node": "^16.11.10",
-    "prettier": "^2.4.1",
-    "typescript": "^4.5.2"
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4"
   },
   "dependencies": {
     "dynamoose": "^2.8.5"

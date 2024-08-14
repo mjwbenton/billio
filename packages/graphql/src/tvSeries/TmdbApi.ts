@@ -58,8 +58,8 @@ export class TmdbSeriesApi implements ExternalApi<ExternalTvSeries> {
             namespace: SERIES_ID_NAMESPACE,
             externalId: i.id,
           }),
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -83,7 +83,7 @@ export class TmdbSeriesApi implements ExternalApi<ExternalTvSeries> {
       return transformSeries(series);
     }
     throw new Error(
-      `Invalid id, support namespaces tmdbSeries and imdb: ${id}`
+      `Invalid id, support namespaces tmdbSeries and imdb: ${id}`,
     );
   }
 }
@@ -98,10 +98,10 @@ export class TmdbSeasonApi implements GetExternalApi<ExternalTvSeason> {
       idSections: 3,
     });
     const seriesUrl = `${GET_ENDPOINT}/${externalId}?${qs.stringify(
-      BASE_PARAMS
+      BASE_PARAMS,
     )}`;
     const seasonUrl = `${GET_ENDPOINT}/${externalId}/${SEASON_SUBENDPOINT}/${seasonNumber}?${qs.stringify(
-      BASE_PARAMS
+      BASE_PARAMS,
     )}`;
     const [series, season] = (
       await Promise.all([axios.get(seriesUrl), axios.get(seasonUrl)])
@@ -123,7 +123,7 @@ function transformSeries(item: any): ExternalTvSeries {
     imageUrl: item.poster_path ? IMAGE_BASE.concat(item.poster_path) : null,
     seasons:
       item?.seasons?.map((season: any) =>
-        transformSeason({ season, series: item })
+        transformSeason({ season, series: item }),
       ) ?? [],
     releaseYear: item.first_air_date?.split("-")?.[0] ?? null,
   };

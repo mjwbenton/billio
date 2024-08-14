@@ -4,7 +4,7 @@ import { Item } from "../shared/Item";
 
 export default function resolveForId<
   TItem extends Item<TShelfId>,
-  TShelfId extends string
+  TShelfId extends string,
 >(type: string, transform: OutputTransform<TItem, TShelfId>) {
   return async (_: unknown, { id }: { id: string }) => {
     const data = await DataQuery.withId({ type, id });

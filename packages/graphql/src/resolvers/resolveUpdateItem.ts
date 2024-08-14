@@ -11,18 +11,18 @@ import { Mutate as DataMutate } from "@mattb.tech/billio-data";
 export default function resolveUpdateItem<
   TItem extends Item<TShelfId>,
   TShelfId extends string,
-  TUpdateItemInput extends ItemOverrides<ItemInput<TShelfId>>
+  TUpdateItemInput extends ItemOverrides<ItemInput<TShelfId>>,
 >(
   type: string,
   inputTransform: UpdateInputTransform<TUpdateItemInput, TShelfId>,
-  outputTransform: OutputTransform<TItem, TShelfId>
+  outputTransform: OutputTransform<TItem, TShelfId>,
 ) {
   return async (
     _: unknown,
-    { id, item }: { id: string; item: TUpdateItemInput }
+    { id, item }: { id: string; item: TUpdateItemInput },
   ) => {
     const outputItem = await DataMutate.updateItem(
-      await transformUpdateItemInput(id, type, item, inputTransform)
+      await transformUpdateItemInput(id, type, item, inputTransform),
     );
     return transformItem<TItem, TShelfId>(outputItem, outputTransform);
   };

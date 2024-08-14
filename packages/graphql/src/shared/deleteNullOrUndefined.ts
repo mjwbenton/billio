@@ -1,5 +1,5 @@
 export default function deleteNullOrUndefined<
-  TInput extends Record<string, unknown>
+  TInput extends Record<string, unknown>,
 >(input: TInput): WithoutNulls<TInput> {
   const result: any = {};
   Object.entries(input).forEach(([key, value]) => {
@@ -15,8 +15,8 @@ type NullOrUndefinedKeysOf<T> = Exclude<
     [Key in keyof T]: null extends T[Key]
       ? Key
       : undefined extends T[Key]
-      ? Key
-      : never;
+        ? Key
+        : never;
   }[keyof T],
   undefined
 >;

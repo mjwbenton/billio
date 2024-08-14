@@ -16,7 +16,7 @@ export default class BillioCDNStack extends Stack {
     {
       imageStack,
       domainName,
-    }: { imageStack: BillioImageStack; domainName: string }
+    }: { imageStack: BillioImageStack; domainName: string },
   ) {
     super(scope, id);
     this.domainName = domainName;

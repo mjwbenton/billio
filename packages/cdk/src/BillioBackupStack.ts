@@ -21,7 +21,7 @@ export default class BillioBackupStack extends Stack {
   constructor(
     scope: Construct,
     id: string,
-    { dataStack }: { dataStack: BillioDataStack }
+    { dataStack }: { dataStack: BillioDataStack },
   ) {
     super(scope, id);
     const backupBucket = new Bucket(this, "BackupBucket", {
@@ -67,7 +67,7 @@ export default class BillioBackupStack extends Stack {
       treatMissingData: TreatMissingData.NOT_BREACHING,
       comparisonOperator: ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
     }).addAlarmAction(
-      new SnsAction(Topic.fromTopicArn(this, "AlarmTopic", ALARM_TOPIC))
+      new SnsAction(Topic.fromTopicArn(this, "AlarmTopic", ALARM_TOPIC)),
     );
   }
 }

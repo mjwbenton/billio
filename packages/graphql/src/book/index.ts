@@ -138,7 +138,7 @@ const SHELF_NAMES: { [key in BookShelfId]: string } = {
 };
 
 const ADD_INPUT_TRANSFORM: AddInputTransform<AddBookInput, BookShelfId> = (
-  input
+  input,
 ) => ({
   author: input.author,
 });
@@ -175,7 +175,7 @@ const resolvers: PartialResolvers = {
     shelf: resolveShelfParent<BookShelfId>(SHELF_NAMES),
     __resolveReference: resolveReference<Book, BookShelfId>(
       TYPE,
-      OUTPUT_TRANSFORM
+      OUTPUT_TRANSFORM,
     ),
   },
   BookShelf: {
@@ -197,17 +197,17 @@ const mutationResolvers: PartialResolvers["Mutation"] = {
     OUTPUT_TRANSFORM,
     ADD_INPUT_TRANSFORM,
     EXTERNAL_TRANSFORM,
-    GOOGLEBOOKS_API
+    GOOGLEBOOKS_API,
   ),
   addBook: resolveAddItem<Book, BookShelfId, AddBookInput>(
     TYPE,
     ADD_INPUT_TRANSFORM,
-    OUTPUT_TRANSFORM
+    OUTPUT_TRANSFORM,
   ),
   updateBook: resolveUpdateItem<Book, BookShelfId, UpdateBookInput>(
     TYPE,
     UPDATE_INPUT_TRANSFORM,
-    OUTPUT_TRANSFORM
+    OUTPUT_TRANSFORM,
   ),
   deleteBook: resolveDeleteItem(TYPE),
 };

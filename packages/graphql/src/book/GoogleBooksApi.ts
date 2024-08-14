@@ -25,7 +25,7 @@ export class GoogleBooksApi implements ExternalApi<ExternalBook> {
       `?${qs.stringify({
         ...BASE_PARAMS,
         q: term,
-      })}`
+      })}`,
     );
     const result = (await axios.get(url)).data;
     return result?.items?.map(transform) ?? [];

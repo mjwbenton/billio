@@ -134,7 +134,7 @@ const SHELF_NAMES: { [key in MovieShelfId]: string } = {
 };
 
 export const OUTPUT_TRANSFORM: OutputTransform<Movie, MovieShelfId> = (
-  input
+  input,
 ) => ({
   releaseYear: input.releaseYear,
 });
@@ -148,7 +148,7 @@ const EXTERNAL_TRANSFORM: ExternalToInputTransform<
 });
 
 const ADD_INPUT_TRANSFORM: AddInputTransform<AddMovieInput, MovieShelfId> = (
-  input
+  input,
 ) => ({
   releaseYear: input.releaseYear,
   category: WATCHING,
@@ -191,12 +191,12 @@ const mutationResolvers: PartialResolvers["Mutation"] = {
   addMovie: resolveAddItem<Movie, MovieShelfId, AddMovieInput>(
     TYPE,
     ADD_INPUT_TRANSFORM,
-    OUTPUT_TRANSFORM
+    OUTPUT_TRANSFORM,
   ),
   updateMovie: resolveUpdateItem<Movie, MovieShelfId, UpdateMovieInput>(
     TYPE,
     UPDATE_INPUT_TRANSFORM,
-    OUTPUT_TRANSFORM
+    OUTPUT_TRANSFORM,
   ),
   deleteMovie: resolveDeleteItem(TYPE),
 };

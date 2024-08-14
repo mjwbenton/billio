@@ -34,7 +34,7 @@ export class IgdbApi implements ExternalApi<ExternalVideoGame> {
       `search "${term}"; fields ${FIELDS}; limit 10;`,
       {
         headers: await this.buildHeaders(),
-      }
+      },
     );
     return result.data.map(transform);
   }
@@ -47,7 +47,7 @@ export class IgdbApi implements ExternalApi<ExternalVideoGame> {
     const result = await axios.post(
       GAMES_URL,
       `fields ${FIELDS}; where id = ${externalId};`,
-      { headers: await this.buildHeaders() }
+      { headers: await this.buildHeaders() },
     );
     if (!result.data) {
       return null;
@@ -63,8 +63,8 @@ export class IgdbApi implements ExternalApi<ExternalVideoGame> {
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,
             grant_type: "client_credentials",
-          })}`
-        )
+          })}`,
+        ),
       );
       if (result.status !== 200) {
         throw new Error(`Failed Auth: ${JSON.stringify(result.data)}`);

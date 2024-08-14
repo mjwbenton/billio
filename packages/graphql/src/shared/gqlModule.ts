@@ -10,7 +10,7 @@ export default class GqlModule {
       mutationResolvers?: PartialResolvers["Mutation"];
       typeDefs?: DocumentNode;
       resolvers?: PartialResolvers;
-    }
+    },
   ) {}
 
   public schema(includeMutations: boolean = true): {
@@ -23,7 +23,7 @@ export default class GqlModule {
     return {
       typeDefs: gql`
         ${typeDefs ?? ""}
-        ${includeMutations ? mutationTypeDefs ?? "" : ""}
+        ${includeMutations ? (mutationTypeDefs ?? "") : ""}
       `,
       resolvers: {
         ...resolvers,
@@ -47,21 +47,21 @@ export function combineModules(...modules: GqlModule[]): GqlModule {
         resolvers: merge(acc.resolvers, module.config.resolvers),
         mutationTypeDefs: combineTypeDefs(
           acc.mutationTypeDefs,
-          module.config.mutationTypeDefs
+          module.config.mutationTypeDefs,
         ),
         mutationResolvers: merge(
           acc.mutationResolvers,
-          module.config.mutationResolvers ?? {}
+          module.config.mutationResolvers ?? {},
         ),
       }),
-      firstModule.config
-    )
+      firstModule.config,
+    ),
   );
 }
 
 function combineTypeDefs(
   one: DocumentNode | undefined,
-  two: DocumentNode | undefined
+  two: DocumentNode | undefined,
 ): DocumentNode | undefined {
   if (!one) {
     return two;

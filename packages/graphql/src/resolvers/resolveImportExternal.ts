@@ -17,7 +17,7 @@ export default function resolveImportExternal<
   TItem extends Item<TShelfId>,
   TShelfId extends string,
   TItemInput extends ItemInput<TShelfId>,
-  TExternalItem extends ExternalItem
+  TExternalItem extends ExternalItem,
 >(
   type: string,
   outputTransform: OutputTransform<TItem, TShelfId>,
@@ -27,7 +27,7 @@ export default function resolveImportExternal<
     TItemInput,
     TShelfId
   >,
-  api: GetExternalApi<TExternalItem>
+  api: GetExternalApi<TExternalItem>,
 ) {
   return async (
     _: unknown,
@@ -39,7 +39,7 @@ export default function resolveImportExternal<
       shelfId: TShelfId;
       externalId: string;
       overrides?: ItemOverrides<TItemInput> | null;
-    }
+    },
   ) => {
     const externalItem = await api.get({ id: externalId });
     if (!externalItem) {
@@ -48,7 +48,7 @@ export default function resolveImportExternal<
     const inputItem = transformExternalItem(
       externalItem,
       shelfId,
-      externalItemTransform
+      externalItemTransform,
     );
     const createItem = await transformAddItemInput(
       uuid(),
@@ -57,7 +57,7 @@ export default function resolveImportExternal<
         ...inputItem,
         ...(overrides ? deleteNullOrUndefined(overrides) : {}),
       },
-      inputTransform
+      inputTransform,
     );
     const outputItem = await DataMutate.createItem(createItem);
     return transformItem(outputItem, outputTransform);

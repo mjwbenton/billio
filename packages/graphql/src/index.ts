@@ -11,5 +11,5 @@ export const handler = startServerAndCreateLambdaHandler(
   new ApolloServer({
     schema: buildSubgraphSchema(schema),
   }),
-  handlers.createAPIGatewayProxyEventRequestHandler()
+  handlers.createAPIGatewayProxyEventRequestHandler(),
 );

@@ -5,7 +5,7 @@ import { OutputTransform, transformItem } from "../shared/transforms";
 
 export default function resolveForType<
   TItem extends Item<TShelfId>,
-  TShelfId extends string
+  TShelfId extends string,
 >(type: string, transform: OutputTransform<TItem, TShelfId>) {
   return async (
     _: unknown,
@@ -23,7 +23,7 @@ export default function resolveForType<
       startDate?: Date | null;
       endDate?: Date | null;
       sortBy?: SortBy | null;
-    }
+    },
   ) => {
     if (searchTerm && (startDate || endDate)) {
       throw new Error("Cannot combine search and date queries");
@@ -31,7 +31,7 @@ export default function resolveForType<
     const { count, items, lastKey } = searchTerm
       ? await DataQuery.searchType(
           { type: type },
-          { first, after: after ?? undefined, query: searchTerm }
+          { first, after: after ?? undefined, query: searchTerm },
         )
       : await DataQuery.ofType(
           { type: type },
@@ -41,7 +41,7 @@ export default function resolveForType<
             startDate: startDate ?? undefined,
             endDate: endDate ?? undefined,
             sortBy: sortBy ?? undefined,
-          }
+          },
         );
     return {
       total: count,

@@ -43,11 +43,11 @@ export async function runImport(source: Source, importer: Importer) {
           console.log(`Imported ${result.title} as ${result.id}`);
         } else {
           console.log(
-            `Failed to import ${result.title} with externalId ${result.externalId}`
+            `Failed to import ${result.title} with externalId ${result.externalId}`,
           );
           console.log(JSON.stringify(result.error, null, 2));
         }
-      })
+      }),
     );
   }
 }

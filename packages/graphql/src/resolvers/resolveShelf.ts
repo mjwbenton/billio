@@ -3,13 +3,13 @@ type ShelfNames<TShelfId extends string> = {
 };
 
 export function resolveShelfArgs<TShelfId extends string>(
-  shelfNames: ShelfNames<TShelfId>
+  shelfNames: ShelfNames<TShelfId>,
 ) {
   return (_: unknown, { id }: { id: TShelfId }) => shelfForId(id, shelfNames);
 }
 
 export function resolveShelfParent<TShelfId extends string>(
-  shelfNames: ShelfNames<TShelfId>
+  shelfNames: ShelfNames<TShelfId>,
 ) {
   return ({ shelfId }: { shelfId: TShelfId }) =>
     shelfForId(shelfId, shelfNames);
@@ -17,7 +17,7 @@ export function resolveShelfParent<TShelfId extends string>(
 
 function shelfForId<TShelfId extends string>(
   id: TShelfId,
-  shelfNames: ShelfNames<TShelfId>
+  shelfNames: ShelfNames<TShelfId>,
 ) {
   if (!shelfNames[id]) {
     throw new Error(`Invalid shelf: "${id}"`);

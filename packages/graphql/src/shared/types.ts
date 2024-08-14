@@ -21,25 +21,23 @@ export type PartialResolvers = Partial<{
 export type Unresolved<T> = T extends Primitive
   ? T
   : T extends Date
-  ? T
-  : T extends Array<infer ArrayInner>
-  ? Array<Unresolved<ArrayInner>>
-  : RemoveResolvableFields<T> &
-      IdIfOriginalPresent<T, "shelf"> &
-      IdIfOriginalPresent<T, "series"> &
-      ItemsIfPageLike<T>;
+    ? T
+    : T extends Array<infer ArrayInner>
+      ? Array<Unresolved<ArrayInner>>
+      : RemoveResolvableFields<T> &
+          IdIfOriginalPresent<T, "shelf"> &
+          IdIfOriginalPresent<T, "series"> &
+          ItemsIfPageLike<T>;
 
 type RemoveResolvableFields<T> = Omit<
   { [Key in keyof T]: Unresolved<T[Key]> },
   "shelf" | "series" | "items" | "importedItem" | "seasons"
 >;
 
-type IdIfOriginalPresent<T, Field extends string> = T extends Record<
-  Field,
-  { id: unknown }
->
-  ? Record<`${Field}Id`, T[Field]["id"]>
-  : {};
+type IdIfOriginalPresent<T, Field extends string> =
+  T extends Record<Field, { id: unknown }>
+    ? Record<`${Field}Id`, T[Field]["id"]>
+    : {};
 
 type PageLike = { total: number; hasNextPage: boolean; items: unknown };
 type ItemsIfPageLike<T> = T extends PageLike
