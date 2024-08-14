@@ -1,4 +1,4 @@
-import { App, Stack } from "aws-cdk-lib";
+import { App, Duration, Stack } from "aws-cdk-lib";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import {
@@ -59,7 +59,8 @@ export default class BillioApiStack extends Stack {
         },
       },
       runtime: Runtime.NODEJS_14_X,
-      memorySize: 1024,
+      memorySize: 2048,
+      timeout: Duration.seconds(10),
       environment: {
         BILLIO_TABLE: dataStack.itemTable.tableName,
         BILLIO_IMAGE_BUCKET: imageStack.imageBucket.bucketName,
