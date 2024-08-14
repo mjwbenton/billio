@@ -1,7 +1,8 @@
 # Billio GraphQL Snapshot Tests
 
-## `yarn test`
+These tests take snapshots of API responses.
 
-These tests take snapshots of API responses. To run them correctly you need to have already started a local dev server.
+- To run against an already started local dev server use `yarn test-local`
+- To run against the integration stage using `yarn test-integration`
 
 Use `-u` to update the snapshots.
