@@ -205,3 +205,17 @@ Object {
   "title": Any<String>,
 }
 `;
+
+exports[`can search for external tv series 2`] = `
+Object {
+  "__typename": "ExternalTvSeries",
+  "id": StringMatching /\\^tmdbSeries:/,
+  "seasons": ArrayContaining [
+    ObjectContaining {
+      "id": StringMatching /\\^tmdbSeason:/,
+      "seasonNumber": Any<Number>,
+    },
+  ],
+  "title": Any<String>,
+}
+`;
