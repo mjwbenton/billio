@@ -33,8 +33,11 @@ function baseMetaFields() {
     <NumberField source="rating" key="rating" sortable={false} />,
     <DateField source="movedAt" key="movedAt" showTime sortable={false} />,
     <DateField source="addedAt" key="addedAt" showTime sortable={false} />,
-    <TextField source="notes" key="notes" sortable={false} />,
   ];
+}
+
+function additionalMetaFields() {
+  return [<TextField source="notes" key="notes" sortable={false} />];
 }
 
 const FILTERS = [<TextInput source="q" label="Search" alwaysOn />];
@@ -65,6 +68,7 @@ export const Show = (props) => (
       {baseDataFields()}
       {props.children}
       {baseMetaFields()}
+      {additionalMetaFields()}
     </SimpleShowLayout>
   </RAShow>
 );
