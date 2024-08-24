@@ -30,6 +30,7 @@ Object {
       },
     ],
     "rating": 1,
+    "replay": false,
     "title": "Test Video Game",
   },
 }
@@ -90,6 +91,7 @@ Object {
   "importExternalVideoGame": Object {
     "__typename": "VideoGame",
     "id": Any<String>,
+    "replay": false,
     "shelf": Object {
       "__typename": "VideoGameShelf",
       "id": "Completed",
@@ -125,6 +127,7 @@ Object {
       },
     ],
     "rating": 1,
+    "replay": false,
     "shelf": Object {
       "__typename": "VideoGameShelf",
       "id": "GaveUp",

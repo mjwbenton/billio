@@ -27,6 +27,7 @@ test("can add a book", async () => {
             name
           }
           rating
+          reread
         }
       }
     `,
@@ -52,6 +53,7 @@ test("can import external book", async () => {
           shelf {
             id
           }
+          reread
         }
       }
     `,
@@ -75,6 +77,7 @@ test("can query single book", async () => {
             name
           }
           rating
+          reread
         }
       }
     `,

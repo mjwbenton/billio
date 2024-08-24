@@ -27,6 +27,7 @@ test("can add a movie", async () => {
             name
           }
           rating
+          rewatch
         }
       }
     `,
@@ -49,6 +50,7 @@ test("can import external movie", async () => {
           shelf {
             id
           }
+          rewatch
         }
       }
     `,
@@ -72,6 +74,7 @@ test("can query single movie", async () => {
             name
           }
           rating
+          rewatch
         }
       }
     `,

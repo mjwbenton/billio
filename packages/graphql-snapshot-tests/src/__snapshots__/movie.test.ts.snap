@@ -7,6 +7,7 @@ Object {
     "id": Any<String>,
     "rating": 1,
     "releaseYear": "2021",
+    "rewatch": false,
     "shelf": Object {
       "__typename": "MovieShelf",
       "name": "Watched",
@@ -55,6 +56,7 @@ Object {
     "externalId": "imdb:tt0335266",
     "id": Any<String>,
     "releaseYear": "2003",
+    "rewatch": false,
     "shelf": Object {
       "__typename": "MovieShelf",
       "id": "Watched",
@@ -85,6 +87,7 @@ Object {
     "id": Any<String>,
     "rating": 1,
     "releaseYear": "2021",
+    "rewatch": false,
     "shelf": Object {
       "__typename": "MovieShelf",
       "id": "Watched",

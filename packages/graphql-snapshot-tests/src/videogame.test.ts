@@ -35,6 +35,7 @@ test("can add a video game", async () => {
             width
             height
           }
+          replay
         }
       }
     `,
@@ -55,6 +56,7 @@ test("can import external video game", async () => {
           shelf {
             id
           }
+          replay
         }
       }
     `,
@@ -81,6 +83,7 @@ test("can query single video game", async () => {
             id
             name
           }
+          replay
         }
       }
     `,

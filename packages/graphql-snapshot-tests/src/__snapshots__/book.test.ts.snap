@@ -7,6 +7,7 @@ Object {
     "author": "Matt Benton",
     "id": Any<String>,
     "rating": 1,
+    "reread": false,
     "shelf": Object {
       "__typename": "BookShelf",
       "name": "Did Not Finish",
@@ -73,6 +74,7 @@ Object {
     "author": "David Peace",
     "externalId": "googlebooks:CkVF9cg8daMC",
     "id": Any<String>,
+    "reread": false,
     "shelf": Object {
       "__typename": "BookShelf",
       "id": "Reading",
@@ -103,6 +105,7 @@ Object {
     "author": "Matt Benton",
     "id": Any<String>,
     "rating": 1,
+    "reread": false,
     "shelf": Object {
       "__typename": "BookShelf",
       "id": "DidNotFinish",

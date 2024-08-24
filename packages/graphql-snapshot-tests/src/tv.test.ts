@@ -76,6 +76,7 @@ test("can add a tv season", async () => {
               seasonNumber
             }
           }
+          rewatch
         }
       }
     `,
@@ -145,6 +146,7 @@ test("can import first tv season for already imported tv series", async () => {
             movedAt
             rating
           }
+          rewatch
         }
       }
     `,
@@ -199,6 +201,7 @@ test("can import external tv season when tv series not yet imported", async () =
             rating
             movedAt
           }
+          rewatch
         }
       }
     `,
@@ -251,6 +254,7 @@ test("can import second tv season for already imported tv series", async () => {
             rating
             movedAt
           }
+          rewatch
         }
       }
     `,

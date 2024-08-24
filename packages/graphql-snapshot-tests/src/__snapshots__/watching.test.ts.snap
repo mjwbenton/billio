@@ -11,6 +11,7 @@ Object {
         "seasons": Array [
           Object {
             "__typename": "TvSeason",
+            "rewatch": false,
             "seasonNumber": 1,
             "title": "For All Mankind: Season 1",
           },

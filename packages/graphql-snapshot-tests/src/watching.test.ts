@@ -49,6 +49,7 @@ test("watching returns both movies and Tv", async () => {
               seasons {
                 title
                 seasonNumber
+                rewatch
               }
             }
           }
