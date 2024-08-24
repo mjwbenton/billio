@@ -16,7 +16,6 @@ const MOVED_AT_TYPE_ID = ["movedAt", "type", "id"] as const;
 
 const DEFAULT_START = new Date("2010-01-01T00:00:00");
 const DEFAULT_END = new Date("2200-01-01T00:00:00");
-const DEFAULT_SORT = "MOVED_AT";
 
 type SortBy = "MOVED_AT" | "ADDED_AT";
 
