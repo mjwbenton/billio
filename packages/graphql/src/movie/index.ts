@@ -56,6 +56,7 @@ const typeDefs = gql`
     image: Image
     shelf: MovieShelf!
     releaseYear: String!
+    rewatch: Boolean!
   }
 
   type MovieShelf {
@@ -112,6 +113,7 @@ const mutationTypeDefs = gql`
     movedAt: DateTime
     notes: String
     externalId: ID
+    rewatch: Boolean
   }
 
   input UpdateMovieInput {
@@ -124,6 +126,7 @@ const mutationTypeDefs = gql`
     movedAt: DateTime
     notes: String
     externalId: ID
+    rewatch: Boolean
   }
 `;
 
@@ -137,6 +140,7 @@ export const OUTPUT_TRANSFORM: OutputTransform<Movie, MovieShelfId> = (
   input,
 ) => ({
   releaseYear: input.releaseYear,
+  rewatch: input.rewatch ?? false,
 });
 
 const EXTERNAL_TRANSFORM: ExternalToInputTransform<
@@ -145,12 +149,14 @@ const EXTERNAL_TRANSFORM: ExternalToInputTransform<
   MovieShelfId
 > = (external) => ({
   releaseYear: external.releaseYear,
+  rewatch: false,
 });
 
 const ADD_INPUT_TRANSFORM: AddInputTransform<AddMovieInput, MovieShelfId> = (
   input,
 ) => ({
   releaseYear: input.releaseYear,
+  rewatch: input.rewatch,
   category: WATCHING,
 });
 
@@ -159,6 +165,7 @@ const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
   MovieShelfId
 > = (input) => ({
   ...(input.releaseYear != null ? { releaseYear: input.releaseYear } : {}),
+  ...(input.rewatch != null ? { rewatch: input.rewatch } : {}),
 });
 
 const TMDB_API = new TmdbApi();

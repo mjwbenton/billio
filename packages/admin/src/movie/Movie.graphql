@@ -13,4 +13,5 @@ fragment Movie on Movie {
   movedAt
   addedAt
   notes
+  rewatch
 }
