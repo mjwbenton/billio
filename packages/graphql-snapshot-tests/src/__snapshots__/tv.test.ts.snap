@@ -49,7 +49,7 @@ exports[`can import a rewatched tv season 1`] = `
 Object {
   "importExternalTvSeason": Object {
     "__typename": "TvSeason",
-    "externalId": "tmdbSeason:94951:2",
+    "externalId": "tmdbSeason:94951:1",
     "id": Any<String>,
     "movedAt": Any<String>,
     "rating": null,
@@ -67,7 +67,7 @@ Object {
         },
         Object {
           "__typename": "TvSeason",
-          "seasonNumber": 2,
+          "seasonNumber": 1,
         },
         Object {
           "__typename": "TvSeason",
@@ -83,7 +83,7 @@ Object {
       "__typename": "TvSeasonShelf",
       "id": "Watching",
     },
-    "title": "Mythic Quest: Season 2",
+    "title": "Mythic Quest: Season 1",
   },
 }
 `;

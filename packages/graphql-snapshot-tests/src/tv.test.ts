@@ -13,7 +13,7 @@ let FOR_ALL_MANKIND_SEASON_1_ID: string = "";
 let MYTHIC_QUEST_SERIES_ID: string = "";
 let MYTHIC_QUEST_SEASON_1_ID: string = "";
 let MYTHIC_QUEST_SEASON_2_ID: string = "";
-let MYTHIC_QUEST_SEASON_2_REWATCH_ID: string = "";
+let MYTHIC_QUEST_SEASON_1_REWATCH_ID: string = "";
 
 jest.setTimeout(10_000);
 
@@ -160,16 +160,16 @@ test("can import first tv season for already imported tv series", async () => {
     },
   });
   expect(data.importExternalTvSeason.series.id).toEqual(
-    FOR_ALL_MANKIND_SERIES_ID,
+    FOR_ALL_MANKIND_SERIES_ID
   );
   expect(data.importExternalTvSeason.shelf.id).toEqual(
-    data.importExternalTvSeason.series.shelf.id,
+    data.importExternalTvSeason.series.shelf.id
   );
   expect(data.importExternalTvSeason.rating).toEqual(
-    data.importExternalTvSeason.rating,
+    data.importExternalTvSeason.rating
   );
   expect(data.importExternalTvSeason.movedAt).toEqual(
-    data.importExternalTvSeason.movedAt,
+    data.importExternalTvSeason.movedAt
   );
 });
 
@@ -216,13 +216,13 @@ test("can import external tv season when tv series not yet imported", async () =
     },
   });
   expect(data.importExternalTvSeason.shelf.id).toEqual(
-    data.importExternalTvSeason.series.shelf.id,
+    data.importExternalTvSeason.series.shelf.id
   );
   expect(data.importExternalTvSeason.rating).toEqual(
-    data.importExternalTvSeason.rating,
+    data.importExternalTvSeason.rating
   );
   expect(data.importExternalTvSeason.movedAt).toEqual(
-    data.importExternalTvSeason.movedAt,
+    data.importExternalTvSeason.movedAt
   );
 });
 
@@ -269,13 +269,13 @@ test("can import second tv season for already imported tv series", async () => {
   });
   expect(data.importExternalTvSeason.series.id).toEqual(MYTHIC_QUEST_SERIES_ID);
   expect(data.importExternalTvSeason.shelf.id).toEqual(
-    data.importExternalTvSeason.series.shelf.id,
+    data.importExternalTvSeason.series.shelf.id
   );
   expect(data.importExternalTvSeason.rating).toEqual(
-    data.importExternalTvSeason.rating,
+    data.importExternalTvSeason.rating
   );
   expect(data.importExternalTvSeason.movedAt).toEqual(
-    data.importExternalTvSeason.movedAt,
+    data.importExternalTvSeason.movedAt
   );
 });
 
@@ -284,7 +284,7 @@ test("can import a rewatched tv season", async () => {
     mutation: gql`
       mutation Test_ImportRewatchedTvSeason {
         importExternalTvSeason(
-          externalId: "tmdbSeason:94951:2"
+          externalId: "tmdbSeason:94951:1"
           shelfId: Watching
           overrides: { rewatch: true }
         ) {
@@ -313,7 +313,7 @@ test("can import a rewatched tv season", async () => {
       }
     `,
   });
-  MYTHIC_QUEST_SEASON_2_REWATCH_ID = data.importExternalTvSeason.id;
+  MYTHIC_QUEST_SEASON_1_REWATCH_ID = data.importExternalTvSeason.id;
   expect(data).toMatchSnapshot({
     importExternalTvSeason: {
       ...ITEM_MATCHER,
@@ -460,7 +460,7 @@ test("When the shelf of the last season is updated, the series movedAt and shelf
   expect(data.updateTvSeason.shelf.id).toEqual(shelf);
   expect(data.updateTvSeason.series.shelf.id).toEqual(shelf);
   expect(data.updateTvSeason.series.movedAt).toEqual(
-    data.updateTvSeason.movedAt,
+    data.updateTvSeason.movedAt
   );
 });
 
@@ -513,7 +513,7 @@ test("When the shelf of an earlier season is updated, the series shelf is not up
   expect(data.updateTvSeason.shelf.id).toEqual(shelf);
   expect(data.updateTvSeason.series.shelf.id).not.toEqual(shelf);
   expect(data.updateTvSeason.series.movedAt).not.toEqual(
-    data.updateTvSeason.movedAt,
+    data.updateTvSeason.movedAt
   );
 });
 
@@ -597,14 +597,14 @@ test("can delete Tv (cleanup)", async () => {
       season2: FOR_ALL_MANKIND_SEASON_1_ID,
       season3: MYTHIC_QUEST_SEASON_1_ID,
       season4: MYTHIC_QUEST_SEASON_2_ID,
-      season5: MYTHIC_QUEST_SEASON_2_REWATCH_ID,
+      season5: MYTHIC_QUEST_SEASON_1_REWATCH_ID,
     },
   });
   expect(seasonData.deleteSeason1.id).toEqual(ADDED_TV_SEASON);
   expect(seasonData.deleteSeason2.id).toEqual(FOR_ALL_MANKIND_SEASON_1_ID);
   expect(seasonData.deleteSeason3.id).toEqual(MYTHIC_QUEST_SEASON_1_ID);
   expect(seasonData.deleteSeason4.id).toEqual(MYTHIC_QUEST_SEASON_2_ID);
-  expect(seasonData.deleteSeason5.id).toEqual(MYTHIC_QUEST_SEASON_2_REWATCH_ID);
+  expect(seasonData.deleteSeason5.id).toEqual(MYTHIC_QUEST_SEASON_1_REWATCH_ID);
 
   const { data: seriesData } = await client.mutate({
     mutation: gql`
