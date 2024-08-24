@@ -13,6 +13,7 @@ let FOR_ALL_MANKIND_SEASON_1_ID: string = "";
 let MYTHIC_QUEST_SERIES_ID: string = "";
 let MYTHIC_QUEST_SEASON_1_ID: string = "";
 let MYTHIC_QUEST_SEASON_2_ID: string = "";
+let MYTHIC_QUEST_SEASON_2_REWATCH_ID: string = "";
 
 jest.setTimeout(10_000);
 
@@ -278,6 +279,49 @@ test("can import second tv season for already imported tv series", async () => {
   );
 });
 
+test("can import a rewatched tv season", async () => {
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_ImportRewatchedTvSeason {
+        importExternalTvSeason(
+          externalId: "tmdbSeason:94951:2"
+          shelfId: Watching
+          overrides: { rewatch: true }
+        ) {
+          id
+          externalId
+          title
+          shelf {
+            id
+          }
+          movedAt
+          rating
+          series {
+            id
+            externalId
+            seasons {
+              seasonNumber
+            }
+            shelf {
+              id
+            }
+            rating
+            movedAt
+          }
+          rewatch
+        }
+      }
+    `,
+  });
+  MYTHIC_QUEST_SEASON_2_REWATCH_ID = data.importExternalTvSeason.id;
+  expect(data).toMatchSnapshot({
+    importExternalTvSeason: {
+      ...ITEM_MATCHER,
+    },
+  });
+  expect(data.importExternalTvSeason.rewatch).toEqual(true);
+});
+
 test("can query seasons on tv series", async () => {
   const { data } = await client.query({
     query: gql`
@@ -528,6 +572,7 @@ test("can delete Tv (cleanup)", async () => {
         $season2: ID!
         $season3: ID!
         $season4: ID!
+        $season5: ID!
       ) {
         deleteSeason1: deleteTvSeason(id: $season1) {
           id
@@ -541,6 +586,9 @@ test("can delete Tv (cleanup)", async () => {
         deleteSeason4: deleteTvSeason(id: $season4) {
           id
         }
+        deleteSeason5: deleteTvSeason(id: $season5) {
+          id
+        }
       }
     `,
     variables: {
@@ -548,12 +596,14 @@ test("can delete Tv (cleanup)", async () => {
       season2: FOR_ALL_MANKIND_SEASON_1_ID,
       season3: MYTHIC_QUEST_SEASON_1_ID,
       season4: MYTHIC_QUEST_SEASON_2_ID,
+      season5: MYTHIC_QUEST_SEASON_2_REWATCH_ID,
     },
   });
   expect(seasonData.deleteSeason1.id).toEqual(ADDED_TV_SEASON);
   expect(seasonData.deleteSeason2.id).toEqual(FOR_ALL_MANKIND_SEASON_1_ID);
   expect(seasonData.deleteSeason3.id).toEqual(MYTHIC_QUEST_SEASON_1_ID);
   expect(seasonData.deleteSeason4.id).toEqual(MYTHIC_QUEST_SEASON_2_ID);
+  expect(seasonData.deleteSeason5.id).toEqual(MYTHIC_QUEST_SEASON_2_REWATCH_ID);
 
   const { data: seriesData } = await client.mutate({
     mutation: gql`

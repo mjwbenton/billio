@@ -45,6 +45,49 @@ Object {
 }
 `;
 
+exports[`can import a rewatched tv season 1`] = `
+Object {
+  "importExternalTvSeason": Object {
+    "__typename": "TvSeason",
+    "externalId": "tmdbSeason:94951:2",
+    "id": Any<String>,
+    "movedAt": Any<String>,
+    "rating": null,
+    "rewatch": true,
+    "series": Object {
+      "__typename": "TvSeries",
+      "externalId": "tmdbSeries:94951",
+      "id": "1dd1e04a-5dc1-4d98-afec-d15645a04949",
+      "movedAt": "2024-08-24T12:54:10.082Z",
+      "rating": 6,
+      "seasons": Array [
+        Object {
+          "__typename": "TvSeason",
+          "seasonNumber": 1,
+        },
+        Object {
+          "__typename": "TvSeason",
+          "seasonNumber": 2,
+        },
+        Object {
+          "__typename": "TvSeason",
+          "seasonNumber": 2,
+        },
+      ],
+      "shelf": Object {
+        "__typename": "TvSeriesShelf",
+        "id": "Watching",
+      },
+    },
+    "shelf": Object {
+      "__typename": "TvSeasonShelf",
+      "id": "Watching",
+    },
+    "title": "Mythic Quest: Season 2",
+  },
+}
+`;
+
 exports[`can import external tv season when tv series not yet imported 1`] = `
 Object {
   "importExternalTvSeason": Object {

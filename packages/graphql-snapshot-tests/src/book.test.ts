@@ -311,6 +311,38 @@ test("can clear the note on a book", async () => {
   expect(data.updateBook.notes).toEqual("");
 });
 
+test("can mark a book as reread", async () => {
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_MarkReread($id: ID!) {
+        updateBook(id: $id, item: { reread: true }) {
+          reread
+        }
+      }
+    `,
+    variables: {
+      id: ADDED_ID,
+    },
+  });
+  expect(data.updateBook.reread).toEqual(true);
+});
+
+test("can mark a book as not reread", async () => {
+  const { data } = await client.mutate({
+    mutation: gql`
+      mutation Test_MarkNotReread($id: ID!) {
+        updateBook(id: $id, item: { reread: false }) {
+          reread
+        }
+      }
+    `,
+    variables: {
+      id: ADDED_ID,
+    },
+  });
+  expect(data.updateBook.reread).toEqual(false);
+});
+
 test("can delete books (cleanup)", async () => {
   const { data } = await client.mutate({
     mutation: gql`
