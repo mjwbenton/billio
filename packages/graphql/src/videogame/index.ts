@@ -187,7 +187,7 @@ const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
   UpdateVideoGameInput,
   VideoGameShelfId
 > = (input) => ({
-  ...(input.platformIds ? { platforms: input.platformIds } : {}),
+  ...(input.platformIds != null ? { platforms: input.platformIds } : {}),
 });
 
 const EXTERNAL_TRANSFORM: ExternalToInputTransform<

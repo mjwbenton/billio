@@ -284,17 +284,17 @@ const UPDATE_SEASON_INPUT_TRANSFORM: UpdateInputTransform<
   UpdateTvSeasonInput,
   TvSeasonShelfId
 > = (input) => ({
-  ...(input.seriesId ? { seriesId: input.seriesId } : {}),
-  ...(input.seasonNumber ? { seasonNumber: input.seasonNumber } : {}),
-  ...(input.seasonTitle ? { seasonTitle: input.seasonTitle } : {}),
-  ...(input.releaseYear ? { releaseYear: input.releaseYear } : {}),
+  ...(input.seriesId != null ? { seriesId: input.seriesId } : {}),
+  ...(input.seasonNumber != null ? { seasonNumber: input.seasonNumber } : {}),
+  ...(input.seasonTitle != null ? { seasonTitle: input.seasonTitle } : {}),
+  ...(input.releaseYear != null ? { releaseYear: input.releaseYear } : {}),
 });
 
 const UPDATE_SERIES_INPUT_TRANSFORM: UpdateInputTransform<
   UpdateTvSeriesInput,
   TvSeriesShelfId
 > = (input) => ({
-  ...(input.releaseYear ? { releaseYear: input.releaseYear } : {}),
+  ...(input.releaseYear != null ? { releaseYear: input.releaseYear } : {}),
 });
 
 const OUTPUT_SEASON_TRANSFORM: OutputTransform<TvSeason, TvSeasonShelfId> = (

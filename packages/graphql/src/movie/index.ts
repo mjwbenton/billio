@@ -158,7 +158,7 @@ const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
   UpdateMovieInput,
   MovieShelfId
 > = (input) => ({
-  ...(input.releaseYear ? { releaseYear: input.releaseYear } : {}),
+  ...(input.releaseYear != null ? { releaseYear: input.releaseYear } : {}),
 });
 
 const TMDB_API = new TmdbApi();

@@ -151,8 +151,8 @@ const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
   UpdateBookInput,
   BookShelfId
 > = (input) => ({
-  ...(input.author ? { author: input.author } : {}),
-  ...(input.reread ? { reread: input.reread } : {}),
+  ...(input.author != null ? { author: input.author } : {}),
+  ...(input.reread != null ? { reread: input.reread } : {}),
 });
 
 const OUTPUT_TRANSFORM: OutputTransform<Book, BookShelfId> = (data) => ({
