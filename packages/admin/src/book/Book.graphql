@@ -13,4 +13,5 @@ fragment Book on Book {
   movedAt
   addedAt
   notes
+  reread
 }

@@ -56,6 +56,7 @@ const typeDefs = gql`
     image: Image
     shelf: BookShelf!
     author: String!
+    reread: Boolean!
   }
 
   type BookShelf {
@@ -114,6 +115,7 @@ const mutationTypeDefs = gql`
     movedAt: DateTime
     notes: String
     externalId: String
+    reread: Boolean
   }
 
   input UpdateBookInput {
@@ -126,6 +128,7 @@ const mutationTypeDefs = gql`
     movedAt: DateTime
     notes: String
     externalId: String
+    reread: Boolean
   }
 `;
 
@@ -141,6 +144,7 @@ const ADD_INPUT_TRANSFORM: AddInputTransform<AddBookInput, BookShelfId> = (
   input,
 ) => ({
   author: input.author,
+  reread: input.reread,
 });
 
 const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
@@ -148,10 +152,12 @@ const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
   BookShelfId
 > = (input) => ({
   ...(input.author ? { author: input.author } : {}),
+  ...(input.reread ? { reread: input.reread } : {}),
 });
 
 const OUTPUT_TRANSFORM: OutputTransform<Book, BookShelfId> = (data) => ({
   author: data.author,
+  reread: data.reread ?? false,
 });
 
 const EXTERNAL_TRANSFORM: ExternalToInputTransform<
@@ -160,6 +166,7 @@ const EXTERNAL_TRANSFORM: ExternalToInputTransform<
   BookShelfId
 > = (external) => ({
   author: external.author,
+  reread: false,
 });
 
 const GOOGLEBOOKS_API = new GoogleBooksApi();
