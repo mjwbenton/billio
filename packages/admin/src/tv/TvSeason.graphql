@@ -15,4 +15,5 @@ fragment TvSeason on TvSeason {
   movedAt
   addedAt
   notes
+  rewatch
 }

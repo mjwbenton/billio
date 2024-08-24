@@ -80,6 +80,7 @@ export const typeDefs = gql`
     shelf: TvSeasonShelf!
     series: TvSeries!
     releaseYear: String!
+    rewatch: Boolean!
   }
 
   type TvSeries implements Item {
@@ -202,6 +203,7 @@ const mutationTypeDefs = gql`
     movedAt: DateTime
     notes: String
     externalId: ID
+    rewatch: Boolean
   }
 
   input AddTvSeriesInput {
@@ -229,6 +231,7 @@ const mutationTypeDefs = gql`
     movedAt: DateTime
     notes: String
     externalId: ID
+    rewatch: Boolean
   }
 
   input UpdateTvSeriesInput {
@@ -269,6 +272,7 @@ const ADD_SEASON_INPUT_TRANSFORM: AddInputTransform<
   seriesId: input.seriesId,
   seasonNumber: input.seasonNumber,
   releaseYear: input.releaseYear,
+  rewatch: input.rewatch,
   ...(input.seasonTitle ? { seasonTitle: input.seasonTitle } : {}),
 });
 
@@ -288,6 +292,7 @@ const UPDATE_SEASON_INPUT_TRANSFORM: UpdateInputTransform<
   ...(input.seasonNumber != null ? { seasonNumber: input.seasonNumber } : {}),
   ...(input.seasonTitle != null ? { seasonTitle: input.seasonTitle } : {}),
   ...(input.releaseYear != null ? { releaseYear: input.releaseYear } : {}),
+  ...(input.rewatch != null ? { rewatch: input.rewatch } : {}),
 });
 
 const UPDATE_SERIES_INPUT_TRANSFORM: UpdateInputTransform<
@@ -304,6 +309,7 @@ const OUTPUT_SEASON_TRANSFORM: OutputTransform<TvSeason, TvSeasonShelfId> = (
   seasonTitle: data.seasonTitle ?? null,
   seriesId: data.seriesId,
   releaseYear: data.releaseYear,
+  rewatch: data.rewatch ?? false,
 });
 
 export const OUTPUT_SERIES_TRANSFORM: OutputTransform<
@@ -319,6 +325,7 @@ const EXTERNAL_SERIES_TRANSFORM: ExternalToInputTransform<
   TvSeriesShelfId
 > = (external) => ({
   releaseYear: external.releaseYear,
+  rewatch: false,
 });
 
 const EXTERNAL_SEASON_TRANSFORM: ExternalToInputTransform<
@@ -329,6 +336,7 @@ const EXTERNAL_SEASON_TRANSFORM: ExternalToInputTransform<
   seasonNumber: external.seasonNumber,
   seasonTitle: external.seasonTitle,
   releaseYear: external.releaseYear,
+  rewatch: false,
   // This is fake because we know it gets overridden later in the custom import resolver
   seriesId: "",
 });

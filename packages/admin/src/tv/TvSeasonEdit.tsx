@@ -1,4 +1,4 @@
-import { NumberInput, SimpleForm, TextInput } from "react-admin";
+import { BooleanInput, NumberInput, SimpleForm, TextInput } from "react-admin";
 import Import from "../import/Import";
 import { baseMetaInputs, Create, Edit } from "../shared/Edit";
 import transform from "../shared/transform";
@@ -12,6 +12,7 @@ export const TvSeasonCreate = (props) => (
     <TextInput source="seasonTitle" />
     <NumberInput source="seasonNumber" />
     <TextInput source="releaseYear" />
+    <BooleanInput source="rewatch" />
   </Create>
 );
 
@@ -20,6 +21,7 @@ export const TvSeasonEdit = (props) => (
     <TextInput source="seasonTitle" />
     <NumberInput source="seasonNumber" />
     <TextInput source="releaseYear" />
+    <BooleanInput source="rewatch" />
   </Edit>
 );
 
@@ -27,6 +29,7 @@ export const TvSeasonImport = () => (
   <Import transform={TRANSFORM}>
     <SimpleForm>
       <SearchExternalTvSeasonInput />
+      <BooleanInput source="rewatch" />
       {baseMetaInputs(SEASON_SHELVES)}
     </SimpleForm>
   </Import>
