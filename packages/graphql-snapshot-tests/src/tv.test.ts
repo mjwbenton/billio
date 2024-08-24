@@ -160,16 +160,16 @@ test("can import first tv season for already imported tv series", async () => {
     },
   });
   expect(data.importExternalTvSeason.series.id).toEqual(
-    FOR_ALL_MANKIND_SERIES_ID
+    FOR_ALL_MANKIND_SERIES_ID,
   );
   expect(data.importExternalTvSeason.shelf.id).toEqual(
-    data.importExternalTvSeason.series.shelf.id
+    data.importExternalTvSeason.series.shelf.id,
   );
   expect(data.importExternalTvSeason.rating).toEqual(
-    data.importExternalTvSeason.rating
+    data.importExternalTvSeason.rating,
   );
   expect(data.importExternalTvSeason.movedAt).toEqual(
-    data.importExternalTvSeason.movedAt
+    data.importExternalTvSeason.movedAt,
   );
 });
 
@@ -216,13 +216,13 @@ test("can import external tv season when tv series not yet imported", async () =
     },
   });
   expect(data.importExternalTvSeason.shelf.id).toEqual(
-    data.importExternalTvSeason.series.shelf.id
+    data.importExternalTvSeason.series.shelf.id,
   );
   expect(data.importExternalTvSeason.rating).toEqual(
-    data.importExternalTvSeason.rating
+    data.importExternalTvSeason.rating,
   );
   expect(data.importExternalTvSeason.movedAt).toEqual(
-    data.importExternalTvSeason.movedAt
+    data.importExternalTvSeason.movedAt,
   );
 });
 
@@ -269,13 +269,13 @@ test("can import second tv season for already imported tv series", async () => {
   });
   expect(data.importExternalTvSeason.series.id).toEqual(MYTHIC_QUEST_SERIES_ID);
   expect(data.importExternalTvSeason.shelf.id).toEqual(
-    data.importExternalTvSeason.series.shelf.id
+    data.importExternalTvSeason.series.shelf.id,
   );
   expect(data.importExternalTvSeason.rating).toEqual(
-    data.importExternalTvSeason.rating
+    data.importExternalTvSeason.rating,
   );
   expect(data.importExternalTvSeason.movedAt).toEqual(
-    data.importExternalTvSeason.movedAt
+    data.importExternalTvSeason.movedAt,
   );
 });
 
@@ -460,7 +460,7 @@ test("When the shelf of the last season is updated, the series movedAt and shelf
   expect(data.updateTvSeason.shelf.id).toEqual(shelf);
   expect(data.updateTvSeason.series.shelf.id).toEqual(shelf);
   expect(data.updateTvSeason.series.movedAt).toEqual(
-    data.updateTvSeason.movedAt
+    data.updateTvSeason.movedAt,
   );
 });
 
@@ -513,7 +513,7 @@ test("When the shelf of an earlier season is updated, the series shelf is not up
   expect(data.updateTvSeason.shelf.id).toEqual(shelf);
   expect(data.updateTvSeason.series.shelf.id).not.toEqual(shelf);
   expect(data.updateTvSeason.series.movedAt).not.toEqual(
-    data.updateTvSeason.movedAt
+    data.updateTvSeason.movedAt,
   );
 });
 
