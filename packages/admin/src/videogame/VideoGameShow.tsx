@@ -1,4 +1,9 @@
-import { ArrayField, ChipField, SingleFieldList } from "react-admin";
+import {
+  ArrayField,
+  BooleanField,
+  ChipField,
+  SingleFieldList,
+} from "react-admin";
 import { List, Show } from "../shared/Display";
 
 const PlatformInput = (props) => (
@@ -17,6 +22,7 @@ PlatformInput.defaultProps = {
 export const VideoGameShow = (props) => (
   <Show {...props}>
     <PlatformInput />
+    <BooleanField source="replay" sortable={false} />
   </Show>
 );
 

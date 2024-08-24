@@ -16,4 +16,5 @@ fragment VideoGame on VideoGame {
   movedAt
   addedAt
   notes
+  replay
 }

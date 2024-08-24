@@ -56,6 +56,7 @@ const typeDefs = gql`
     image: Image
     shelf: VideoGameShelf!
     platforms: [VideoGamePlatform!]!
+    replay: Boolean!
   }
 
   type VideoGameShelf {
@@ -129,6 +130,7 @@ const mutationTypeDefs = gql`
     movedAt: DateTime
     notes: String
     externalId: ID
+    replay: Boolean
   }
 
   input UpdateVideoGameInput {
@@ -141,6 +143,7 @@ const mutationTypeDefs = gql`
     movedAt: DateTime
     notes: String
     externalId: ID
+    replay: Boolean
   }
 `;
 
@@ -169,6 +172,7 @@ const OUTPUT_TRANSFORM: OutputTransform<VideoGame, VideoGameShelfId> = (
 ) => {
   const platformIds: Array<VideoGamePlatformId> = data.platforms ?? [];
   return {
+    replay: data.replay ?? false,
     platforms: platformIds.map((id: VideoGamePlatformId) => ({
       id,
       name: PLATFORM_NAMES[id],
@@ -181,6 +185,7 @@ const ADD_INPUT_TRANSFORM: AddInputTransform<
   VideoGameShelfId
 > = (input) => ({
   platforms: input.platformIds,
+  replay: input.replay,
 });
 
 const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
@@ -188,6 +193,7 @@ const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
   VideoGameShelfId
 > = (input) => ({
   ...(input.platformIds != null ? { platforms: input.platformIds } : {}),
+  ...(input.replay != null ? { replay: input.replay } : {}),
 });
 
 const EXTERNAL_TRANSFORM: ExternalToInputTransform<
@@ -196,6 +202,7 @@ const EXTERNAL_TRANSFORM: ExternalToInputTransform<
   VideoGameShelfId
 > = () => ({
   platformIds: [],
+  replay: false,
 });
 
 const resolvers: PartialResolvers = {
