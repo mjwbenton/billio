@@ -317,6 +317,7 @@ test("can import a rewatched tv season", async () => {
   expect(data).toMatchSnapshot({
     importExternalTvSeason: {
       ...ITEM_MATCHER,
+      series: ITEM_MATCHER,
     },
   });
   expect(data.importExternalTvSeason.rewatch).toEqual(true);

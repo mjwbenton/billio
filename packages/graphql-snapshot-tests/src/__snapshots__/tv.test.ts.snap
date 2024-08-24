@@ -57,8 +57,8 @@ Object {
     "series": Object {
       "__typename": "TvSeries",
       "externalId": "tmdbSeries:94951",
-      "id": "1dd1e04a-5dc1-4d98-afec-d15645a04949",
-      "movedAt": "2024-08-24T12:54:10.082Z",
+      "id": Any<String>,
+      "movedAt": Any<String>,
       "rating": 6,
       "seasons": Array [
         Object {
