@@ -1,4 +1,4 @@
-import { RemovalPolicy, Stack } from "aws-cdk-lib";
+import { Duration, RemovalPolicy, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { Bucket } from "aws-cdk-lib/aws-s3";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
@@ -39,6 +39,7 @@ export default class BillioBackupStack extends Stack {
       },
       runtime: Runtime.NODEJS_20_X,
       memorySize: 3008,
+      timeout: Duration.minutes(1),
       environment: {
         BILLIO_TABLE: dataStack.itemTable.tableName,
         BILLIO_BACKUP_BUCKET: backupBucket.bucketName,
