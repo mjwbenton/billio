@@ -97,6 +97,8 @@ const typeDefs = gql`
     NintendoSwitch
     Nintendo3DS
     Playstation3
+    NintendoSwitch2
+    IOS
   }
 
   type ExternalVideoGame {
