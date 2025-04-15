@@ -34,7 +34,7 @@
     "@as-integrations/aws-lambda": "^3.1.0",
     "@mattb.tech/billio-data": "1.0.0",
     "aws-sdk": "^2.1035.0",
-    "axios": "^0.24.0",
+    "axios": "^0.30.0",
     "dotenv": "^10.0.0",
     "graphql": "^16.8.1",
     "graphql-scalars": "^1.22.4",
