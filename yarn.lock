@@ -9291,9 +9291,9 @@ js-levenshtein@^1.1.6:
   integrity sha512-X2BB11YZtrRqY4EnQcLX5Rh373zbK4alC1FW7D7MBhL2gtcC17cTnr6DmfHZeS0s2rTHjUTMMHfG7gO8SSdw+g==
 
 js-object-utilities@^2.1.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/js-object-utilities/-/js-object-utilities-2.2.0.tgz#4677a7fd3174369fb8f0d8c10fb9f7381c71fd0d"
-  integrity sha512-gVw7FwD6r7mNNjzSKJ74uxvqNIGu7hb67K+Xvwus9JRBTWLezxcg77cCFOmTbiToV09BqdYmIJ+zfL3UiWDtpQ==
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/js-object-utilities/-/js-object-utilities-2.2.1.tgz#8c8b65bced78d4cfe598781f52ec63f17e15d2c9"
+  integrity sha512-0Ki0uXeMEga6OVM7ESxLjSaCYMdrQ46av0VomzaQT7BWNwMsEodmrtImkdD6K7SCq0ADw1uoQm4HBrsMQqtEww==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
