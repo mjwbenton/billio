@@ -21,7 +21,7 @@
     "aws-cdk": "^2.151.0",
     "aws-cdk-lib": "^2.189.1",
     "constructs": "^10.3.0",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.13.15",
     "prettier": "^3.3.3",
     "typescript": "^5.5.4"
   },
