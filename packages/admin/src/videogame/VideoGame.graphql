@@ -17,4 +17,5 @@ fragment VideoGame on VideoGame {
   addedAt
   notes
   replay
+  hoursPlayed
 }

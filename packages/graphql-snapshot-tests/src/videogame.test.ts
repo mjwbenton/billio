@@ -20,6 +20,7 @@ test("can add a video game", async () => {
             platformIds: [Nintendo3DS]
             shelfId: GaveUp
             rating: 1
+            hoursPlayed: 10
           }
         ) {
           id
@@ -36,6 +37,7 @@ test("can add a video game", async () => {
             height
           }
           replay
+          hoursPlayed
         }
       }
     `,
@@ -57,6 +59,7 @@ test("can import external video game", async () => {
             id
           }
           replay
+          hoursPlayed
         }
       }
     `,
@@ -84,6 +87,7 @@ test("can query single video game", async () => {
             name
           }
           replay
+          hoursPlayed
         }
       }
     `,

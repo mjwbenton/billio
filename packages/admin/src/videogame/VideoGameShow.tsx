@@ -2,6 +2,7 @@ import {
   ArrayField,
   BooleanField,
   ChipField,
+  NumberField,
   SingleFieldList,
 } from "react-admin";
 import { List, Show } from "../shared/Display";
@@ -23,6 +24,7 @@ export const VideoGameShow = (props) => (
   <Show {...props}>
     <PlatformInput />
     <BooleanField source="replay" sortable={false} />
+    <NumberField source="hoursPlayed" sortable={false} />
   </Show>
 );
 

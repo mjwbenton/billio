@@ -57,6 +57,7 @@ const typeDefs = gql`
     shelf: VideoGameShelf!
     platforms: [VideoGamePlatform!]!
     replay: Boolean!
+    hoursPlayed: Int
   }
 
   type VideoGameShelf {
@@ -133,6 +134,7 @@ const mutationTypeDefs = gql`
     notes: String
     externalId: ID
     replay: Boolean
+    hoursPlayed: Int
   }
 
   input UpdateVideoGameInput {
@@ -146,6 +148,7 @@ const mutationTypeDefs = gql`
     notes: String
     externalId: ID
     replay: Boolean
+    hoursPlayed: Int
   }
 `;
 
@@ -172,7 +175,7 @@ const PLATFORM_NAMES: { [key in VideoGamePlatformId]: string } = {
 const IGDB_API = new IgdbApi();
 
 const OUTPUT_TRANSFORM: OutputTransform<VideoGame, VideoGameShelfId> = (
-  data,
+  data
 ) => {
   const platformIds: Array<VideoGamePlatformId> = data.platforms ?? [];
   return {
@@ -181,6 +184,7 @@ const OUTPUT_TRANSFORM: OutputTransform<VideoGame, VideoGameShelfId> = (
       id,
       name: PLATFORM_NAMES[id],
     })),
+    hoursPlayed: data.hoursPlayed ?? null,
   };
 };
 
@@ -190,6 +194,7 @@ const ADD_INPUT_TRANSFORM: AddInputTransform<
 > = (input) => ({
   platforms: input.platformIds,
   replay: input.replay,
+  hoursPlayed: input.hoursPlayed,
 });
 
 const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
@@ -198,6 +203,7 @@ const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
 > = (input) => ({
   ...(input.platformIds != null ? { platforms: input.platformIds } : {}),
   ...(input.replay != null ? { replay: input.replay } : {}),
+  ...(input.hoursPlayed != null ? { hoursPlayed: input.hoursPlayed } : {}),
 });
 
 const EXTERNAL_TRANSFORM: ExternalToInputTransform<
@@ -213,11 +219,11 @@ const resolvers: PartialResolvers = {
   Query: {
     videoGame: resolveForId<VideoGame, VideoGameShelfId>(
       TYPE,
-      OUTPUT_TRANSFORM,
+      OUTPUT_TRANSFORM
     ),
     videoGames: resolveForType<VideoGame, VideoGameShelfId>(
       TYPE,
-      OUTPUT_TRANSFORM,
+      OUTPUT_TRANSFORM
     ),
     videoGameShelf: resolveShelfArgs<VideoGameShelfId>(SHELF_NAMES),
     searchExternalVideoGame: resolveExternal(IGDB_API),
@@ -228,7 +234,7 @@ const resolvers: PartialResolvers = {
   VideoGameShelf: {
     items: resolveShelfItems<VideoGame, VideoGameShelfId>(
       TYPE,
-      OUTPUT_TRANSFORM,
+      OUTPUT_TRANSFORM
     ),
   },
   ExternalVideoGame: {
@@ -246,7 +252,7 @@ const mutationResolvers: PartialResolvers["Mutation"] = {
   addVideoGame: resolveAddItem<VideoGame, VideoGameShelfId, AddVideoGameInput>(
     TYPE,
     ADD_INPUT_TRANSFORM,
-    OUTPUT_TRANSFORM,
+    OUTPUT_TRANSFORM
   ),
   updateVideoGame: resolveUpdateItem<
     VideoGame,

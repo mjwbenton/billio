@@ -1,6 +1,7 @@
 import {
   ArrayInput,
   BooleanInput,
+  NumberInput,
   SelectInput,
   SimpleFormIterator,
 } from "react-admin";
@@ -59,6 +60,7 @@ export const VideoGameEdit = (props) => (
   <Edit {...props} transform={TRANSFORM} shelves={SHELVES}>
     <PlatformsInput />
     <BooleanInput source="replay" />
+    <NumberInput source="hoursPlayed" />
   </Edit>
 );
 
@@ -66,6 +68,7 @@ export const VideoGameCreate = (props) => (
   <Create {...props} transform={TRANSFORM} shelves={SHELVES}>
     <PlatformsInput />
     <BooleanInput source="replay" />
+    <NumberInput source="hoursPlayed" />
   </Create>
 );
 
@@ -73,5 +76,6 @@ export const VideoGameImport = () => (
   <Import shelves={SHELVES} transform={TRANSFORM}>
     <PlatformsInput />
     <BooleanInput source="replay" />
+    <NumberInput source="hoursPlayed" />
   </Import>
 );

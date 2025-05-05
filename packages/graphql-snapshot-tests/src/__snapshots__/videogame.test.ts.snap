@@ -20,6 +20,7 @@ Object {
   "addVideoGame": Object {
     "__typename": "VideoGame",
     "externalId": null,
+    "hoursPlayed": 10,
     "id": Any<String>,
     "image": null,
     "notes": null,
@@ -90,6 +91,7 @@ exports[`can import external video game 1`] = `
 Object {
   "importExternalVideoGame": Object {
     "__typename": "VideoGame",
+    "hoursPlayed": null,
     "id": Any<String>,
     "replay": false,
     "shelf": Object {
@@ -118,6 +120,7 @@ exports[`can query single video game 1`] = `
 Object {
   "videoGame": Object {
     "__typename": "VideoGame",
+    "hoursPlayed": 10,
     "id": Any<String>,
     "platforms": Array [
       Object {
