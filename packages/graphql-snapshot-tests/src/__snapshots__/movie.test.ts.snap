@@ -145,3 +145,11 @@ Object {
   "title": Any<String>,
 }
 `;
+
+exports[`can search for external movies 7`] = `
+Object {
+  "__typename": "ExternalMovie",
+  "id": StringMatching /\\^tmdb:/,
+  "title": Any<String>,
+}
+`;
