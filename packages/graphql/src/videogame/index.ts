@@ -100,6 +100,7 @@ const typeDefs = gql`
     Playstation3
     NintendoSwitch2
     IOS
+    TrimUiBrick
   }
 
   type ExternalVideoGame {
@@ -170,6 +171,7 @@ const PLATFORM_NAMES: { [key in VideoGamePlatformId]: string } = {
   Playstation3: "Playstation 3",
   NintendoSwitch2: "Nintendo Switch 2",
   IOS: "iOS",
+  TrimUiBrick: "Trim UI Brick",
 };
 
 const IGDB_API = new IgdbApi();

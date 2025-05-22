@@ -38,6 +38,10 @@ const PLATFORMS = [
     id: "IOS",
     name: "iOS",
   },
+  {
+    id: "TrimUiBrick",
+    name: "Trim UI Brick",
+  },
 ];
 
 const TRANSFORM = transform((data: any) => {
