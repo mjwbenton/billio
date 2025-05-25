@@ -33,11 +33,13 @@ export class IgdbApi implements ExternalApi<ExternalVideoGame> {
       axios.post(GAMES_URL, `search "${term}"; fields ${FIELDS}; limit 10;`, {
         headers: await this.buildHeaders(),
       }),
-      axios.post(GAMES_URL, `fields ${FIELDS}; where id = ${term};`, {
-        headers: await this.buildHeaders(),
-      }),
+      term.match(/^\d+$/)
+        ? axios.post(GAMES_URL, `fields ${FIELDS}; where id = ${term};`, {
+            headers: await this.buildHeaders(),
+          })
+        : Promise.resolve(null),
     ]);
-    return [...(idResult.data ?? []), ...searchResult.data].map(transform);
+    return [...(idResult?.data ?? []), ...searchResult.data].map(transform);
   }
 
   public async get({ id }: { id: string }): Promise<ExternalVideoGame | null> {
