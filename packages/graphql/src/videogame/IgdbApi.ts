@@ -29,14 +29,15 @@ export class IgdbApi implements ExternalApi<ExternalVideoGame> {
   }: {
     term: string;
   }): Promise<Array<ExternalVideoGame>> {
-    const result = await axios.post(
-      GAMES_URL,
-      `search "${term}"; fields ${FIELDS}; limit 10;`,
-      {
+    const [searchResult, idResult] = await Promise.all([
+      axios.post(GAMES_URL, `search "${term}"; fields ${FIELDS}; limit 10;`, {
         headers: await this.buildHeaders(),
-      },
-    );
-    return result.data.map(transform);
+      }),
+      axios.post(GAMES_URL, `fields ${FIELDS}; where id = ${term};`, {
+        headers: await this.buildHeaders(),
+      }),
+    ]);
+    return [...(idResult.data ?? []), ...searchResult.data].map(transform);
   }
 
   public async get({ id }: { id: string }): Promise<ExternalVideoGame | null> {
