@@ -12,7 +12,6 @@ const TABLE_NAME = process.env.BILLIO_TABLE!;
 
 const TYPE_ID = ["type", "id"] as const;
 const TYPE_SHELF = ["type", "shelf"] as const;
-const MOVED_AT_TYPE_ID = ["movedAt", "type", "id"] as const;
 
 const DEFAULT_START = new Date("2010-01-01T00:00:00");
 const DEFAULT_END = new Date("2200-01-01T00:00:00");
@@ -20,7 +19,7 @@ const DEFAULT_END = new Date("2200-01-01T00:00:00");
 type SortBy = "MOVED_AT" | "ADDED_AT";
 
 const SORT_FIELD_MAP = {
-  MOVED_AT: "movedAt:type:id",
+  MOVED_AT: "movedAt",
   ADDED_AT: "addedAt",
 } as const;
 
@@ -64,7 +63,7 @@ const ItemModel = dynamoose.model<ItemDocument>(
           {
             global: true,
             name: "type",
-            rangeKey: "movedAt:type:id",
+            rangeKey: "movedAt",
           },
           {
             global: true,
@@ -86,7 +85,7 @@ const ItemModel = dynamoose.model<ItemDocument>(
         index: {
           global: true,
           name: "externalId",
-          rangeKey: "movedAt:type:id",
+          rangeKey: "movedAt",
         },
       },
       title: {
@@ -97,15 +96,12 @@ const ItemModel = dynamoose.model<ItemDocument>(
         index: {
           global: true,
           name: "category",
-          rangeKey: "movedAt:type:id",
+          rangeKey: "movedAt",
         },
       },
       "type:id": {
         type: String,
         hashKey: true,
-      },
-      "movedAt:type:id": {
-        type: String,
       },
       "type:shelf": {
         type: String,
@@ -113,7 +109,7 @@ const ItemModel = dynamoose.model<ItemDocument>(
           {
             global: true,
             name: "shelf",
-            rangeKey: "movedAt:type:id",
+            rangeKey: "movedAt",
           },
           {
             global: true,
@@ -128,7 +124,7 @@ const ItemModel = dynamoose.model<ItemDocument>(
         index: {
           global: true,
           name: "seriesId",
-          rangeKey: "movedAt:type:id",
+          rangeKey: "movedAt",
         },
       },
     },
@@ -198,7 +194,7 @@ export const Query = {
       .eq(type)
       .sort(SortOrder.descending)
       .where(SORT_FIELD_MAP[sortBy])
-      .between(...betweenDates(SORT_FIELD_MAP[sortBy], startDate, endDate))
+      .between(...betweenDates(startDate, endDate))
       .using(`type${SORT_INDEX_MAP[sortBy]}`)
       .all()
       .count()
@@ -207,7 +203,7 @@ export const Query = {
       .eq(type)
       .sort(SortOrder.descending)
       .where(SORT_FIELD_MAP[sortBy])
-      .between(...betweenDates(SORT_FIELD_MAP[sortBy], startDate, endDate))
+      .between(...betweenDates(startDate, endDate))
       .using(`type${SORT_INDEX_MAP[sortBy]}`);
     const { lastKey, countSoFar }: After = after
       ? fromBase64(after)
@@ -314,7 +310,7 @@ export const Query = {
       .eq(key)
       .sort(SortOrder.descending)
       .where(SORT_FIELD_MAP[sortBy])
-      .between(...betweenDates(SORT_FIELD_MAP[sortBy], startDate, endDate))
+      .between(...betweenDates(startDate, endDate))
       .using(`shelf${SORT_INDEX_MAP[sortBy]}`)
       .all()
       .count()
@@ -323,7 +319,7 @@ export const Query = {
       .eq(key)
       .sort(SortOrder.descending)
       .where(SORT_FIELD_MAP[sortBy])
-      .between(...betweenDates(SORT_FIELD_MAP[sortBy], startDate, endDate))
+      .between(...betweenDates(startDate, endDate))
       .using(`shelf${SORT_INDEX_MAP[sortBy]}`)
       .limit(first);
     const { lastKey, countSoFar }: After = after
@@ -364,7 +360,6 @@ export const Mutate = {
         ...withTimestamps,
         ...combinedKey(withTimestamps, TYPE_ID),
         ...combinedKey(withTimestamps, TYPE_SHELF),
-        ...combinedKey(withTimestamps, MOVED_AT_TYPE_ID),
       },
       {
         overwrite: updateIfExists,
@@ -384,22 +379,10 @@ export const Mutate = {
     await ItemModel.update(
       key,
       {
-        // If the shelf is updated, update the movedAt timestamp
         ...(updates.shelf
           ? {
               movedAt: now,
               ...combinedKey({ type, shelf: updates.shelf }, TYPE_SHELF),
-              ...combinedKey({ movedAt: now, type, id }, MOVED_AT_TYPE_ID),
-            }
-          : {}),
-        // If movedAt is overridden, update the related combinedKey
-        ...(updates.movedAt
-          ? {
-              movedAt: updates.movedAt,
-              ...combinedKey(
-                { movedAt: updates.movedAt, type, id },
-                MOVED_AT_TYPE_ID,
-              ),
             }
           : {}),
         ...updates,
@@ -436,16 +419,6 @@ function fromBase64(lastKey: string): After {
   return JSON.parse(Buffer.from(lastKey, "base64").toString("utf-8"));
 }
 
-// This is currently a bit of a hack. For sorting by movedAt we use the combined movedAt:type:id field,
-// which is a string, whereas for addedAt we use the number field addedAt. This function generates
-// parameters to the `between` function which are of the right type
-function betweenDates(
-  fieldName: "movedAt:type:id" | "addedAt",
-  startDate: Date,
-  endDate: Date,
-) {
-  if (fieldName === "movedAt:type:id") {
-    return [startDate.getTime().toString(), endDate.getTime().toString()];
-  }
+function betweenDates(startDate: Date, endDate: Date) {
   return [startDate.getTime(), endDate.getTime()];
 }
