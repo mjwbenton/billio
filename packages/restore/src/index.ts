@@ -1,4 +1,4 @@
-import { CreateItem, Mutate, UpdateItem } from "@mattb.tech/billio-data";
+import { CreateItem, Mutate } from "@mattb.tech/billio-data";
 import chunk from "lodash.chunk";
 
 const BATCH = 10;
