@@ -9,7 +9,7 @@ generated
 .env
 VideoGame.json
 Book.json
-Movie.json
+Feature.json
 TvSeason.json
 TvSeries.json
 *.csv
