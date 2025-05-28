@@ -5,17 +5,17 @@ process.env.AWS_REGION = "us-east-1";
 
 const STACKS = {
   local: {
-    BILLIO_TABLE: "BillioLocalData-ItemTable276B2AC8-ONQOGA6OFVXN",
+    BILLIO_TABLE: "BillioLocalDataV2-ItemTable276B2AC8-ZR6ILIEIHBZQ",
     BILLIO_IMAGE_BUCKET: "billiotestimage-imagebucket97210811-jdlm9v72wtlf",
     BILLIO_IMAGE_DOMAIN: "https://image-cdn-test.billio.mattb.tech",
   },
   test: {
-    BILLIO_TABLE: "BillioTestData-ItemTable276B2AC8-1L7WY9SA7KB61",
+    BILLIO_TABLE: "BillioTestDataV2-ItemTable276B2AC8-1SP3QGNGZSODK",
     BILLIO_IMAGE_BUCKET: "billiotestimage-imagebucket97210811-jdlm9v72wtlf",
     BILLIO_IMAGE_DOMAIN: "https://image-cdn-test.billio.mattb.tech",
   },
   prod: {
-    BILLIO_TABLE: "BillioData-ItemTable276B2AC8-1HIYN64N2BKA1",
+    BILLIO_TABLE: "BillioDataV2-ItemTable276B2AC8-1NBN3P38AYOHE",
     BILLIO_IMAGE_BUCKET: "billioimage-imagebucket97210811-1aeflaj405d4g",
     BILLIO_IMAGE_DOMAIN: "https://image-cdn.billio.mattb.tech",
   },
