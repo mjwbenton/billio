@@ -5,6 +5,10 @@ fragment VideoGame on VideoGame {
     id
     name
   }
+  devices {
+    id
+    name
+  }
   shelf {
     id
     name

@@ -119,6 +119,7 @@ const typeDefs = gql`
     NintendoWiiU
     NintendoSwitch
     Nintendo3DS
+    SegaMegaDrive
     Playstation3
     Playstation4
     IOS
@@ -201,6 +202,7 @@ const PLATFORM_DEVICE_NAMES: {
   NintendoSNES: "Super Nintendo",
   NintendoWiiU: "Nintendo WiiU",
   Steam: "Steam",
+  SegaMegaDrive: "Sega Mega Drive",
 };
 
 const IGDB_API = new IgdbApi();
