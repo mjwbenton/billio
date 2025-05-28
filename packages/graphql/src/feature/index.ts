@@ -1,10 +1,11 @@
 import gql from "graphql-tag";
 import {
-  AddMovieInput,
-  Movie,
-  MovieShelfId,
-  UpdateMovieInput,
+  AddFeatureInput,
+  Feature,
+  FeatureShelfId,
+  UpdateFeatureInput,
 } from "../generated/graphql";
+
 import resolveAddItem from "../resolvers/resolveAddItem";
 import resolveDeleteItem from "../resolvers/resolveDeleteItem";
 import resolveExternal from "../resolvers/resolveExternal";
@@ -25,27 +26,27 @@ import {
 } from "../shared/transforms";
 import { TmdbApi } from "./TmdbApi";
 import resolveImportedItem from "../resolvers/resolveImportedItem";
-import { ExternalMovie } from "./types";
+import { ExternalFeature } from "./types";
 import { PartialResolvers } from "../shared/types";
 import { WATCHING } from "../watching/constants";
 import GqlModule from "../shared/gqlModule";
 
 const typeDefs = gql`
   extend type Query {
-    movie(id: ID!): Movie
-    movieShelf(id: MovieShelfId!): MovieShelf
-    movies(
+    feature(id: ID!): Feature
+    featureShelf(id: FeatureShelfId!): FeatureShelf
+    features(
       after: ID
       first: Int!
       searchTerm: String
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
-    ): MoviePage!
-    searchExternalMovie(term: String!): [ExternalMovie!]!
+    ): FeaturePage!
+    searchExternalFeature(term: String!): [ExternalFeature!]!
   }
 
-  type Movie implements Item {
+  type Feature implements Item {
     id: ID!
     externalId: ID
     addedAt: DateTime!
@@ -54,13 +55,13 @@ const typeDefs = gql`
     title: String!
     rating: Rating
     image: Image
-    shelf: MovieShelf!
+    shelf: FeatureShelf!
     releaseYear: String!
     rewatch: Boolean!
   }
 
-  type MovieShelf {
-    id: MovieShelfId!
+  type FeatureShelf {
+    id: FeatureShelfId!
     name: String!
     items(
       after: ID
@@ -68,45 +69,45 @@ const typeDefs = gql`
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
-    ): MoviePage!
+    ): FeaturePage!
   }
 
-  enum MovieShelfId {
+  enum FeatureShelfId {
     Watched
   }
 
-  type MoviePage {
+  type FeaturePage {
     total: Int!
-    items: [Movie!]!
+    items: [Feature!]!
     hasNextPage: Boolean!
     nextPageCursor: ID
   }
 
-  type ExternalMovie {
+  type ExternalFeature {
     id: ID!
     title: String!
     releaseYear: String!
     imageUrl: String
-    importedItem: Movie
+    importedItem: Feature
   }
 `;
 
 const mutationTypeDefs = gql`
   extend type Mutation {
-    addMovie(item: AddMovieInput!): Movie!
-    updateMovie(id: ID!, item: UpdateMovieInput!): Movie!
-    deleteMovie(id: ID!): DeleteItemOutput!
-    importExternalMovie(
+    addFeature(item: AddFeatureInput!): Feature!
+    updateFeature(id: ID!, item: UpdateFeatureInput!): Feature!
+    deleteFeature(id: ID!): DeleteItemOutput!
+    importExternalFeature(
       externalId: ID!
-      shelfId: MovieShelfId!
-      overrides: UpdateMovieInput
-    ): Movie!
+      shelfId: FeatureShelfId!
+      overrides: UpdateFeatureInput
+    ): Feature!
   }
 
-  input AddMovieInput {
+  input AddFeatureInput {
     title: String!
     releaseYear: String!
-    shelfId: MovieShelfId!
+    shelfId: FeatureShelfId!
     rating: Rating
     imageUrl: String
     addedAt: DateTime
@@ -116,10 +117,10 @@ const mutationTypeDefs = gql`
     rewatch: Boolean
   }
 
-  input UpdateMovieInput {
+  input UpdateFeatureInput {
     title: String
     releaseYear: String
-    shelfId: MovieShelfId
+    shelfId: FeatureShelfId
     rating: Rating
     imageUrl: String
     addedAt: DateTime
@@ -130,39 +131,40 @@ const mutationTypeDefs = gql`
   }
 `;
 
-const TYPE = "Movie";
+const TYPE = "Feature";
 
-const SHELF_NAMES: { [key in MovieShelfId]: string } = {
+const SHELF_NAMES: { [key in FeatureShelfId]: string } = {
   Watched: "Watched",
 };
 
-export const OUTPUT_TRANSFORM: OutputTransform<Movie, MovieShelfId> = (
-  input,
+export const OUTPUT_TRANSFORM: OutputTransform<Feature, FeatureShelfId> = (
+  input
 ) => ({
   releaseYear: input.releaseYear,
   rewatch: input.rewatch ?? false,
 });
 
 const EXTERNAL_TRANSFORM: ExternalToInputTransform<
-  ExternalMovie,
-  AddMovieInput,
-  MovieShelfId
+  ExternalFeature,
+  AddFeatureInput,
+  FeatureShelfId
 > = (external) => ({
   releaseYear: external.releaseYear,
   rewatch: false,
 });
 
-const ADD_INPUT_TRANSFORM: AddInputTransform<AddMovieInput, MovieShelfId> = (
-  input,
-) => ({
+const ADD_INPUT_TRANSFORM: AddInputTransform<
+  AddFeatureInput,
+  FeatureShelfId
+> = (input) => ({
   releaseYear: input.releaseYear,
   rewatch: input.rewatch,
   category: WATCHING,
 });
 
 const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
-  UpdateMovieInput,
-  MovieShelfId
+  UpdateFeatureInput,
+  FeatureShelfId
 > = (input) => ({
   ...(input.releaseYear != null ? { releaseYear: input.releaseYear } : {}),
   ...(input.rewatch != null ? { rewatch: input.rewatch } : {}),
@@ -172,40 +174,40 @@ const TMDB_API = new TmdbApi();
 
 const resolvers: PartialResolvers = {
   Query: {
-    movie: resolveForId<Movie, MovieShelfId>(TYPE, OUTPUT_TRANSFORM),
-    movies: resolveForType<Movie, MovieShelfId>(TYPE, OUTPUT_TRANSFORM),
-    movieShelf: resolveShelfArgs<MovieShelfId>(SHELF_NAMES),
-    searchExternalMovie: resolveExternal<ExternalMovie>(TMDB_API),
+    feature: resolveForId<Feature, FeatureShelfId>(TYPE, OUTPUT_TRANSFORM),
+    features: resolveForType<Feature, FeatureShelfId>(TYPE, OUTPUT_TRANSFORM),
+    featureShelf: resolveShelfArgs<FeatureShelfId>(SHELF_NAMES),
+    searchExternalFeature: resolveExternal<ExternalFeature>(TMDB_API),
   },
-  Movie: {
-    shelf: resolveShelfParent<MovieShelfId>(SHELF_NAMES),
+  Feature: {
+    shelf: resolveShelfParent<FeatureShelfId>(SHELF_NAMES),
   },
-  MovieShelf: {
-    items: resolveShelfItems<Movie, MovieShelfId>(TYPE, OUTPUT_TRANSFORM),
+  FeatureShelf: {
+    items: resolveShelfItems<Feature, FeatureShelfId>(TYPE, OUTPUT_TRANSFORM),
   },
-  ExternalMovie: {
+  ExternalFeature: {
     importedItem: resolveImportedItem(OUTPUT_TRANSFORM),
   },
 };
 
 const mutationResolvers: PartialResolvers["Mutation"] = {
-  importExternalMovie: resolveImportExternal<
-    Movie,
-    MovieShelfId,
-    AddMovieInput,
-    ExternalMovie
+  importExternalFeature: resolveImportExternal<
+    Feature,
+    FeatureShelfId,
+    AddFeatureInput,
+    ExternalFeature
   >(TYPE, OUTPUT_TRANSFORM, ADD_INPUT_TRANSFORM, EXTERNAL_TRANSFORM, TMDB_API),
-  addMovie: resolveAddItem<Movie, MovieShelfId, AddMovieInput>(
+  addFeature: resolveAddItem<Feature, FeatureShelfId, AddFeatureInput>(
     TYPE,
     ADD_INPUT_TRANSFORM,
-    OUTPUT_TRANSFORM,
+    OUTPUT_TRANSFORM
   ),
-  updateMovie: resolveUpdateItem<Movie, MovieShelfId, UpdateMovieInput>(
+  updateFeature: resolveUpdateItem<Feature, FeatureShelfId, UpdateFeatureInput>(
     TYPE,
     UPDATE_INPUT_TRANSFORM,
-    OUTPUT_TRANSFORM,
+    OUTPUT_TRANSFORM
   ),
-  deleteMovie: resolveDeleteItem(TYPE),
+  deleteFeature: resolveDeleteItem(TYPE),
 };
 
 export default new GqlModule({

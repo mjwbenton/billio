@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import resolveForCategory from "../resolvers/resolveForCategory";
 import { PartialResolvers } from "../shared/types";
 import { OUTPUT_SERIES_TRANSFORM } from "../tvSeries";
-import { OUTPUT_TRANSFORM as OUTPUT_MOVIE_TRANSFORM } from "../movie";
+import { OUTPUT_TRANSFORM as OUTPUT_FEATURE_TRANSFORM } from "../feature";
 import { WATCHING } from "./constants";
 import GqlModule from "../shared/gqlModule";
 
@@ -11,7 +11,7 @@ const typeDefs = gql`
     watching(after: ID, first: Int!): WatchingPage!
   }
 
-  union WatchingItem = Movie | TvSeries
+  union WatchingItem = Feature | TvSeries
 
   type WatchingPage {
     total: Int!
@@ -23,7 +23,7 @@ const typeDefs = gql`
 
 const TRANSFORMS = {
   TvSeries: OUTPUT_SERIES_TRANSFORM,
-  Movie: OUTPUT_MOVIE_TRANSFORM,
+  Feature: OUTPUT_FEATURE_TRANSFORM,
 };
 
 const resolvers: PartialResolvers = {

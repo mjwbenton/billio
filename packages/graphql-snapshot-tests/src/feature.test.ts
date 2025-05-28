@@ -8,13 +8,13 @@ const ITEM_MATCHER = {
 let ADDED_ID: string = "";
 let IMPORTED_ID: string = "";
 
-test("can add a movie", async () => {
+test("can add a feature", async () => {
   const { data } = await client.mutate({
     mutation: gql`
-      mutation Test_AddMovie {
-        addMovie(
+      mutation Test_AddFeature {
+        addFeature(
           item: {
-            title: "Test Movie"
+            title: "Test Feature"
             releaseYear: "2021"
             shelfId: Watched
             rating: 1
@@ -33,16 +33,16 @@ test("can add a movie", async () => {
     `,
   });
   expect(data).toMatchSnapshot({
-    addMovie: ITEM_MATCHER,
+    addFeature: ITEM_MATCHER,
   });
-  ADDED_ID = data.addMovie.id;
+  ADDED_ID = data.addFeature.id;
 });
 
-test("can import external movie", async () => {
+test("can import external feature", async () => {
   const { data } = await client.mutate({
     mutation: gql`
-      mutation Test_ImportMovie {
-        importExternalMovie(externalId: "tmdb:153", shelfId: Watched) {
+      mutation Test_ImportFeature {
+        importExternalFeature(externalId: "tmdb:153", shelfId: Watched) {
           id
           externalId
           title
@@ -56,16 +56,16 @@ test("can import external movie", async () => {
     `,
   });
   expect(data).toMatchSnapshot({
-    importExternalMovie: ITEM_MATCHER,
+    importExternalFeature: ITEM_MATCHER,
   });
-  IMPORTED_ID = data.importExternalMovie.id;
+  IMPORTED_ID = data.importExternalFeature.id;
 });
 
-test("can query single movie", async () => {
+test("can query single feature", async () => {
   const { data } = await client.query({
     query: gql`
-      query Test_QuerySingleMovie($id: ID!) {
-        movie(id: $id) {
+      query Test_QuerySingleFeature($id: ID!) {
+        feature(id: $id) {
           id
           title
           releaseYear
@@ -83,14 +83,14 @@ test("can query single movie", async () => {
     },
   });
   expect(data).toMatchSnapshot({
-    movie: ITEM_MATCHER,
+    feature: ITEM_MATCHER,
   });
 });
 
-test("can fetch second page of movies", async () => {
+test("can fetch second page of features", async () => {
   const query = gql`
-    query Test_MoviePagination($after: ID) {
-      movies(first: 1, after: $after) {
+    query Test_FeaturePagination($after: ID) {
+      features(first: 1, after: $after) {
         items {
           title
         }
@@ -104,7 +104,7 @@ test("can fetch second page of movies", async () => {
     query,
   });
   expect(first).toMatchSnapshot({
-    movies: {
+    features: {
       nextPageCursor: expect.any(String),
       hasNextPage: true,
     },
@@ -113,30 +113,30 @@ test("can fetch second page of movies", async () => {
   const { data: second } = await client.query({
     query,
     variables: {
-      after: first.movies.nextPageCursor,
+      after: first.features.nextPageCursor,
     },
   });
   expect(second).toMatchSnapshot({
-    movies: {
+    features: {
       nextPageCursor: null,
       hasNextPage: false,
     },
   });
 });
 
-test("can search for external movies", async () => {
+test("can search for external features", async () => {
   const { data } = await client.query({
     query: gql`
       {
-        searchExternalMovie(term: "Lost in Translation") {
+        searchExternalFeature(term: "Lost in Translation") {
           id
           title
         }
       }
     `,
   });
-  expect(data.searchExternalMovie.length).toBeGreaterThan(0);
-  data.searchExternalMovie.forEach((result: unknown) => {
+  expect(data.searchExternalFeature.length).toBeGreaterThan(0);
+  data.searchExternalFeature.forEach((result: unknown) => {
     expect(result).toMatchSnapshot({
       id: expect.stringMatching(/^tmdb:/),
       title: expect.any(String),
@@ -144,12 +144,12 @@ test("can search for external movies", async () => {
   });
 });
 
-test("can mutate title on movie without change to other fields", async () => {
-  const updatedTitle = "Test Movie 2";
+test("can mutate title on feature without change to other fields", async () => {
+  const updatedTitle = "Test Feature 2";
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_MutateTitle($id: ID!, $title: String!) {
-        updateMovie(id: $id, item: { title: $title }) {
+        updateFeature(id: $id, item: { title: $title }) {
           title
           releaseYear
           rating
@@ -174,12 +174,12 @@ test("can mutate title on movie without change to other fields", async () => {
 test("movedAt doesn't change on rating", async () => {
   const {
     data: {
-      movie: { movedAt },
+      feature: { movedAt },
     },
   } = await client.query<any>({
     query: gql`
       query Test_FetchMovedAt($id: ID!) {
-        movie(id: $id) {
+        feature(id: $id) {
           id
           movedAt
         }
@@ -190,7 +190,7 @@ test("movedAt doesn't change on rating", async () => {
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_MutateRating($id: ID!) {
-        updateMovie(id: $id, item: { rating: 10 }) {
+        updateFeature(id: $id, item: { rating: 10 }) {
           movedAt
           rating
         }
@@ -198,17 +198,17 @@ test("movedAt doesn't change on rating", async () => {
     `,
     variables: { id: ADDED_ID },
   });
-  expect(data.updateMovie.rating).toEqual(10);
-  expect(data.updateMovie.movedAt).toEqual(movedAt);
+  expect(data.updateFeature.rating).toEqual(10);
+  expect(data.updateFeature.movedAt).toEqual(movedAt);
 });
 
-test("cannot rate movie more than 10", async () => {
+test("cannot rate feature more than 10", async () => {
   expect.assertions(1);
   try {
     await client.mutate({
       mutation: gql`
         mutation Test_InvalidRating($id: ID!) {
-          updateMovie(id: $id, item: { rating: 11 }) {
+          updateFeature(id: $id, item: { rating: 11 }) {
             id
           }
         }
@@ -222,12 +222,12 @@ test("cannot rate movie more than 10", async () => {
   }
 });
 
-test("can add note to a movie", async () => {
+test("can add note to a feature", async () => {
   const NOTE = "Test Note";
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_AddNote($id: ID!, $note: String!) {
-        updateMovie(id: $id, item: { notes: $note }) {
+        updateFeature(id: $id, item: { notes: $note }) {
           notes
         }
       }
@@ -237,17 +237,17 @@ test("can add note to a movie", async () => {
       note: NOTE,
     },
   });
-  expect(data.updateMovie.notes).toEqual(NOTE);
+  expect(data.updateFeature.notes).toEqual(NOTE);
 });
 
-test("can delete movies (cleanup)", async () => {
+test("can delete features (cleanup)", async () => {
   const { data } = await client.mutate({
     mutation: gql`
-      mutation Test_DeleteMovie($id1: ID!, $id2: ID!) {
-        delete1: deleteMovie(id: $id1) {
+      mutation Test_DeleteFeature($id1: ID!, $id2: ID!) {
+        delete1: deleteFeature(id: $id1) {
           id
         }
-        delete2: deleteMovie(id: $id2) {
+        delete2: deleteFeature(id: $id2) {
           id
         }
       }

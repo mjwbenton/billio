@@ -21,13 +21,13 @@ const RESOURCE_CONFIGURATION = {
     capitalized: "VideoGame",
     shelfType: "VideoGameShelfId",
   },
-  Movie: {
-    fragment: loader("./movie/Movie.graphql"),
-    externalFragment: loader("./movie/ExternalMovie.graphql"),
-    querySingle: "movie",
-    queryList: "movies",
-    capitalized: "Movie",
-    shelfType: "MovieShelfId",
+  Feature: {
+    fragment: loader("./feature/Feature.graphql"),
+    externalFragment: loader("./feature/ExternalFeature.graphql"),
+    querySingle: "feature",
+    queryList: "features",
+    capitalized: "Feature",
+    shelfType: "FeatureShelfId",
   },
   TvSeries: {
     fragment: loader("./tv/TvSeries.graphql"),

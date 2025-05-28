@@ -1,7 +1,7 @@
 import client from "./client";
 import { gql } from "@apollo/client";
 
-let MOVIE_ID: string = "";
+let FEATURE_ID: string = "";
 let SERIES_ID: string = "";
 let SEASON_ID: string = "";
 
@@ -11,7 +11,7 @@ test("import data (setup)", async () => {
   const { data } = await client.mutate({
     mutation: gql`
       mutation Test_ImportData {
-        importExternalMovie(externalId: "tmdb:153", shelfId: Watched) {
+        importExternalFeature(externalId: "tmdb:153", shelfId: Watched) {
           id
         }
         importExternalTvSeason(
@@ -26,12 +26,12 @@ test("import data (setup)", async () => {
       }
     `,
   });
-  MOVIE_ID = data.importExternalMovie.id;
+  FEATURE_ID = data.importExternalFeature.id;
   SEASON_ID = data.importExternalTvSeason.id;
   SERIES_ID = data.importExternalTvSeason.series.id;
 });
 
-test("watching returns both movies and Tv", async () => {
+test("watching returns both features and Tv", async () => {
   const { data } = await client.query({
     query: gql`
       query Test_Watching {
@@ -39,7 +39,7 @@ test("watching returns both movies and Tv", async () => {
           total
           items {
             __typename
-            ... on Movie {
+            ... on Feature {
               title
               releaseYear
             }
@@ -63,14 +63,14 @@ test("watching returns both movies and Tv", async () => {
 test("can delete data (cleanup)", async () => {
   await client.mutate({
     mutation: gql`
-      mutation Test_DeleteMovie($id: ID!) {
-        deleteMovie(id: $id) {
+      mutation Test_DeleteFeature($id: ID!) {
+        deleteFeature(id: $id) {
           id
         }
       }
     `,
     variables: {
-      id: MOVIE_ID,
+      id: FEATURE_ID,
     },
   });
   await client.mutate({

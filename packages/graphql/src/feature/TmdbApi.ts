@@ -2,7 +2,7 @@ import axios from "axios";
 import qs from "querystring";
 import ExternalApi from "../external/ExternalApi";
 import parseNamespacedId from "../shared/parseNamespacedId";
-import { ExternalMovie } from "./types";
+import { ExternalFeature } from "./types";
 
 const API_KEY = process.env.TMDB_API_KEY!;
 
@@ -34,12 +34,12 @@ const SEARCH_PARAMS = {
   page: "1",
 };
 
-export class TmdbApi implements ExternalApi<ExternalMovie> {
+export class TmdbApi implements ExternalApi<ExternalFeature> {
   public async search({
     term,
   }: {
     term: string;
-  }): Promise<Array<ExternalMovie>> {
+  }): Promise<Array<ExternalFeature>> {
     const url = `${SEARCH_ENDPOINT}?${qs.stringify({
       ...SEARCH_PARAMS,
       query: term,
@@ -48,7 +48,7 @@ export class TmdbApi implements ExternalApi<ExternalMovie> {
     return result?.results?.map((i: any) => transform(i)) ?? [];
   }
 
-  public async get({ id }: { id: string }): Promise<ExternalMovie | null> {
+  public async get({ id }: { id: string }): Promise<ExternalFeature | null> {
     const { namespace, externalId } = parseNamespacedId(id);
 
     if (namespace === IMDB_ID_BASE) {
@@ -62,7 +62,11 @@ export class TmdbApi implements ExternalApi<ExternalMovie> {
     throw new Error(`Invalid id, supports namespaces tmdb and imdb: ${id}`);
   }
 
-  private async getTmdb({ id }: { id: string }): Promise<ExternalMovie | null> {
+  private async getTmdb({
+    id,
+  }: {
+    id: string;
+  }): Promise<ExternalFeature | null> {
     const url = `${MOVIE_ENDPOINT}/${id}?${qs.stringify(BASE_PARAMS)}`;
     const result = (await axios.get(url)).data;
     if (!result.id) {
@@ -71,7 +75,11 @@ export class TmdbApi implements ExternalApi<ExternalMovie> {
     return transform(result);
   }
 
-  private async getImdb({ id }: { id: string }): Promise<ExternalMovie | null> {
+  private async getImdb({
+    id,
+  }: {
+    id: string;
+  }): Promise<ExternalFeature | null> {
     const url = `${FIND_ENDPOINT}/${id}?${qs.stringify(GET_PARAMS)}`;
     const result = (await axios.get(url)).data;
     const movie = result?.movie_results?.[0];
@@ -82,7 +90,7 @@ export class TmdbApi implements ExternalApi<ExternalMovie> {
   }
 }
 
-function transform(item: any): ExternalMovie {
+function transform(item: any): ExternalFeature {
   return {
     id: item.imdb_id ? `imdb:${item.imdb_id}` : `tmdb:${item.id}`,
     title: item.title,

@@ -1,7 +1,7 @@
 import sharedModule from "./shared/schema";
 import watchingModule from "./watching";
 import videogameModule from "./videogame";
-import movieModule from "./movie";
+import featureModule from "./feature";
 import bookModule from "./book";
 import tvSeriesModule from "./tvSeries";
 import { combineModules } from "./shared/gqlModule";
@@ -13,6 +13,6 @@ export default combineModules(
   bookModule,
   watchingModule,
   videogameModule,
-  movieModule,
-  tvSeriesModule,
+  featureModule,
+  tvSeriesModule
 ).schema(ENABLE_MUTATIONS);

@@ -1,30 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`can add a movie 1`] = `
+exports[`can add a feature 1`] = `
 Object {
-  "addMovie": Object {
-    "__typename": "Movie",
+  "addFeature": Object {
+    "__typename": "Feature",
     "id": Any<String>,
     "rating": 1,
     "releaseYear": "2021",
     "rewatch": false,
     "shelf": Object {
-      "__typename": "MovieShelf",
+      "__typename": "FeatureShelf",
       "name": "Watched",
     },
-    "title": "Test Movie",
+    "title": "Test Feature",
   },
 }
 `;
 
-exports[`can fetch second page of movies 1`] = `
+exports[`can fetch second page of features 1`] = `
 Object {
-  "movies": Object {
-    "__typename": "MoviePage",
+  "features": Object {
+    "__typename": "FeaturePage",
     "hasNextPage": true,
     "items": Array [
       Object {
-        "__typename": "Movie",
+        "__typename": "Feature",
         "title": "Lost in Translation",
       },
     ],
@@ -33,15 +33,15 @@ Object {
 }
 `;
 
-exports[`can fetch second page of movies 2`] = `
+exports[`can fetch second page of features 2`] = `
 Object {
-  "movies": Object {
-    "__typename": "MoviePage",
+  "features": Object {
+    "__typename": "FeaturePage",
     "hasNextPage": false,
     "items": Array [
       Object {
-        "__typename": "Movie",
-        "title": "Test Movie",
+        "__typename": "Feature",
+        "title": "Test Feature",
       },
     ],
     "nextPageCursor": null,
@@ -49,16 +49,16 @@ Object {
 }
 `;
 
-exports[`can import external movie 1`] = `
+exports[`can import external feature 1`] = `
 Object {
-  "importExternalMovie": Object {
-    "__typename": "Movie",
+  "importExternalFeature": Object {
+    "__typename": "Feature",
     "externalId": "imdb:tt0335266",
     "id": Any<String>,
     "releaseYear": "2003",
     "rewatch": false,
     "shelf": Object {
-      "__typename": "MovieShelf",
+      "__typename": "FeatureShelf",
       "id": "Watched",
     },
     "title": "Lost in Translation",
@@ -66,89 +66,89 @@ Object {
 }
 `;
 
-exports[`can mutate title on movie without change to other fields 1`] = `
+exports[`can mutate title on feature without change to other fields 1`] = `
 Object {
-  "updateMovie": Object {
-    "__typename": "Movie",
+  "updateFeature": Object {
+    "__typename": "Feature",
     "externalId": null,
     "image": null,
     "notes": null,
     "rating": 1,
     "releaseYear": "2021",
-    "title": "Test Movie 2",
+    "title": "Test Feature 2",
   },
 }
 `;
 
-exports[`can query single movie 1`] = `
+exports[`can query single feature 1`] = `
 Object {
-  "movie": Object {
-    "__typename": "Movie",
+  "feature": Object {
+    "__typename": "Feature",
     "id": Any<String>,
     "rating": 1,
     "releaseYear": "2021",
     "rewatch": false,
     "shelf": Object {
-      "__typename": "MovieShelf",
+      "__typename": "FeatureShelf",
       "id": "Watched",
       "name": "Watched",
     },
-    "title": "Test Movie",
+    "title": "Test Feature",
   },
 }
 `;
 
-exports[`can search for external movies 1`] = `
+exports[`can search for external features 1`] = `
 Object {
-  "__typename": "ExternalMovie",
+  "__typename": "ExternalFeature",
   "id": StringMatching /\\^tmdb:/,
   "title": Any<String>,
 }
 `;
 
-exports[`can search for external movies 2`] = `
+exports[`can search for external features 2`] = `
 Object {
-  "__typename": "ExternalMovie",
+  "__typename": "ExternalFeature",
   "id": StringMatching /\\^tmdb:/,
   "title": Any<String>,
 }
 `;
 
-exports[`can search for external movies 3`] = `
+exports[`can search for external features 3`] = `
 Object {
-  "__typename": "ExternalMovie",
+  "__typename": "ExternalFeature",
   "id": StringMatching /\\^tmdb:/,
   "title": Any<String>,
 }
 `;
 
-exports[`can search for external movies 4`] = `
+exports[`can search for external features 4`] = `
 Object {
-  "__typename": "ExternalMovie",
+  "__typename": "ExternalFeature",
   "id": StringMatching /\\^tmdb:/,
   "title": Any<String>,
 }
 `;
 
-exports[`can search for external movies 5`] = `
+exports[`can search for external features 5`] = `
 Object {
-  "__typename": "ExternalMovie",
+  "__typename": "ExternalFeature",
   "id": StringMatching /\\^tmdb:/,
   "title": Any<String>,
 }
 `;
 
-exports[`can search for external movies 6`] = `
+exports[`can search for external features 6`] = `
 Object {
-  "__typename": "ExternalMovie",
+  "__typename": "ExternalFeature",
   "id": StringMatching /\\^tmdb:/,
   "title": Any<String>,
 }
 `;
 
-exports[`can search for external movies 7`] = `
+exports[`can search for external features 7`] = `
 Object {
-  "__typename": "ExternalMovie",
+  "__typename": "ExternalFeature",
   "id": StringMatching /\\^tmdb:/,
   "title": Any<String>,
 }

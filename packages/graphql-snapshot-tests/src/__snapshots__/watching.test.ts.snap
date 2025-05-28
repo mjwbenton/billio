@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`watching returns both movies and Tv 1`] = `
+exports[`watching returns both features and Tv 1`] = `
 Object {
   "watching": Object {
     "__typename": "WatchingPage",
@@ -19,7 +19,7 @@ Object {
         "title": "For All Mankind",
       },
       Object {
-        "__typename": "Movie",
+        "__typename": "Feature",
         "releaseYear": "2003",
         "title": "Lost in Translation",
       },

@@ -1,4 +1,4 @@
-fragment Movie on Movie {
+fragment Feature on Feature {
   id
   title
   releaseYear

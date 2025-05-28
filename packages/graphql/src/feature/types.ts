@@ -1,3 +1,3 @@
-import { ExternalMovie as GQLExternalMovie } from "../generated/graphql";
+import { ExternalFeature as GQLExternalFeature } from "../generated/graphql";
 
-export type ExternalMovie = Omit<GQLExternalMovie, "importedItem">;
+export type ExternalFeature = Omit<GQLExternalFeature, "importedItem">;

@@ -1,4 +1,4 @@
-fragment ExternalMovie on ExternalMovie {
+fragment ExternalFeature on ExternalFeature {
   id
   title
   subtitle: releaseYear

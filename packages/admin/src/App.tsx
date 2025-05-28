@@ -13,8 +13,12 @@ import {
 import { VideoGameShow, VideoGameList } from "./videogame/VideoGameShow";
 import { BookCreate, BookEdit, BookImport } from "./book/BookEdit";
 import { BookShow, BookList } from "./book/BookShow";
-import { MovieCreate, MovieEdit, MovieImport } from "./movie/MovieEdit";
-import { MovieShow, MovieList } from "./movie/MovieShow";
+import {
+  FeatureCreate,
+  FeatureEdit,
+  FeatureImport,
+} from "./feature/FeatureEdit";
+import { FeatureShow, FeatureList } from "./feature/FeatureShow";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { Route } from "react-router-dom";
 import ImportPage from "./import/ImportPage";
@@ -85,11 +89,11 @@ const CUSTOM_ROUTES = [
   />,
   <Route
     exact
-    path="/Movie/import"
+    path="/Feature/import"
     component={(renderProps) => (
-      <ResourceContextProvider value="Movie">
+      <ResourceContextProvider value="Feature">
         <ImportPage>
-          <MovieImport />
+          <FeatureImport />
         </ImportPage>
       </ResourceContextProvider>
     )}
@@ -147,12 +151,12 @@ function App() {
         icon={BookIcon}
       />
       <Resource
-        name="Movie"
-        create={MovieCreate}
-        list={MovieList}
-        show={MovieShow}
-        edit={MovieEdit}
-        options={{ label: "Movies" }}
+        name="Feature"
+        create={FeatureCreate}
+        list={FeatureList}
+        show={FeatureShow}
+        edit={FeatureEdit}
+        options={{ label: "Features" }}
         icon={MovieIcon}
       />
       <Resource
