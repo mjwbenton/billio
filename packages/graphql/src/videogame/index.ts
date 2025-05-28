@@ -208,7 +208,7 @@ const PLATFORM_DEVICE_NAMES: {
 const IGDB_API = new IgdbApi();
 
 const OUTPUT_TRANSFORM: OutputTransform<VideoGame, VideoGameShelfId> = (
-  data
+  data,
 ) => {
   const platformIds: Array<VideoGamePlatformId> = data.platforms ?? [];
   return {
@@ -256,11 +256,11 @@ const resolvers: PartialResolvers = {
   Query: {
     videoGame: resolveForId<VideoGame, VideoGameShelfId>(
       TYPE,
-      OUTPUT_TRANSFORM
+      OUTPUT_TRANSFORM,
     ),
     videoGames: resolveForType<VideoGame, VideoGameShelfId>(
       TYPE,
-      OUTPUT_TRANSFORM
+      OUTPUT_TRANSFORM,
     ),
     videoGameShelf: resolveShelfArgs<VideoGameShelfId>(SHELF_NAMES),
     searchExternalVideoGame: resolveExternal(IGDB_API),
@@ -271,7 +271,7 @@ const resolvers: PartialResolvers = {
   VideoGameShelf: {
     items: resolveShelfItems<VideoGame, VideoGameShelfId>(
       TYPE,
-      OUTPUT_TRANSFORM
+      OUTPUT_TRANSFORM,
     ),
   },
   ExternalVideoGame: {
@@ -289,7 +289,7 @@ const mutationResolvers: PartialResolvers["Mutation"] = {
   addVideoGame: resolveAddItem<VideoGame, VideoGameShelfId, AddVideoGameInput>(
     TYPE,
     ADD_INPUT_TRANSFORM,
-    OUTPUT_TRANSFORM
+    OUTPUT_TRANSFORM,
   ),
   updateVideoGame: resolveUpdateItem<
     VideoGame,

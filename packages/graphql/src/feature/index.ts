@@ -138,7 +138,7 @@ const SHELF_NAMES: { [key in FeatureShelfId]: string } = {
 };
 
 export const OUTPUT_TRANSFORM: OutputTransform<Feature, FeatureShelfId> = (
-  input
+  input,
 ) => ({
   releaseYear: input.releaseYear,
   rewatch: input.rewatch ?? false,
@@ -200,12 +200,12 @@ const mutationResolvers: PartialResolvers["Mutation"] = {
   addFeature: resolveAddItem<Feature, FeatureShelfId, AddFeatureInput>(
     TYPE,
     ADD_INPUT_TRANSFORM,
-    OUTPUT_TRANSFORM
+    OUTPUT_TRANSFORM,
   ),
   updateFeature: resolveUpdateItem<Feature, FeatureShelfId, UpdateFeatureInput>(
     TYPE,
     UPDATE_INPUT_TRANSFORM,
-    OUTPUT_TRANSFORM
+    OUTPUT_TRANSFORM,
   ),
   deleteFeature: resolveDeleteItem(TYPE),
 };

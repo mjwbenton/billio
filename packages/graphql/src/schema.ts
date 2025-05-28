@@ -14,5 +14,5 @@ export default combineModules(
   watchingModule,
   videogameModule,
   featureModule,
-  tvSeriesModule
+  tvSeriesModule,
 ).schema(ENABLE_MUTATIONS);
