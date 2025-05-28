@@ -10,7 +10,7 @@ import BillioBackupStack from "./BillioBackupStack";
 const app = new App();
 
 // Production Stacks
-const dataStack = new BillioDataStack(app, "BillioDataV2");
+const dataStack = new BillioDataStack(app, "BillioDataV3");
 const imageStack = new BillioImageStack(app, "BillioImage");
 const authStack = new BillioAuthStack(app, "BillioAuth");
 const cdnStack = new BillioCDNStack(app, "BillioCDN", {
@@ -40,7 +40,7 @@ new BillioBackupStack(app, "BillioBackup", {
 });
 
 // Integration test stacks
-const integrationDataStack = new BillioDataStack(app, "BillioTestDataV2");
+const integrationDataStack = new BillioDataStack(app, "BillioTestDataV3");
 const integrationImageStack = new BillioImageStack(app, "BillioTestImage");
 const integrationCdnStack = new BillioCDNStack(app, "BillioTestCDN", {
   imageStack: integrationImageStack,
@@ -56,4 +56,4 @@ new BillioApiStack(app, "BillioTestAPI", {
 });
 
 // Local stacks. Local development reuses image related integration test stacks.
-new BillioDataStack(app, "BillioLocalDataV2");
+new BillioDataStack(app, "BillioLocalDataV3");
