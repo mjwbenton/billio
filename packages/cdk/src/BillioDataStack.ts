@@ -21,7 +21,7 @@ export default class BillioDataStack extends Stack {
     itemTable.addGlobalSecondaryIndex({
       indexName: "type",
       partitionKey: { name: "type", type: AttributeType.STRING },
-      sortKey: { name: "movedAt", type: AttributeType.STRING },
+      sortKey: { name: "movedAt", type: AttributeType.NUMBER },
     });
     itemTable.addGlobalSecondaryIndex({
       indexName: "type-addedAt",
@@ -31,12 +31,12 @@ export default class BillioDataStack extends Stack {
     itemTable.addGlobalSecondaryIndex({
       indexName: "category",
       partitionKey: { name: "category", type: AttributeType.STRING },
-      sortKey: { name: "movedAt", type: AttributeType.STRING },
+      sortKey: { name: "movedAt", type: AttributeType.NUMBER },
     });
     itemTable.addGlobalSecondaryIndex({
       indexName: "shelf",
       partitionKey: { name: "type:shelf", type: AttributeType.STRING },
-      sortKey: { name: "movedAt", type: AttributeType.STRING },
+      sortKey: { name: "movedAt", type: AttributeType.NUMBER },
     });
     itemTable.addGlobalSecondaryIndex({
       indexName: "shelf-addedAt",
@@ -46,7 +46,7 @@ export default class BillioDataStack extends Stack {
     itemTable.addGlobalSecondaryIndex({
       indexName: "externalId",
       partitionKey: { name: "externalId", type: AttributeType.STRING },
-      sortKey: { name: "movedAt", type: AttributeType.STRING },
+      sortKey: { name: "movedAt", type: AttributeType.NUMBER },
     });
     itemTable.addGlobalSecondaryIndex({
       indexName: "title",
