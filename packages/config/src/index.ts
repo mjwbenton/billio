@@ -1,1 +1,1 @@
-export const TYPES = ["Book", "VideoGame", "Movie", "TvSeries", "TvSeason"];
+export const TYPES = ["Book", "VideoGame", "Feature", "TvSeries", "TvSeason"];

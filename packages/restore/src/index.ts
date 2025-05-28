@@ -39,22 +39,22 @@ export async function writeAll(data: any[]): Promise<Array<Success | Failure>> {
   return results.flat();
 }
 
-const CATEGORIES = {
-  Movie: "Watching",
-  TvSeries: "Watching",
-};
-
 function transform(data: any): CreateItem {
-  const { movedAt, addedAt, type, ...rest } = data;
-  // Fix for old bad code - remove platformIds from the data, data is stored in "platforms" instead
-  delete rest.platformIds;
-  // Data migration - include categories
-  const category = CATEGORIES[type as keyof typeof CATEGORIES];
+  const { movedAt, addedAt, type, platforms, ...rest } = data;
   return {
     type,
     movedAt: new Date(movedAt),
     addedAt: new Date(addedAt),
-    ...(category ? { category } : {}),
     ...rest,
+    // Movies being renamed to Features
+    ...(type === "Movie"
+      ? {
+          type: "Feature",
+          "type:id": `Feature:${rest.id}`,
+          "type:shelf": `Feature:${rest.shelf}`,
+        }
+      : {}),
+    // Splitting out platforms and devices for VideoGames
+    ...(platforms ? { devices: platforms, platforms: [] } : {}),
   };
 }
