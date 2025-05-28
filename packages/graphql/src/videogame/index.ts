@@ -3,6 +3,7 @@ import {
   AddVideoGameInput,
   UpdateVideoGameInput,
   VideoGame,
+  VideoGameDeviceId,
   VideoGamePlatformId,
   VideoGameShelfId,
 } from "../generated/graphql";
@@ -55,7 +56,8 @@ const typeDefs = gql`
     rating: Rating
     image: Image
     shelf: VideoGameShelf!
-    platforms: [VideoGamePlatform!]!
+    platforms: [VideoGamePlatform!]
+    devices: [VideoGameDevice!]!
     replay: Boolean!
     hoursPlayed: Int
   }
@@ -87,12 +89,12 @@ const typeDefs = gql`
     nextPageCursor: ID
   }
 
-  type VideoGamePlatform {
-    id: VideoGamePlatformId!
+  type VideoGameDevice {
+    id: VideoGameDeviceId!
     name: String!
   }
 
-  enum VideoGamePlatformId {
+  enum VideoGameDeviceId {
     SteamDeck
     Playstation4
     NintendoSwitch
@@ -101,6 +103,25 @@ const typeDefs = gql`
     NintendoSwitch2
     IOS
     TrimUiBrick
+  }
+
+  type VideoGamePlatform {
+    id: VideoGamePlatformId!
+    name: String!
+  }
+
+  enum VideoGamePlatformId {
+    Steam
+    NintendoGameBoy
+    NintendoGameBoyColor
+    NintendoGameBoyAdvance
+    NintendoSNES
+    NintendoWiiU
+    NintendoSwitch
+    Nintendo3DS
+    Playstation3
+    Playstation4
+    IOS
   }
 
   type ExternalVideoGame {
@@ -163,7 +184,9 @@ const SHELF_NAMES: { [key in VideoGameShelfId]: string } = {
   Paused: "Paused",
 };
 
-const PLATFORM_NAMES: { [key in VideoGamePlatformId]: string } = {
+const PLATFORM_DEVICE_NAMES: {
+  [key in VideoGamePlatformId | VideoGameDeviceId]: string;
+} = {
   SteamDeck: "Steam Deck",
   Playstation4: "Playstation 4",
   NintendoSwitch: "Nintendo Switch",
@@ -172,19 +195,29 @@ const PLATFORM_NAMES: { [key in VideoGamePlatformId]: string } = {
   NintendoSwitch2: "Nintendo Switch 2",
   IOS: "iOS",
   TrimUiBrick: "Trim UI Brick",
+  NintendoGameBoy: "Game Boy",
+  NintendoGameBoyAdvance: "Game Boy Advance",
+  NintendoGameBoyColor: "Game Boy Color",
+  NintendoSNES: "Super Nintendo",
+  NintendoWiiU: "Nintendo WiiU",
+  Steam: "Steam",
 };
 
 const IGDB_API = new IgdbApi();
 
 const OUTPUT_TRANSFORM: OutputTransform<VideoGame, VideoGameShelfId> = (
-  data,
+  data
 ) => {
   const platformIds: Array<VideoGamePlatformId> = data.platforms ?? [];
   return {
     replay: data.replay ?? false,
     platforms: platformIds.map((id: VideoGamePlatformId) => ({
       id,
-      name: PLATFORM_NAMES[id],
+      name: PLATFORM_DEVICE_NAMES[id],
+    })),
+    devices: data.devices.map((id: VideoGameDeviceId) => ({
+      id,
+      name: PLATFORM_DEVICE_NAMES[id],
     })),
     hoursPlayed: data.hoursPlayed ?? null,
   };
@@ -221,11 +254,11 @@ const resolvers: PartialResolvers = {
   Query: {
     videoGame: resolveForId<VideoGame, VideoGameShelfId>(
       TYPE,
-      OUTPUT_TRANSFORM,
+      OUTPUT_TRANSFORM
     ),
     videoGames: resolveForType<VideoGame, VideoGameShelfId>(
       TYPE,
-      OUTPUT_TRANSFORM,
+      OUTPUT_TRANSFORM
     ),
     videoGameShelf: resolveShelfArgs<VideoGameShelfId>(SHELF_NAMES),
     searchExternalVideoGame: resolveExternal(IGDB_API),
@@ -236,7 +269,7 @@ const resolvers: PartialResolvers = {
   VideoGameShelf: {
     items: resolveShelfItems<VideoGame, VideoGameShelfId>(
       TYPE,
-      OUTPUT_TRANSFORM,
+      OUTPUT_TRANSFORM
     ),
   },
   ExternalVideoGame: {
@@ -254,7 +287,7 @@ const mutationResolvers: PartialResolvers["Mutation"] = {
   addVideoGame: resolveAddItem<VideoGame, VideoGameShelfId, AddVideoGameInput>(
     TYPE,
     ADD_INPUT_TRANSFORM,
-    OUTPUT_TRANSFORM,
+    OUTPUT_TRANSFORM
   ),
   updateVideoGame: resolveUpdateItem<
     VideoGame,
