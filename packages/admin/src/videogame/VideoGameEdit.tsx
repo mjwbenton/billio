@@ -93,6 +93,10 @@ const PLATFORMS = [
     id: "SegaMegaDrive",
     name: "Sega Mega Drive",
   },
+  {
+    id: "SegaSaturn",
+    name: "Sega Saturn",
+  },
 ];
 
 const TRANSFORM = transform((data: any) => {
