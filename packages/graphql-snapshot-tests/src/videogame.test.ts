@@ -29,6 +29,9 @@ test("can add a video game", async () => {
           platforms {
             name
           }
+          devices {
+            name
+          }
           rating
           externalId
           notes

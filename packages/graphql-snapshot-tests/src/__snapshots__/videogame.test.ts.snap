@@ -19,6 +19,12 @@ exports[`can add a video game 1`] = `
 Object {
   "addVideoGame": Object {
     "__typename": "VideoGame",
+    "devices": Array [
+      Object {
+        "__typename": "VideoGameDevice",
+        "name": "Nintendo 3DS",
+      },
+    ],
     "externalId": null,
     "hoursPlayed": 10,
     "id": Any<String>,
@@ -27,7 +33,7 @@ Object {
     "platforms": Array [
       Object {
         "__typename": "VideoGamePlatform",
-        "name": "Nintendo 3DS",
+        "name": "Game Boy",
       },
     ],
     "rating": 1,
@@ -125,8 +131,8 @@ Object {
     "platforms": Array [
       Object {
         "__typename": "VideoGamePlatform",
-        "id": "Nintendo3DS",
-        "name": "Nintendo 3DS",
+        "id": "NintendoGameBoy",
+        "name": "Game Boy",
       },
     ],
     "rating": 1,
