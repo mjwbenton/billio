@@ -213,13 +213,14 @@ const OUTPUT_TRANSFORM: OutputTransform<VideoGame, VideoGameShelfId> = (
   data,
 ) => {
   const platformIds: Array<VideoGamePlatformId> = data.platforms ?? [];
+  const deviceIds: Array<VideoGameDeviceId> = data.devices ?? [];
   return {
     replay: data.replay ?? false,
     platforms: platformIds.map((id: VideoGamePlatformId) => ({
       id,
       name: PLATFORM_DEVICE_NAMES[id],
     })),
-    devices: data.devices.map((id: VideoGameDeviceId) => ({
+    devices: deviceIds.map((id: VideoGameDeviceId) => ({
       id,
       name: PLATFORM_DEVICE_NAMES[id],
     })),
@@ -232,6 +233,7 @@ const ADD_INPUT_TRANSFORM: AddInputTransform<
   VideoGameShelfId
 > = (input) => ({
   platforms: input.platformIds,
+  devices: input.deviceIds,
   replay: input.replay,
   hoursPlayed: input.hoursPlayed,
 });
@@ -241,6 +243,7 @@ const UPDATE_INPUT_TRANSFORM: UpdateInputTransform<
   VideoGameShelfId
 > = (input) => ({
   ...(input.platformIds != null ? { platforms: input.platformIds } : {}),
+  ...(input.deviceIds != null ? { devices: input.deviceIds } : {}),
   ...(input.replay != null ? { replay: input.replay } : {}),
   ...(input.hoursPlayed != null ? { hoursPlayed: input.hoursPlayed } : {}),
 });
@@ -251,6 +254,7 @@ const EXTERNAL_TRANSFORM: ExternalToInputTransform<
   VideoGameShelfId
 > = () => ({
   platformIds: [],
+  deviceIds: [],
   replay: false,
 });
 
