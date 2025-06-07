@@ -152,6 +152,7 @@ const mutationTypeDefs = gql`
     rating: Rating
     imageUrl: String
     platformIds: [VideoGamePlatformId!]!
+    deviceIds: [VideoGameDeviceId!]
     addedAt: DateTime
     movedAt: DateTime
     notes: String
@@ -166,6 +167,7 @@ const mutationTypeDefs = gql`
     rating: Rating
     imageUrl: String
     platformIds: [VideoGamePlatformId!]
+    deviceIds: [VideoGameDeviceId!]
     addedAt: DateTime
     movedAt: DateTime
     notes: String
