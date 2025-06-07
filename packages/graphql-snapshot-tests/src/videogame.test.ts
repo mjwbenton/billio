@@ -17,7 +17,8 @@ test("can add a video game", async () => {
         addVideoGame(
           item: {
             title: "Test Video Game"
-            platformIds: [Nintendo3DS]
+            platformIds: [NintendoGameBoy]
+            deviceIds: [Nintendo3DS]
             shelfId: GaveUp
             rating: 1
             hoursPlayed: 10
