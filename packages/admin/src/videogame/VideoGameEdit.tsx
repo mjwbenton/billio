@@ -74,6 +74,10 @@ const PLATFORMS = [
     name: "Nintendo Switch",
   },
   {
+    id: "NintendoDS",
+    name: "Nintendo DS",
+  },
+  {
     id: "Nintendo3DS",
     name: "Nintendo 3DS",
   },

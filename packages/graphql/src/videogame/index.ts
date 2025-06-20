@@ -118,6 +118,7 @@ const typeDefs = gql`
     NintendoSNES
     NintendoWiiU
     NintendoSwitch
+    NintendoDS
     Nintendo3DS
     SegaMegaDrive
     SegaSaturn
@@ -194,6 +195,7 @@ const PLATFORM_DEVICE_NAMES: {
   SteamDeck: "Steam Deck",
   Playstation4: "Playstation 4",
   NintendoSwitch: "Nintendo Switch",
+  NintendoDS: "Nintendo DS",
   Nintendo3DS: "Nintendo 3DS",
   Playstation3: "Playstation 3",
   NintendoSwitch2: "Nintendo Switch 2",
