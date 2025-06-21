@@ -56,7 +56,7 @@ const typeDefs = gql`
     rating: Rating
     image: Image
     shelf: VideoGameShelf!
-    platforms: [VideoGamePlatform!]
+    platforms: [VideoGamePlatform!]!
     devices: [VideoGameDevice!]!
     replay: Boolean!
     hoursPlayed: Int
