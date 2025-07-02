@@ -125,6 +125,7 @@ const typeDefs = gql`
     Playstation3
     Playstation4
     IOS
+    TurboGrafx16
   }
 
   type ExternalVideoGame {
@@ -209,6 +210,7 @@ const PLATFORM_DEVICE_NAMES: {
   Steam: "Steam",
   SegaMegaDrive: "Sega Mega Drive",
   SegaSaturn: "Sega Saturn",
+  TurboGrafx16: "TurboGrafx-16",
 };
 
 const IGDB_API = new IgdbApi();

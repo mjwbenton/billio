@@ -101,6 +101,10 @@ const PLATFORMS = [
     id: "SegaSaturn",
     name: "Sega Saturn",
   },
+  {
+    id: "TurboGrafx16",
+    name: "TurboGrafx-16",
+  },
 ];
 
 const TRANSFORM = transform((data: any) => {
