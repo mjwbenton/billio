@@ -103,6 +103,8 @@ const typeDefs = gql`
     NintendoSwitch2
     IOS
     TrimUiBrick
+    RetroidPocketMiniV2
+    RetroidPocketFlip2
   }
 
   type VideoGamePlatform {
@@ -202,6 +204,8 @@ const PLATFORM_DEVICE_NAMES: {
   NintendoSwitch2: "Nintendo Switch 2",
   IOS: "iOS",
   TrimUiBrick: "Trim UI Brick",
+  RetroidPocketMiniV2: "Retroid Pocket Mini V2",
+  RetroidPocketFlip2: "Retroid Pocket Flip 2",
   NintendoGameBoy: "Game Boy",
   NintendoGameBoyAdvance: "Game Boy Advance",
   NintendoGameBoyColor: "Game Boy Color",

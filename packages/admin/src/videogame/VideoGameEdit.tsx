@@ -42,6 +42,14 @@ const DEVICES = [
     id: "TrimUiBrick",
     name: "Trim UI Brick",
   },
+  {
+    id: "RetroidPocketMiniV2",
+    name: "Retroid Pocket Mini V2",
+  },
+  {
+    id: "RetroidPocketFlip2",
+    name: "Retroid Pocket Flip 2",
+  },
 ];
 
 const PLATFORMS = [
