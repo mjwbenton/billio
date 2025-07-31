@@ -122,8 +122,13 @@ const typeDefs = gql`
     NintendoSwitch
     NintendoDS
     Nintendo3DS
+    Nintendo64
+    NintendoGameCube
     SegaMegaDrive
     SegaSaturn
+    SegaDreamcast
+    Playstation1
+    Playstation2
     Playstation3
     Playstation4
     IOS
@@ -211,9 +216,14 @@ const PLATFORM_DEVICE_NAMES: {
   NintendoGameBoyColor: "Game Boy Color",
   NintendoSNES: "Super Nintendo",
   NintendoWiiU: "Nintendo WiiU",
+  Nintendo64: "Nintendo 64",
+  NintendoGameCube: "Nintendo GameCube",
   Steam: "Steam",
   SegaMegaDrive: "Sega Mega Drive",
   SegaSaturn: "Sega Saturn",
+  SegaDreamcast: "Sega Dreamcast",
+  Playstation1: "Playstation 1",
+  Playstation2: "Playstation 2",
   TurboGrafx16: "TurboGrafx-16",
 };
 

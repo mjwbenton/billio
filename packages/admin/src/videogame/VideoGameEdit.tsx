@@ -90,6 +90,34 @@ const PLATFORMS = [
     name: "Nintendo 3DS",
   },
   {
+    id: "Nintendo64",
+    name: "Nintendo 64",
+  },
+  {
+    id: "NintendoGameCube",
+    name: "Nintendo GameCube",
+  },
+  {
+    id: "SegaMegaDrive",
+    name: "Sega Mega Drive",
+  },
+  {
+    id: "SegaSaturn",
+    name: "Sega Saturn",
+  },
+  {
+    id: "SegaDreamcast",
+    name: "Sega Dreamcast",
+  },
+  {
+    id: "Playstation1",
+    name: "Playstation 1",
+  },
+  {
+    id: "Playstation2",
+    name: "Playstation 2",
+  },
+  {
     id: "Playstation3",
     name: "Playstation 3",
   },
@@ -100,14 +128,6 @@ const PLATFORMS = [
   {
     id: "IOS",
     name: "iOS",
-  },
-  {
-    id: "SegaMegaDrive",
-    name: "Sega Mega Drive",
-  },
-  {
-    id: "SegaSaturn",
-    name: "Sega Saturn",
   },
   {
     id: "TurboGrafx16",
