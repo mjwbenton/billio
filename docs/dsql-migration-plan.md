@@ -26,7 +26,7 @@ CREATE TABLE items (
   type VARCHAR(50) NOT NULL,  -- 'Book', 'VideoGame', 'Feature', 'TvSeries', 'TvSeason'
   shelf VARCHAR(50) NOT NULL,
   title VARCHAR(500) NOT NULL,
-  rating DECIMAL(2,1),
+  rating INTEGER,  -- 1-10 scale
   image_url TEXT,
   image_width INT,
   image_height INT,
@@ -71,7 +71,7 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 
 ## Migration Phases
 
-### Phase 1: Infrastructure (CDK)
+### Phase 1: Infrastructure (CDK) ✅
 
 **Goal:** Add Aurora DSQL cluster to BillioDataStack alongside existing DynamoDB table.
 
@@ -83,63 +83,287 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 - [x] Export cluster endpoint for Lambda access
 - [x] Create IAM roles/policies for Lambda → DSQL access
 - [x] Update BillioApiStack to pass DSQL endpoint to Lambda environment
-- [ ] Deploy to AWS
-
-**CDK Changes to BillioDataStack:**
-```typescript
-// packages/cdk/src/BillioDataStack.ts
-import * as dsql from "aws-cdk-lib/aws-dsql";
-
-export default class BillioDataStack extends Stack {
-  public readonly itemTable: ITable;
-  public readonly dsqlCluster: dsql.CfnCluster;
-
-  constructor(scope: Construct, id: string) {
-    super(scope, id);
-
-    // Existing DynamoDB table (keep during migration)
-    // ... existing code ...
-
-    // Aurora DSQL cluster for migration
-    this.dsqlCluster = new dsql.CfnCluster(this, "DsqlCluster", {
-      deletionProtectionEnabled: true,
-    });
-  }
-}
-```
-
-**CDK Changes to BillioApiStack:**
-```typescript
-// packages/cdk/src/BillioApiStack.ts
-import { Fn } from "aws-cdk-lib";
-
-// In Lambda environment:
-environment: {
-  // DSQL endpoint format: <cluster-id>.<region>.dsql.amazonaws.com
-  BILLIO_DSQL_ENDPOINT: Fn.join("", [
-    dataStack.dsqlCluster.attrIdentifier,
-    ".",
-    this.region,
-    ".dsql.amazonaws.com",
-  ]),
-  // ... other vars
-}
-
-// Grant IAM permission to connect to DSQL
-lambdaFunction.addToRolePolicy(
-  new PolicyStatement({
-    effect: Effect.ALLOW,
-    actions: ["dsql:DbConnect"],
-    resources: [dataStack.dsqlCluster.attrResourceArn],
-  }),
-);
-```
+- [x] Deploy to AWS (all environments)
 
 **Deliverable:** DSQL cluster running alongside DynamoDB, endpoint available to Lambdas.
 
 ---
 
-### Phase 2: Data Migration
+### Phase 2: Schema & Migrations (Drizzle)
+
+**Goal:** Define Drizzle schema and set up migrations with drizzle-kit. Apply migrations via GitHub Actions.
+
+**Files to create/modify:**
+- `packages/data/src/schema.ts` - Drizzle schema definition
+- `packages/data/src/db.ts` - Database connection
+- `packages/data/drizzle.config.ts` - Drizzle-kit configuration
+- `packages/data/migrations/` - Migration files (generated)
+- `packages/cdk/src/BillioDataStack.ts` - Add IAM role for GitHub Actions migrations
+- `.github/workflows/deploy.yml` - Add migration step after deploy
+
+**Tasks:**
+- [ ] Add Drizzle dependencies to `packages/data`
+  - `drizzle-orm`
+  - `drizzle-kit` (dev dependency)
+  - `@aws-sdk/dsql-signer` (for IAM auth token generation)
+  - `pg` (PostgreSQL driver)
+- [ ] Create Drizzle schema definition (`packages/data/src/schema.ts`)
+- [ ] Create database connection module with IAM auth (`packages/data/src/db.ts`)
+- [ ] Create drizzle-kit config (`packages/data/drizzle.config.ts`)
+- [ ] Generate initial migration with `drizzle-kit generate`
+- [ ] Create migration script that can run against any environment
+- [ ] Add IAM role to CDK for GitHub Actions to assume for migrations
+- [ ] Add migration step to deploy.yml (after deploy, before graphql tests)
+- [ ] Apply migration to test environment
+- [ ] Apply migration to production environment
+
+**Drizzle Schema:**
+```typescript
+// packages/data/src/schema.ts
+import { pgTable, uuid, varchar, text, timestamp, jsonb, integer, index, check } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+
+export const items = pgTable('items', {
+  id: uuid('id').primaryKey(),  // No defaultRandom - preserve existing IDs
+  type: varchar('type', { length: 50 }).notNull(),
+  shelf: varchar('shelf', { length: 50 }).notNull(),
+  title: varchar('title', { length: 500 }).notNull(),
+  rating: integer('rating'),  // 1-10 scale
+  imageUrl: text('image_url'),
+  imageWidth: integer('image_width'),
+  imageHeight: integer('image_height'),
+  externalId: varchar('external_id', { length: 255 }),
+  notes: text('notes'),
+  addedAt: timestamp('added_at', { withTimezone: true }).notNull().defaultNow(),
+  movedAt: timestamp('moved_at', { withTimezone: true }).notNull().defaultNow(),
+  seriesId: uuid('series_id').references(() => items.id),
+  data: jsonb('data').default({})
+}, (table) => [
+  index('idx_type_moved').on(table.type, table.movedAt),
+  index('idx_type_added').on(table.type, table.addedAt),
+  index('idx_type_shelf_moved').on(table.type, table.shelf, table.movedAt),
+  index('idx_type_shelf_added').on(table.type, table.shelf, table.addedAt),
+  index('idx_type_title').on(table.type, table.title),
+  index('idx_external_id').on(table.externalId).where(sql`external_id IS NOT NULL`),
+  index('idx_series_id').on(table.seriesId, table.movedAt).where(sql`series_id IS NOT NULL`),
+  index('idx_type_rating').on(table.type, table.rating),
+  index('idx_type_shelf_rating').on(table.type, table.shelf, table.rating),
+  check('chk_series_id', sql`series_id IS NULL OR type = 'TvSeason'`),
+]);
+```
+
+**Database Connection with IAM Auth:**
+```typescript
+// packages/data/src/db.ts
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import { DsqlSigner } from '@aws-sdk/dsql-signer';
+import * as schema from './schema';
+
+const endpoint = process.env.BILLIO_DSQL_ENDPOINT!;
+const region = process.env.AWS_REGION || 'us-east-1';
+
+async function getAuthToken(): Promise<string> {
+  const signer = new DsqlSigner({ hostname: endpoint, region });
+  return signer.getDbConnectAdminAuthToken();
+}
+
+let pool: Pool | null = null;
+
+export async function getDb() {
+  if (!pool) {
+    const token = await getAuthToken();
+    pool = new Pool({
+      host: endpoint,
+      port: 5432,
+      user: 'admin',
+      password: token,
+      database: 'postgres',
+      ssl: { rejectUnauthorized: true },
+    });
+  }
+  return drizzle(pool, { schema });
+}
+```
+
+**Drizzle Config:**
+```typescript
+// packages/data/drizzle.config.ts
+import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+  schema: './src/dsql/schema.ts',
+  out: './migrations',
+  dialect: 'postgresql',
+  dbCredentials: {
+    // Connection details provided at runtime via environment
+    url: process.env.DSQL_CONNECTION_URL!,
+  },
+});
+```
+
+**Migration Script:**
+```typescript
+// packages/data/src/migrate.ts
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { Pool } from 'pg';
+import { DsqlSigner } from '@aws-sdk/dsql-signer';
+
+async function runMigrations() {
+  const endpoint = process.env.BILLIO_DSQL_ENDPOINT!;
+  const region = process.env.AWS_REGION || 'us-east-1';
+
+  const signer = new DsqlSigner({ hostname: endpoint, region });
+  const token = await signer.getDbConnectAdminAuthToken();
+
+  const pool = new Pool({
+    host: endpoint,
+    port: 5432,
+    user: 'admin',
+    password: token,
+    database: 'postgres',
+    ssl: { rejectUnauthorized: true },
+  });
+
+  const db = drizzle(pool);
+
+  console.log('Running migrations...');
+  await migrate(db, { migrationsFolder: './migrations' });
+  console.log('Migrations complete!');
+
+  await pool.end();
+}
+
+runMigrations().catch(console.error);
+```
+
+**CDK Role for GitHub Actions Migrations:**
+```typescript
+// Add to packages/cdk/src/BillioDataStack.ts
+import * as iam from "aws-cdk-lib/aws-iam";
+
+// Import existing GitHub OIDC provider (ARN is deterministic per account)
+const githubProviderArn = `arn:aws:iam::${this.account}:oidc-provider/token.actions.githubusercontent.com`;
+const githubProvider = iam.OpenIdConnectProvider.fromOpenIdConnectProviderArn(
+  this,
+  "GitHubOIDC",
+  githubProviderArn
+);
+
+// Role for GitHub Actions to run migrations
+this.migrationRole = new iam.Role(this, "GitHubMigrationRole", {
+  roleName: "github-actions-dsql-migrate",
+  assumedBy: new iam.WebIdentityPrincipal(
+    githubProvider.openIdConnectProviderArn,
+    {
+      StringEquals: {
+        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+      },
+      StringLike: {
+        "token.actions.githubusercontent.com:sub": "repo:mjwbenton/billio:*",
+      },
+    }
+  ),
+});
+
+// Grant permission to connect to DSQL
+this.migrationRole.addToPolicy(
+  new iam.PolicyStatement({
+    effect: iam.Effect.ALLOW,
+    actions: ["dsql:DbConnectAdmin"],
+    resources: [this.dsqlCluster.attrResourceArn],
+  })
+);
+```
+
+**Deploy.yml Changes (add migrate job between deploy and graphql-tests):**
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy
+on:
+  push:
+    branches: [main]
+permissions:
+  id-token: write
+  contents: read
+concurrency: production
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::858777967843:role/github-actions-cdk
+          aws-region: us-east-1
+
+      - name: create graphql .env
+        run: printf "IGDB_CLIENT_ID=${{ secrets.IGDB_CLIENT_ID }}\nIGDB_CLIENT_SECRET=${{ secrets.IGDB_CLIENT_SECRET }}\nTMDB_API_KEY=${{ secrets.TMDB_API_KEY }}\n" > packages/graphql/.env
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn deploy
+
+  migrate:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::858777967843:role/github-actions-dsql-migrate
+          aws-region: us-east-1
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Run DSQL migrations
+        env:
+          BILLIO_DSQL_ENDPOINT: ${{ secrets.DSQL_ENDPOINT }}
+          AWS_REGION: us-east-1
+        run: yarn workspace @mattb.tech/billio-data migrate
+
+  graphql-tests:
+    needs: migrate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+      - run: yarn install --frozen-lockfile
+      - run: yarn test:graphql-integration
+```
+
+**Package.json script:**
+```json
+// Add to packages/data/package.json scripts
+{
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "migrate": "tsx src/dsql/migrate.ts"
+  }
+}
+```
+
+**Deliverable:** Drizzle schema defined, migrations generated, and GitHub Actions workflow ready to apply migrations to any environment.
+
+---
+
+### Phase 3: Data Migration
 
 **Goal:** Export data from DynamoDB and import into Aurora DSQL, preserving existing UUIDs.
 
@@ -215,11 +439,11 @@ async function main() {
 
 ---
 
-### Phase 3: Code Changes
+### Phase 4: Code Changes
 
 **Goal:** Update application code to use Aurora DSQL instead of DynamoDB.
 
-#### 3a. Data Layer Rewrite
+#### 4a. Data Layer Rewrite
 
 **Files to modify:**
 - `packages/data/src/` - Complete rewrite
@@ -365,7 +589,7 @@ export const Mutate = {
 };
 ```
 
-#### 3b. GraphQL Layer Updates
+#### 4b. GraphQL Layer Updates
 
 **Files to modify:**
 - `packages/graphql/src/resolvers/` - Minor updates
@@ -388,7 +612,7 @@ input ItemFilterInput {
 }
 ```
 
-#### 3c. Config Updates
+#### 4c. Config Updates
 
 **Files to modify:**
 - `packages/config/src/` - Add DSQL connection config
@@ -399,7 +623,7 @@ input ItemFilterInput {
 
 ---
 
-### Phase 4: Testing & Verification
+### Phase 5: Testing & Verification
 
 **Goal:** Ensure new implementation works correctly.
 
@@ -414,7 +638,7 @@ input ItemFilterInput {
 
 ---
 
-### Phase 5: Deployment & Cutover
+### Phase 6: Deployment & Cutover
 
 **Goal:** Deploy to production and switch traffic.
 
@@ -427,7 +651,7 @@ input ItemFilterInput {
 
 ---
 
-### Phase 6: Cleanup
+### Phase 7: Cleanup
 
 **Goal:** Remove DynamoDB resources after successful migration.
 
@@ -460,47 +684,64 @@ input ItemFilterInput {
 
 | Package | Changes |
 |---------|---------|
-| `packages/cdk/src/BillioDataStack.ts` | Add DSQL cluster alongside DynamoDB, eventually remove DynamoDB |
+| `packages/cdk/src/BillioDataStack.ts` | Add DSQL cluster, IAM role for migrations, eventually remove DynamoDB |
 | `packages/cdk/src/BillioApiStack.ts` | Pass DSQL endpoint to Lambda environment |
+| `packages/data/src/schema.ts` | Drizzle schema definition |
+| `packages/data/src/db.ts` | Database connection with IAM auth |
+| `packages/data/src/migrate.ts` | Migration runner script |
+| `packages/data/drizzle.config.ts` | Drizzle-kit configuration |
+| `packages/data/migrations/` | SQL migration files (generated by drizzle-kit) |
 | `packages/data/` | Complete rewrite: Dynamoose → Drizzle ORM |
 | `packages/graphql/` | Minor updates: remove filter restrictions, add rating filter |
-| `packages/backup/` | Add migration script |
+| `packages/backup/` | Add data migration script |
 | `packages/config/` | Add DSQL connection config |
+| `.github/workflows/deploy.yml` | Add migrate job between deploy and graphql-tests |
 
 ---
 
 ## Progress Tracking
 
-### Phase 1: Infrastructure
+### Phase 1: Infrastructure ✅
 - [x] DSQL cluster created (in CDK code)
 - [x] IAM roles configured (dsql:DbConnect permission)
 - [x] Lambda environment updated (BILLIO_DSQL_ENDPOINT)
-- [ ] Deployment successful
+- [x] Deployment successful (all environments)
 
-### Phase 2: Data Migration
+### Phase 2: Schema & Migrations
+- [ ] Drizzle dependencies added
+- [ ] Drizzle schema defined (`packages/data/src/schema.ts`)
+- [ ] Database connection module created (`packages/data/src/db.ts`)
+- [ ] drizzle-kit config created
+- [ ] Initial migration generated
+- [ ] Migration script created (`packages/data/src/migrate.ts`)
+- [ ] IAM role for GitHub Actions added to CDK
+- [ ] Deploy.yml updated with migrate job
+- [ ] Migration applied to test environment
+- [ ] Migration applied to production environment
+
+### Phase 3: Data Migration
 - [ ] Migration script written
 - [ ] Test migration successful
 - [ ] Data verified
 
-### Phase 3: Code Changes
-- [ ] Drizzle schema defined
+### Phase 4: Code Changes
 - [ ] Query object rewritten
 - [ ] Mutate object rewritten
 - [ ] GraphQL resolvers updated
 - [ ] Config updated
 
-### Phase 4: Testing
+### Phase 5: Testing
 - [ ] Snapshot tests passing
 - [ ] Manual testing complete
 - [ ] New features verified
 
-### Phase 5: Deployment
+### Phase 6: Deployment
 - [ ] Production DSQL deployed
 - [ ] Production data migrated
 - [ ] Production code deployed
 - [ ] Production verified
 
-### Phase 6: Cleanup
+### Phase 7: Cleanup
 - [ ] DynamoDB retained for fallback period
 - [ ] DynamoDB resources removed
 - [ ] Dynamoose dependency removed
