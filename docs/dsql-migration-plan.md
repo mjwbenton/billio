@@ -79,18 +79,15 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 - `packages/cdk/src/BillioDataStack.ts` - Add DSQL cluster
 
 **Tasks:**
-- [ ] Add Aurora DSQL cluster to BillioDataStack
-- [ ] Export cluster endpoint for Lambda access
-- [ ] Create IAM roles/policies for Lambda → DSQL access
-- [ ] Update BillioApiStack to pass DSQL endpoint to Lambda environment
-- [ ] Deploy to test environment first
+- [x] Add Aurora DSQL cluster to BillioDataStack
+- [x] Export cluster endpoint for Lambda access
+- [x] Create IAM roles/policies for Lambda → DSQL access
+- [x] Update BillioApiStack to pass DSQL endpoint to Lambda environment
+- [ ] Deploy to AWS
 
 **CDK Changes to BillioDataStack:**
 ```typescript
 // packages/cdk/src/BillioDataStack.ts
-import { Stack } from "aws-cdk-lib";
-import { Construct } from "constructs";
-import { AttributeType, BillingMode, ITable, Table } from "aws-cdk-lib/aws-dynamodb";
 import * as dsql from "aws-cdk-lib/aws-dsql";
 
 export default class BillioDataStack extends Stack {
@@ -101,20 +98,41 @@ export default class BillioDataStack extends Stack {
     super(scope, id);
 
     // Existing DynamoDB table (keep during migration)
-    const itemTable = new Table(this, "ItemTable", {
-      // ... existing config
-    });
-    // ... existing GSIs
+    // ... existing code ...
 
-    this.itemTable = itemTable;
-
-    // NEW: Aurora DSQL cluster
-    this.dsqlCluster = new dsql.CfnCluster(this, "BillioDsqlCluster", {
+    // Aurora DSQL cluster for migration
+    this.dsqlCluster = new dsql.CfnCluster(this, "DsqlCluster", {
       deletionProtectionEnabled: true,
-      // Tags, etc.
     });
   }
 }
+```
+
+**CDK Changes to BillioApiStack:**
+```typescript
+// packages/cdk/src/BillioApiStack.ts
+import { Fn } from "aws-cdk-lib";
+
+// In Lambda environment:
+environment: {
+  // DSQL endpoint format: <cluster-id>.<region>.dsql.amazonaws.com
+  BILLIO_DSQL_ENDPOINT: Fn.join("", [
+    dataStack.dsqlCluster.attrIdentifier,
+    ".",
+    this.region,
+    ".dsql.amazonaws.com",
+  ]),
+  // ... other vars
+}
+
+// Grant IAM permission to connect to DSQL
+lambdaFunction.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ["dsql:DbConnect"],
+    resources: [dataStack.dsqlCluster.attrResourceArn],
+  }),
+);
 ```
 
 **Deliverable:** DSQL cluster running alongside DynamoDB, endpoint available to Lambdas.
@@ -454,10 +472,10 @@ input ItemFilterInput {
 ## Progress Tracking
 
 ### Phase 1: Infrastructure
-- [ ] DSQL cluster created
-- [ ] IAM roles configured
-- [ ] Lambda environment updated
-- [ ] Test deployment successful
+- [x] DSQL cluster created (in CDK code)
+- [x] IAM roles configured (dsql:DbConnect permission)
+- [x] Lambda environment updated (BILLIO_DSQL_ENDPOINT)
+- [ ] Deployment successful
 
 ### Phase 2: Data Migration
 - [ ] Migration script written

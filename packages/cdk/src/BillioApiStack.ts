@@ -1,4 +1,4 @@
-import { App, Duration, Stack } from "aws-cdk-lib";
+import { App, Duration, Fn, Stack } from "aws-cdk-lib";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
 import {
@@ -63,6 +63,13 @@ export default class BillioApiStack extends Stack {
       timeout: Duration.seconds(10),
       environment: {
         BILLIO_TABLE: dataStack.itemTable.tableName,
+        // DSQL endpoint format: <cluster-id>.<region>.dsql.amazonaws.com
+        BILLIO_DSQL_ENDPOINT: Fn.join("", [
+          dataStack.dsqlCluster.attrIdentifier,
+          ".",
+          this.region,
+          ".dsql.amazonaws.com",
+        ]),
         BILLIO_IMAGE_BUCKET: imageStack.imageBucket.bucketName,
         BILLIO_IMAGE_DOMAIN: cdnStack.endpoint,
         ENABLE_MUTATIONS: enableMutations ? "1" : "0",
@@ -76,6 +83,14 @@ export default class BillioApiStack extends Stack {
     } else {
       dataStack.itemTable.grantReadData(lambdaFunction);
     }
+
+    lambdaFunction.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ["dsql:DbConnect"],
+        resources: [dataStack.dsqlCluster.attrResourceArn],
+      }),
+    );
 
     const domainNameConstruct = new DomainConstruct(this, "Domain", {
       domainName,

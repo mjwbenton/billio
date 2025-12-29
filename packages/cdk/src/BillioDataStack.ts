@@ -6,9 +6,11 @@ import {
   ITable,
   Table,
 } from "aws-cdk-lib/aws-dynamodb";
+import * as dsql from "aws-cdk-lib/aws-dsql";
 
 export default class BillioDataStack extends Stack {
   public readonly itemTable: ITable;
+  public readonly dsqlCluster: dsql.CfnCluster;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -61,5 +63,10 @@ export default class BillioDataStack extends Stack {
     });
 
     this.itemTable = itemTable;
+
+    // Aurora DSQL cluster for migration
+    this.dsqlCluster = new dsql.CfnCluster(this, "DsqlCluster", {
+      deletionProtectionEnabled: true,
+    });
   }
 }
