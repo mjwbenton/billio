@@ -6078,7 +6078,7 @@ aws-cdk@^2.233.0:
   optionalDependencies:
     fsevents "2.3.2"
 
-aws-sdk@^2.1035.0, aws-sdk@^2.968.0:
+aws-sdk@^2.1035.0:
   version "2.1674.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1674.0.tgz#0c5abb9a1a3bbf2969108dbfc0738c843098bcf3"
   integrity sha512-VTijN8+pKrf4sfM2t+ISXjypJ+k3AiP6OMzyLoWJ7jfMBtBfWbQc1rN07OndNb0CZRBBukOHoBhYDPuyae+/1Q==
@@ -7698,16 +7698,6 @@ duplexer@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.2.tgz#3abe43aef3835f8ae077d136ddce0f276b0400e6"
   integrity sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==
-
-dynamoose@^2.8.5:
-  version "2.8.8"
-  resolved "https://registry.yarnpkg.com/dynamoose/-/dynamoose-2.8.8.tgz#7c334d5059d060c64ff1d6178ecf5f6afe032dab"
-  integrity sha512-Xh/SzeFzDuyIDFM5mhXCB6vTgxwKhCAlrRCSk32nXxtPzVvN6OAqo/OqkLJz0DFNRs6nQ5uTAU8YLCQ5PY3kVA==
-  dependencies:
-    aws-sdk "^2.968.0"
-    js-object-utilities "^2.1.0"
-    source-map-support "^0.5.19"
-    uuid "^8.3.2"
 
 eastasianwidth@^0.2.0:
   version "0.2.0"
@@ -10561,11 +10551,6 @@ js-levenshtein@^1.1.6:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/js-levenshtein/-/js-levenshtein-1.1.6.tgz#c6cee58eb3550372df8deb85fad5ce66ce01d59d"
   integrity sha512-X2BB11YZtrRqY4EnQcLX5Rh373zbK4alC1FW7D7MBhL2gtcC17cTnr6DmfHZeS0s2rTHjUTMMHfG7gO8SSdw+g==
-
-js-object-utilities@^2.1.0:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/js-object-utilities/-/js-object-utilities-2.2.1.tgz#8c8b65bced78d4cfe598781f52ec63f17e15d2c9"
-  integrity sha512-0Ki0uXeMEga6OVM7ESxLjSaCYMdrQ46av0VomzaQT7BWNwMsEodmrtImkdD6K7SCq0ADw1uoQm4HBrsMQqtEww==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
@@ -13795,7 +13780,7 @@ source-map-loader@^3.0.0:
     iconv-lite "^0.6.3"
     source-map-js "^1.0.1"
 
-source-map-support@^0.5.19, source-map-support@^0.5.6, source-map-support@~0.5.20:
+source-map-support@^0.5.6, source-map-support@~0.5.20:
   version "0.5.21"
   resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.21.tgz#04fe7c7f9e1ed2d662233c28cb2b35b9f63f6e4f"
   integrity sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==

@@ -1,32 +1,11 @@
-import * as dynamoose from "dynamoose";
-import { Document } from "dynamoose/dist/Document";
-import { SortOrder } from "dynamoose/dist/General";
-
-dynamoose.model.defaults.set({
-  create: false,
-  update: false,
-  waitForActive: false,
-});
-
-const TABLE_NAME = process.env.BILLIO_TABLE!;
-
-const TYPE_ID = ["type", "id"] as const;
-const TYPE_SHELF = ["type", "shelf"] as const;
+import { getDb } from "./db";
+import { items } from "./schema";
+import { eq, and, between, desc, asc, ilike, sql, count } from "drizzle-orm";
 
 const DEFAULT_START = new Date("2010-01-01T00:00:00");
 const DEFAULT_END = new Date("2200-01-01T00:00:00");
 
 type SortBy = "MOVED_AT" | "ADDED_AT";
-
-const SORT_FIELD_MAP = {
-  MOVED_AT: "movedAt",
-  ADDED_AT: "addedAt",
-} as const;
-
-const SORT_INDEX_MAP = {
-  MOVED_AT: "",
-  ADDED_AT: "-addedAt",
-} as const;
 
 export interface Item {
   type: string;
@@ -43,137 +22,154 @@ type ShelfKey = TypeKey & Pick<Item, "shelf">;
 export type UpdateItem = ItemKey & Partial<Item>;
 export type CreateItem = ItemKey & ShelfKey & Partial<Item>;
 
-class ItemDocument extends Document implements Item {
-  type: string;
-  id: string;
-  shelf: string;
-  movedAt: Date;
-  addedAt: Date;
-  [additional: string]: any;
-}
-
-const ItemModel = dynamoose.model<ItemDocument>(
-  TABLE_NAME,
-  new dynamoose.Schema(
-    {
-      id: String,
-      type: {
-        type: String,
-        index: [
-          {
-            global: true,
-            name: "type",
-            rangeKey: "movedAt",
-          },
-          {
-            global: true,
-            name: "title",
-            rangeKey: "title",
-          },
-          {
-            global: true,
-            name: "type-addedAt",
-            rangeKey: "addedAt",
-          },
-        ],
-      },
-      shelf: String,
-      addedAt: Date,
-      movedAt: Date,
-      externalId: {
-        type: String,
-        index: {
-          global: true,
-          name: "externalId",
-          rangeKey: "movedAt",
-        },
-      },
-      title: {
-        type: String,
-      },
-      category: {
-        type: String,
-        index: {
-          global: true,
-          name: "category",
-          rangeKey: "movedAt",
-        },
-      },
-      "type:id": {
-        type: String,
-        hashKey: true,
-      },
-      "type:shelf": {
-        type: String,
-        index: [
-          {
-            global: true,
-            name: "shelf",
-            rangeKey: "movedAt",
-          },
-          {
-            global: true,
-            name: "shelf-addedAt",
-            rangeKey: "addedAt",
-          },
-        ],
-      },
-      // Tv Series only
-      seriesId: {
-        type: String,
-        index: {
-          global: true,
-          name: "seriesId",
-          rangeKey: "movedAt",
-        },
-      },
-    },
-    {
-      saveUnknown: true,
-      timestamps: false,
-    },
-  ),
-);
-
 type QueryResponse = {
-  items: ItemDocument[];
+  items: Item[];
   lastKey?: string;
   count: number;
 };
 
 type After = {
-  lastKey?: Object;
-  countSoFar: number;
+  offset: number;
 };
 
+// Known columns that are stored directly (not in the data JSON)
+const KNOWN_COLUMNS = [
+  "id",
+  "type",
+  "shelf",
+  "title",
+  "rating",
+  "notes",
+  "externalId",
+  "addedAt",
+  "movedAt",
+  "seriesId",
+  "image",
+  "imageUrl",
+  "imageWidth",
+  "imageHeight",
+];
+
+// Transform database row to Item interface
+function rowToItem(row: typeof items.$inferSelect): Item {
+  const data = JSON.parse(row.data || "{}");
+  return {
+    id: row.id,
+    type: row.type,
+    shelf: row.shelf,
+    title: row.title,
+    rating: row.rating ?? undefined,
+    notes: row.notes ?? undefined,
+    externalId: row.externalId ?? undefined,
+    addedAt: row.addedAt,
+    movedAt: row.movedAt,
+    seriesId: row.seriesId ?? undefined,
+    // Reconstruct image object from flat columns
+    ...(row.imageUrl
+      ? {
+          image: {
+            url: row.imageUrl,
+            width: row.imageWidth ?? undefined,
+            height: row.imageHeight ?? undefined,
+          },
+        }
+      : {}),
+    // Spread type-specific fields from data JSON
+    ...data,
+  };
+}
+
+// Transform Item to database row for inserts/updates
+function itemToRow(item: Partial<Item>) {
+  const {
+    id,
+    type,
+    shelf,
+    title,
+    rating,
+    notes,
+    externalId,
+    addedAt,
+    movedAt,
+    seriesId,
+    image,
+    ...rest
+  } = item;
+
+  // Separate type-specific fields from known columns
+  const typeSpecific: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(rest)) {
+    if (!KNOWN_COLUMNS.includes(key) && value !== undefined) {
+      typeSpecific[key] = value;
+    }
+  }
+
+  return {
+    ...(id !== undefined ? { id } : {}),
+    ...(type !== undefined ? { type } : {}),
+    ...(shelf !== undefined ? { shelf } : {}),
+    ...(title !== undefined ? { title } : {}),
+    ...(rating !== undefined ? { rating } : {}),
+    ...(notes !== undefined ? { notes } : {}),
+    ...(externalId !== undefined ? { externalId } : {}),
+    ...(addedAt !== undefined ? { addedAt } : {}),
+    ...(movedAt !== undefined ? { movedAt } : {}),
+    ...(seriesId !== undefined ? { seriesId } : {}),
+    // Flatten image
+    ...(image
+      ? {
+          imageUrl: image.url,
+          imageWidth: image.width,
+          imageHeight: image.height,
+        }
+      : {}),
+    // Store type-specific in data column (only if there are any)
+    ...(Object.keys(typeSpecific).length > 0
+      ? { data: JSON.stringify(typeSpecific) }
+      : {}),
+  };
+}
+
+function toBase64(after: After): string {
+  return Buffer.from(JSON.stringify(after), "utf-8").toString("base64");
+}
+
+function fromBase64(cursor: string): After {
+  return JSON.parse(Buffer.from(cursor, "base64").toString("utf-8"));
+}
+
 export const Query = {
-  withId: async (
-    { type, id }: ItemKey,
-    { consistent = false }: { consistent?: boolean } = {},
-  ): Promise<Item | undefined> =>
-    ItemModel.get(combinedKey({ type, id }, TYPE_ID), {
-      consistent,
-    }),
+  withId: async ({ id }: ItemKey): Promise<Item | undefined> => {
+    const db = await getDb();
+    const [row] = await db.select().from(items).where(eq(items.id, id));
+    return row ? rowToItem(row) : undefined;
+  },
+
   withExternalId: async ({
     externalId,
   }: {
     externalId: string;
   }): Promise<Item[]> => {
-    const data = await ItemModel.query("externalId")
-      .eq(externalId)
-      .sort(SortOrder.ascending)
-      .using("externalId")
-      .exec();
-    return Array.from<Item>(data);
+    const db = await getDb();
+    const rows = await db
+      .select()
+      .from(items)
+      .where(eq(items.externalId, externalId))
+      .orderBy(asc(items.movedAt));
+    return rows.map(rowToItem);
   },
+
   // Only used for Tv Series
   withSeriesId: async ({ seriesId }: { seriesId: string }): Promise<Item[]> => {
-    const data = await ItemModel.query("seriesId")
-      .eq(seriesId)
-      .using("seriesId")
-      .exec();
-    return Array.from<Item>(data);
+    const db = await getDb();
+    const rows = await db
+      .select()
+      .from(items)
+      .where(eq(items.seriesId, seriesId))
+      .orderBy(asc(items.movedAt));
+    return rows.map(rowToItem);
   },
+
   ofType: async (
     { type }: TypeKey,
     {
@@ -190,105 +186,113 @@ export const Query = {
       sortBy?: SortBy;
     },
   ): Promise<QueryResponse> => {
-    const { count } = await ItemModel.query("type")
-      .eq(type)
-      .sort(SortOrder.descending)
-      .where(SORT_FIELD_MAP[sortBy])
-      .between(...betweenDates(startDate, endDate))
-      .using(`type${SORT_INDEX_MAP[sortBy]}`)
-      .all()
-      .count()
-      .exec();
-    const baseQuery = ItemModel.query("type")
-      .eq(type)
-      .sort(SortOrder.descending)
-      .where(SORT_FIELD_MAP[sortBy])
-      .between(...betweenDates(startDate, endDate))
-      .using(`type${SORT_INDEX_MAP[sortBy]}`);
-    const { lastKey, countSoFar }: After = after
-      ? fromBase64(after)
-      : { countSoFar: 0 };
-    const data = await (
-      lastKey ? baseQuery.limit(first).startAt(lastKey) : baseQuery.limit(first)
-    ).exec();
-    const newCountSoFar = countSoFar + data.count;
-    const newLastKey =
-      count > newCountSoFar && data.lastKey
-        ? toBase64({ countSoFar: newCountSoFar, lastKey: data.lastKey })
-        : undefined;
+    const db = await getDb();
+    const sortColumn = sortBy === "ADDED_AT" ? items.addedAt : items.movedAt;
+
+    // Get total count
+    const [countResult] = await db
+      .select({ count: count() })
+      .from(items)
+      .where(
+        and(eq(items.type, type), between(sortColumn, startDate, endDate)),
+      );
+    const total = countResult?.count ?? 0;
+
+    // Parse cursor
+    const { offset }: After = after ? fromBase64(after) : { offset: 0 };
+
+    // Get items
+    const rows = await db
+      .select()
+      .from(items)
+      .where(and(eq(items.type, type), between(sortColumn, startDate, endDate)))
+      .orderBy(desc(sortColumn))
+      .limit(first)
+      .offset(offset);
+
+    const newOffset = offset + rows.length;
+    const hasMore = total > newOffset;
+
     return {
-      items: Array.from(data),
-      count,
-      lastKey: newLastKey,
+      items: rows.map(rowToItem),
+      count: total,
+      lastKey: hasMore ? toBase64({ offset: newOffset }) : undefined,
     };
   },
+
   searchType: async (
     { type }: TypeKey,
     { first, after, query }: { first: number; after?: string; query: string },
   ): Promise<QueryResponse> => {
-    const { count } = await ItemModel.query("type")
-      .eq(type)
-      .where("title")
-      .beginsWith(query)
-      .using("title")
-      .all()
-      .count()
-      .exec();
-    const baseQuery = ItemModel.query("type")
-      .eq(type)
-      .where("title")
-      .beginsWith(query)
-      .using("title")
-      .limit(first);
-    const { lastKey, countSoFar }: After = after
-      ? fromBase64(after)
-      : { countSoFar: 0 };
-    const data = await (
-      lastKey ? baseQuery.startAt(lastKey) : baseQuery
-    ).exec();
-    const newCountSoFar = countSoFar + data.count;
-    const newLastKey =
-      count > newCountSoFar && data.lastKey
-        ? toBase64({ countSoFar: newCountSoFar, lastKey: data.lastKey })
-        : undefined;
+    const db = await getDb();
+
+    // Get total count - use ILIKE for case-insensitive substring search
+    const [countResult] = await db
+      .select({ count: count() })
+      .from(items)
+      .where(and(eq(items.type, type), ilike(items.title, `${query}%`)));
+    const total = countResult?.count ?? 0;
+
+    // Parse cursor
+    const { offset }: After = after ? fromBase64(after) : { offset: 0 };
+
+    // Get items - ordered by title for prefix search
+    const rows = await db
+      .select()
+      .from(items)
+      .where(and(eq(items.type, type), ilike(items.title, `${query}%`)))
+      .orderBy(asc(items.title))
+      .limit(first)
+      .offset(offset);
+
+    const newOffset = offset + rows.length;
+    const hasMore = total > newOffset;
+
     return {
-      items: Array.from(data),
-      count,
-      lastKey: newLastKey,
+      items: rows.map(rowToItem),
+      count: total,
+      lastKey: hasMore ? toBase64({ offset: newOffset }) : undefined,
     };
   },
+
   forCategory: async (
     { category }: { category: string },
     { first, after }: { first: number; after?: string },
   ): Promise<QueryResponse> => {
-    const { count } = await ItemModel.query("category")
-      .eq(category)
-      .using("category")
-      .all()
-      .count()
-      .exec();
-    const baseQuery = ItemModel.query("category")
-      .eq(category)
-      .sort(SortOrder.descending)
-      .using("category")
-      .limit(first);
-    const { lastKey, countSoFar }: After = after
-      ? fromBase64(after)
-      : { countSoFar: 0 };
-    const data = await (
-      lastKey ? baseQuery.startAt(lastKey) : baseQuery
-    ).exec();
-    const newCountSoFar = countSoFar + data.count;
-    const newLastKey =
-      count > newCountSoFar && data.lastKey
-        ? toBase64({ countSoFar: newCountSoFar, lastKey: data.lastKey })
-        : undefined;
+    const db = await getDb();
+
+    // Category is stored in the data JSON column
+    const categoryCondition = sql`(${items.data}::json)->>'category' = ${category}`;
+
+    // Get total count
+    const [countResult] = await db
+      .select({ count: count() })
+      .from(items)
+      .where(categoryCondition);
+    const total = countResult?.count ?? 0;
+
+    // Parse cursor
+    const { offset }: After = after ? fromBase64(after) : { offset: 0 };
+
+    // Get items
+    const rows = await db
+      .select()
+      .from(items)
+      .where(categoryCondition)
+      .orderBy(desc(items.movedAt))
+      .limit(first)
+      .offset(offset);
+
+    const newOffset = offset + rows.length;
+    const hasMore = total > newOffset;
+
     return {
-      items: Array.from(data),
-      count,
-      lastKey: newLastKey,
+      items: rows.map(rowToItem),
+      count: total,
+      lastKey: hasMore ? toBase64({ offset: newOffset }) : undefined,
     };
   },
+
   onShelf: async (
     { type, shelf }: ShelfKey,
     {
@@ -305,120 +309,116 @@ export const Query = {
       sortBy?: SortBy;
     },
   ): Promise<QueryResponse> => {
-    const key = combineValue({ type, shelf }, TYPE_SHELF);
-    const { count } = await ItemModel.query(combineKey(TYPE_SHELF))
-      .eq(key)
-      .sort(SortOrder.descending)
-      .where(SORT_FIELD_MAP[sortBy])
-      .between(...betweenDates(startDate, endDate))
-      .using(`shelf${SORT_INDEX_MAP[sortBy]}`)
-      .all()
-      .count()
-      .exec();
-    const baseQuery = ItemModel.query(combineKey(TYPE_SHELF))
-      .eq(key)
-      .sort(SortOrder.descending)
-      .where(SORT_FIELD_MAP[sortBy])
-      .between(...betweenDates(startDate, endDate))
-      .using(`shelf${SORT_INDEX_MAP[sortBy]}`)
-      .limit(first);
-    const { lastKey, countSoFar }: After = after
-      ? fromBase64(after)
-      : { countSoFar: 0 };
-    const data = await (
-      lastKey ? baseQuery.startAt(lastKey) : baseQuery
-    ).exec();
-    const newCountSoFar = countSoFar + data.count;
-    const newLastKey =
-      count > newCountSoFar && data.lastKey
-        ? toBase64({ countSoFar: newCountSoFar, lastKey: data.lastKey })
-        : undefined;
+    const db = await getDb();
+    const sortColumn = sortBy === "ADDED_AT" ? items.addedAt : items.movedAt;
+
+    // Get total count
+    const [countResult] = await db
+      .select({ count: count() })
+      .from(items)
+      .where(
+        and(
+          eq(items.type, type),
+          eq(items.shelf, shelf),
+          between(sortColumn, startDate, endDate),
+        ),
+      );
+    const total = countResult?.count ?? 0;
+
+    // Parse cursor
+    const { offset }: After = after ? fromBase64(after) : { offset: 0 };
+
+    // Get items
+    const rows = await db
+      .select()
+      .from(items)
+      .where(
+        and(
+          eq(items.type, type),
+          eq(items.shelf, shelf),
+          between(sortColumn, startDate, endDate),
+        ),
+      )
+      .orderBy(desc(sortColumn))
+      .limit(first)
+      .offset(offset);
+
+    const newOffset = offset + rows.length;
+    const hasMore = total > newOffset;
+
     return {
-      items: Array.from(data),
-      count,
-      lastKey: newLastKey,
+      items: rows.map(rowToItem),
+      count: total,
+      lastKey: hasMore ? toBase64({ offset: newOffset }) : undefined,
     };
   },
 };
 
 export const Mutate = {
   async createItem(
-    { id, type, ...rest }: CreateItem,
+    item: CreateItem,
     { updateIfExists = false }: { updateIfExists?: boolean } = {},
   ): Promise<Item> {
+    const db = await getDb();
     const date = new Date();
     const withTimestamps = {
-      id,
-      type,
       movedAt: date,
       addedAt: date,
-      // movedAt and addedAt will be overriden if provided
-      ...rest,
+      // movedAt and addedAt will be overridden if provided in item
+      ...item,
     };
-    await ItemModel.create(
-      {
-        ...withTimestamps,
-        ...combinedKey(withTimestamps, TYPE_ID),
-        ...combinedKey(withTimestamps, TYPE_SHELF),
-      },
-      {
-        overwrite: updateIfExists,
-      },
-    );
-    return (await Query.withId({ type, id }, { consistent: true }))!;
+
+    const row = itemToRow(withTimestamps);
+
+    if (updateIfExists) {
+      // Upsert - insert or update on conflict
+      const [result] = await db
+        .insert(items)
+        .values(row as typeof items.$inferInsert)
+        .onConflictDoUpdate({
+          target: items.id,
+          set: row,
+        })
+        .returning();
+      return rowToItem(result);
+    } else {
+      // Plain insert
+      const [result] = await db
+        .insert(items)
+        .values(row as typeof items.$inferInsert)
+        .returning();
+      return rowToItem(result);
+    }
   },
-  async deleteItem({ id, type }: ItemKey): Promise<void> {
-    const key = combinedKey({ type, id }, TYPE_ID);
-    await ItemModel.delete(key, {
-      condition: new dynamoose.Condition().filter("type:id").exists(),
-    });
+
+  async deleteItem({ id }: ItemKey): Promise<void> {
+    const db = await getDb();
+    const result = await db.delete(items).where(eq(items.id, id)).returning();
+
+    if (result.length === 0) {
+      throw new Error(`Item with id ${id} not found`);
+    }
   },
+
   async updateItem({ id, type, ...updates }: UpdateItem): Promise<Item> {
+    const db = await getDb();
     const now = new Date();
-    const key = combinedKey({ type, id }, TYPE_ID);
-    await ItemModel.update(
-      key,
-      {
-        ...(updates.shelf
-          ? {
-              movedAt: now,
-              ...combinedKey({ type, shelf: updates.shelf }, TYPE_SHELF),
-            }
-          : {}),
-        ...updates,
-      },
-      {
-        condition: new dynamoose.Condition().filter("type:id").exists(),
-      },
-    );
-    const item = await Query.withId({ type, id }, { consistent: true });
-    return item!;
+
+    // If shelf is being updated, also update movedAt
+    const updateData = updates.shelf ? { movedAt: now, ...updates } : updates;
+
+    const row = itemToRow(updateData);
+
+    const [result] = await db
+      .update(items)
+      .set(row)
+      .where(eq(items.id, id))
+      .returning();
+
+    if (!result) {
+      throw new Error(`Item with id ${id} not found`);
+    }
+
+    return rowToItem(result);
   },
 };
-
-function combineValue<T>(item: T, keys: ReadonlyArray<keyof T>) {
-  return keys
-    .map((k) => item[k])
-    .map((v) => (v instanceof Date ? v.getTime() : v))
-    .join(":");
-}
-
-function combineKey(keys: ReadonlyArray<unknown>) {
-  return keys.join(":");
-}
-
-function combinedKey<T>(item: T, keys: ReadonlyArray<keyof T>) {
-  return { [combineKey(keys)]: combineValue(item, keys) };
-}
-
-function toBase64(lastKey: After): string {
-  return Buffer.from(JSON.stringify(lastKey), "utf-8").toString("base64");
-}
-
-function fromBase64(lastKey: string): After {
-  return JSON.parse(Buffer.from(lastKey, "base64").toString("utf-8"));
-}
-
-function betweenDates(startDate: Date, endDate: Date) {
-  return [startDate.getTime(), endDate.getTime()];
-}

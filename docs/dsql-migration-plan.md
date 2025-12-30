@@ -836,12 +836,15 @@ Aurora DSQL has several PostgreSQL compatibility limitations that affect this sc
 - [ ] Test migration successful
 - [ ] Data verified
 
-### Phase 4: Code Changes
+### Phase 4: Code Changes ✅
 
-- [ ] Query object rewritten
-- [ ] Mutate object rewritten
-- [ ] GraphQL resolvers updated
-- [ ] Config updated
+- [x] Query object rewritten (Drizzle ORM, offset-based pagination)
+- [x] Mutate object rewritten (Drizzle ORM with upsert support)
+- [x] `sizes` array removed from Image handling (was always empty)
+- [x] `consistent` flag removed from Query.withId (DSQL has strong consistency)
+- [x] Dynamoose dependency removed from package.json
+- [ ] GraphQL resolvers updated (not needed - interface maintained)
+- [ ] Config updated (not needed - uses existing BILLIO_DSQL_ENDPOINT)
 
 ### Phase 5: Testing
 
@@ -860,7 +863,7 @@ Aurora DSQL has several PostgreSQL compatibility limitations that affect this sc
 
 - [ ] DynamoDB retained for fallback period
 - [ ] DynamoDB resources removed
-- [ ] Dynamoose dependency removed
+- [x] Dynamoose dependency removed
 - [ ] Documentation updated
 
 ---

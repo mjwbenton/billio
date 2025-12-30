@@ -28,7 +28,6 @@
   "dependencies": {
     "@aws-sdk/dsql-signer": "^3.958.0",
     "drizzle-orm": "^0.45.1",
-    "dynamoose": "^2.8.5",
     "pg": "^8.16.3"
   }
 }
