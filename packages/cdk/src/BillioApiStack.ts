@@ -81,7 +81,7 @@ export default class BillioApiStack extends Stack {
     lambdaFunction.addToRolePolicy(
       new PolicyStatement({
         effect: Effect.ALLOW,
-        actions: ["dsql:DbConnectAdmin"],
+        actions: ["dsql:DbConnect"],
         resources: [dataStack.dsqlCluster.attrResourceArn],
       }),
     );
