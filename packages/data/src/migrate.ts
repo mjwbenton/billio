@@ -127,13 +127,7 @@ async function runMigrations() {
           const jobId = result.rows[0]?.job_id;
           if (jobId) {
             console.log(`  Waiting for async index job ${jobId}...`);
-            const waitResult = await client.query<{ wait_for_job: boolean }>(
-              `SELECT sys.wait_for_job($1) as wait_for_job`,
-              [jobId],
-            );
-            if (!waitResult.rows[0]?.wait_for_job) {
-              throw new Error(`Async index job ${jobId} failed`);
-            }
+            await client.query(`CALL sys.wait_for_job($1)`, [jobId]);
             console.log(`  Async index job ${jobId} completed`);
           }
         }
