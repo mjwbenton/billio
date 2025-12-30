@@ -42,7 +42,7 @@ async function ensureMigrationsTable(client: PoolClient) {
 
 async function getAppliedMigrations(client: PoolClient): Promise<Set<string>> {
   const result = await client.query<AppliedMigration>(
-    `SELECT hash, applied_at FROM "_billio_migrations"`
+    `SELECT hash, applied_at FROM "_billio_migrations"`,
   );
   return new Set(result.rows.map((row) => row.hash));
 }
@@ -50,11 +50,11 @@ async function getAppliedMigrations(client: PoolClient): Promise<Set<string>> {
 async function recordMigration(
   client: PoolClient,
   hash: string,
-  appliedAt: number
+  appliedAt: number,
 ) {
   await client.query(
     `INSERT INTO "_billio_migrations" (hash, applied_at) VALUES ($1, $2)`,
-    [hash, appliedAt]
+    [hash, appliedAt],
   );
 }
 
@@ -94,7 +94,7 @@ async function runMigrations() {
     const migrationsFolder = join(__dirname, "..", "migrations");
     const journalPath = join(migrationsFolder, "meta", "_journal.json");
     const journal: MigrationJournal = JSON.parse(
-      readFileSync(journalPath, "utf-8")
+      readFileSync(journalPath, "utf-8"),
     );
 
     // Apply any new migrations
