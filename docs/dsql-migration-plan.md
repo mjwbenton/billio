@@ -118,10 +118,11 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 - [x] Create hand-crafted DSQL-compatible initial migration
 - [x] Add IAM role to CDK for GitHub Actions to assume for migrations (`BillioDataMigrationStack`)
 - [x] Add migration step to deploy.yml (after deploy, before graphql tests)
-- [ ] Apply migration to test environment (will run on next deploy)
-- [ ] Apply migration to production environment (will run on next deploy)
+- [x] Apply migration to test environment (will run on next deploy)
+- [x] Apply migration to production environment (will run on next deploy)
 
 **Note:** We use custom SQL migrations instead of drizzle-kit because DSQL doesn't support:
+
 - Partial indexes (`WHERE` clause)
 - `USING btree` syntax
 - Synchronous `CREATE INDEX` (must always use `CREATE INDEX ASYNC`)
@@ -162,7 +163,7 @@ export const items = pgTable(
       .notNull()
       .defaultNow(),
     seriesId: uuid("series_id"), // No FK constraint - DSQL doesn't enforce foreign keys
-    data: text("data").default('{}'), // TEXT instead of JSONB - DSQL doesn't support JSONB columns
+    data: text("data").default("{}"), // TEXT instead of JSONB - DSQL doesn't support JSONB columns
   },
   (table) => [
     // Essential indexes (5 total) - DSQL doesn't support partial indexes
@@ -406,18 +407,18 @@ graphql-tests:
 
 **Tasks:**
 
-- [ ] Run existing backup to get latest JSON exports
-- [ ] Create migration script to transform JSON → SQL INSERTs
-- [ ] Handle data transformations:
+- [x] Run existing backup to get latest JSON exports
+- [x] Create migration script to transform JSON → SQL INSERTs
+- [x] Handle data transformations:
   - **Preserve existing `id` values** (do NOT generate new UUIDs)
   - Convert timestamps to TIMESTAMPTZ
   - Map `type:id` composite keys to separate fields
   - Extract type-specific fields into `data` JSONB
   - Preserve `seriesId` references (TvSeason → TvSeries)
-- [ ] Run migration against test DSQL cluster
-- [ ] Verify row counts match
-- [ ] Spot-check data integrity
-- [ ] Verify `seriesId` foreign key relationships are valid
+- [x] Run migration against test DSQL cluster
+- [x] Verify row counts match
+- [x] Spot-check data integrity
+- [x] Verify `seriesId` foreign key relationships are valid
 
 **Migration Script Outline:**
 
@@ -760,16 +761,17 @@ input ItemFilterInput {
 
 Aurora DSQL has several PostgreSQL compatibility limitations that affect this schema:
 
-| Feature | Status | Workaround |
-| ------- | ------ | ---------- |
-| JSONB columns | ❌ Not supported | Use TEXT column, JSON.parse/stringify in app |
-| Foreign keys | ❌ Not enforced | Referential integrity checked in app code |
-| CHECK constraints | ✅ Supported | Used for `chk_series_id` |
-| Partial indexes | ✅ Supported | Used for `idx_external_id`, `idx_series_id` |
-| Timestamps with TZ | ✅ Supported | Used for `added_at`, `moved_at` |
-| UUIDs | ✅ Supported | Primary key type |
+| Feature            | Status           | Workaround                                   |
+| ------------------ | ---------------- | -------------------------------------------- |
+| JSONB columns      | ❌ Not supported | Use TEXT column, JSON.parse/stringify in app |
+| Foreign keys       | ❌ Not enforced  | Referential integrity checked in app code    |
+| CHECK constraints  | ✅ Supported     | Used for `chk_series_id`                     |
+| Partial indexes    | ✅ Supported     | Used for `idx_external_id`, `idx_series_id`  |
+| Timestamps with TZ | ✅ Supported     | Used for `added_at`, `moved_at`              |
+| UUIDs              | ✅ Supported     | Primary key type                             |
 
 **Sources:**
+
 - [Aurora DSQL Supported Data Types](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/working-with-postgresql-compatibility-supported-data-types.html)
 - [Aurora DSQL Unsupported Features](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/working-with-postgresql-compatibility-unsupported-features.html)
 
@@ -790,20 +792,20 @@ Aurora DSQL has several PostgreSQL compatibility limitations that affect this sc
 
 ## Files Summary
 
-| Package                               | Changes                                                               |
-| ------------------------------------- | --------------------------------------------------------------------- |
-| `packages/cdk/src/BillioDataStack.ts` | Add DSQL cluster, eventually remove DynamoDB |
-| `packages/cdk/src/BillioDataMigrationStack.ts` | IAM role for GitHub Actions migrations |
-| `packages/cdk/src/BillioApiStack.ts`  | Pass DSQL endpoint to Lambda environment                              |
-| `packages/data/src/schema.ts`         | Drizzle schema definition (for ORM use)                               |
-| `packages/data/src/db.ts`             | Database connection with IAM auth                                     |
-| `packages/data/src/migrate.ts`        | Custom migration runner script                                        |
-| `packages/data/migrations/`           | Hand-crafted DSQL-compatible SQL migration files                      |
-| `packages/data/`                      | Complete rewrite: Dynamoose → Drizzle ORM                             |
-| `packages/graphql/`                   | Minor updates: remove filter restrictions, add rating filter          |
-| `packages/backup/`                    | Add data migration script                                             |
-| `packages/config/`                    | Add DSQL connection config                                            |
-| `.github/workflows/deploy.yml`        | Add migrate job between deploy and graphql-tests                      |
+| Package                                        | Changes                                                      |
+| ---------------------------------------------- | ------------------------------------------------------------ |
+| `packages/cdk/src/BillioDataStack.ts`          | Add DSQL cluster, eventually remove DynamoDB                 |
+| `packages/cdk/src/BillioDataMigrationStack.ts` | IAM role for GitHub Actions migrations                       |
+| `packages/cdk/src/BillioApiStack.ts`           | Pass DSQL endpoint to Lambda environment                     |
+| `packages/data/src/schema.ts`                  | Drizzle schema definition (for ORM use)                      |
+| `packages/data/src/db.ts`                      | Database connection with IAM auth                            |
+| `packages/data/src/migrate.ts`                 | Custom migration runner script                               |
+| `packages/data/migrations/`                    | Hand-crafted DSQL-compatible SQL migration files             |
+| `packages/data/`                               | Complete rewrite: Dynamoose → Drizzle ORM                    |
+| `packages/graphql/`                            | Minor updates: remove filter restrictions, add rating filter |
+| `packages/backup/`                             | Add data migration script                                    |
+| `packages/config/`                             | Add DSQL connection config                                   |
+| `.github/workflows/deploy.yml`                 | Add migrate job between deploy and graphql-tests             |
 
 ---
 
