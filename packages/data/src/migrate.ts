@@ -106,10 +106,17 @@ async function runMigrations() {
       const sql = readFileSync(sqlPath, "utf-8");
 
       // Split by semicolon followed by newline and execute each statement
+      // Strip comment-only lines from each chunk before checking if it's empty
       const statements = sql
         .split(/;\s*\n/)
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0 && !s.startsWith("--"));
+        .map((s) =>
+          s
+            .split("\n")
+            .filter((line) => !line.trim().startsWith("--"))
+            .join("\n")
+            .trim(),
+        )
+        .filter((s) => s.length > 0);
 
       for (const statement of statements) {
         console.log(`  Executing: ${statement.substring(0, 60)}...`);
