@@ -79,8 +79,21 @@ function rowToItem(row: typeof items.$inferSelect): Item {
   };
 }
 
-// Transform Item to database row for inserts/updates
-function itemToRow(item: Partial<Item>) {
+// Extract type-specific fields from item
+function extractTypeSpecificData(item: Record<string, unknown>): string {
+  const typeSpecific: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(item)) {
+    if (!KNOWN_COLUMNS.includes(key) && value !== undefined) {
+      typeSpecific[key] = value;
+    }
+  }
+  return Object.keys(typeSpecific).length > 0
+    ? JSON.stringify(typeSpecific)
+    : "{}";
+}
+
+// Transform Item to database row for INSERT (explicit nulls for all optional fields)
+function itemToInsertRow(item: Partial<Item>) {
   const {
     id,
     type,
@@ -96,17 +109,42 @@ function itemToRow(item: Partial<Item>) {
     ...rest
   } = item;
 
-  // Separate type-specific fields from known columns
-  const typeSpecific: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(rest)) {
-    if (!KNOWN_COLUMNS.includes(key) && value !== undefined) {
-      typeSpecific[key] = value;
-    }
-  }
+  return {
+    id: id!,
+    type: type!,
+    shelf: shelf!,
+    title: title!,
+    rating: rating ?? null,
+    notes: notes ?? null,
+    externalId: externalId ?? null,
+    addedAt: addedAt!,
+    movedAt: movedAt!,
+    seriesId: seriesId ?? null,
+    imageUrl: image?.url ?? null,
+    imageWidth: image?.width ?? null,
+    imageHeight: image?.height ?? null,
+    data: extractTypeSpecificData(rest),
+  };
+}
+
+// Transform Item to database row for UPDATE (only include provided fields)
+function itemToUpdateRow(item: Partial<Item>) {
+  const {
+    id,
+    type,
+    shelf,
+    title,
+    rating,
+    notes,
+    externalId,
+    addedAt,
+    movedAt,
+    seriesId,
+    image,
+    ...rest
+  } = item;
 
   return {
-    ...(id !== undefined ? { id } : {}),
-    ...(type !== undefined ? { type } : {}),
     ...(shelf !== undefined ? { shelf } : {}),
     ...(title !== undefined ? { title } : {}),
     ...(rating !== undefined ? { rating } : {}),
@@ -115,17 +153,16 @@ function itemToRow(item: Partial<Item>) {
     ...(addedAt !== undefined ? { addedAt } : {}),
     ...(movedAt !== undefined ? { movedAt } : {}),
     ...(seriesId !== undefined ? { seriesId } : {}),
-    // Flatten image
-    ...(image
+    ...(image !== undefined
       ? {
-          imageUrl: image.url,
-          imageWidth: image.width,
-          imageHeight: image.height,
+          imageUrl: image?.url ?? null,
+          imageWidth: image?.width ?? null,
+          imageHeight: image?.height ?? null,
         }
       : {}),
-    // Store type-specific in data column (only if there are any)
-    ...(Object.keys(typeSpecific).length > 0
-      ? { data: JSON.stringify(typeSpecific) }
+    // Always update data if there are type-specific fields in the update
+    ...(Object.keys(rest).length > 0
+      ? { data: extractTypeSpecificData(rest) }
       : {}),
   };
 }
@@ -368,25 +405,23 @@ export const Mutate = {
       ...item,
     };
 
-    const row = itemToRow(withTimestamps);
+    const insertRow = itemToInsertRow(withTimestamps);
 
     if (updateIfExists) {
       // Upsert - insert or update on conflict
+      const updateRow = itemToUpdateRow(withTimestamps);
       const [result] = await db
         .insert(items)
-        .values(row as typeof items.$inferInsert)
+        .values(insertRow)
         .onConflictDoUpdate({
           target: items.id,
-          set: row,
+          set: updateRow,
         })
         .returning();
       return rowToItem(result);
     } else {
       // Plain insert
-      const [result] = await db
-        .insert(items)
-        .values(row as typeof items.$inferInsert)
-        .returning();
+      const [result] = await db.insert(items).values(insertRow).returning();
       return rowToItem(result);
     }
   },
@@ -407,7 +442,7 @@ export const Mutate = {
     // If shelf is being updated, also update movedAt
     const updateData = updates.shelf ? { movedAt: now, ...updates } : updates;
 
-    const row = itemToRow(updateData);
+    const row = itemToUpdateRow(updateData);
 
     const [result] = await db
       .update(items)
