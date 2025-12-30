@@ -8,7 +8,7 @@ const region = process.env.AWS_REGION || "us-east-1";
 
 async function getAuthToken(): Promise<string> {
   const signer = new DsqlSigner({ hostname: endpoint, region });
-  return signer.getDbConnectAuthToken();
+  return signer.getDbConnectAdminAuthToken();
 }
 
 let pool: Pool | null = null;
