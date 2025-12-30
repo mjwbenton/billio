@@ -3,6 +3,7 @@
 ## Overview
 
 Migrate Billio from DynamoDB to Aurora DSQL to gain:
+
 - Flexible index management (add indexes anytime vs. pre-planned GSIs)
 - Combined query filters (search + date, rating filters)
 - Standard PostgreSQL tooling and SQL
@@ -76,9 +77,11 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 **Goal:** Add Aurora DSQL cluster to BillioDataStack alongside existing DynamoDB table.
 
 **Files to modify:**
+
 - `packages/cdk/src/BillioDataStack.ts` - Add DSQL cluster
 
 **Tasks:**
+
 - [x] Add Aurora DSQL cluster to BillioDataStack
 - [x] Export cluster endpoint for Lambda access
 - [x] Create IAM roles/policies for Lambda → DSQL access
@@ -94,6 +97,7 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 **Goal:** Define Drizzle schema and set up migrations with drizzle-kit. Apply migrations via GitHub Actions.
 
 **Files to create/modify:**
+
 - `packages/data/src/schema.ts` - Drizzle schema definition
 - `packages/data/src/db.ts` - Database connection
 - `packages/data/drizzle.config.ts` - Drizzle-kit configuration
@@ -102,6 +106,7 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 - `.github/workflows/deploy.yml` - Add migration step after deploy
 
 **Tasks:**
+
 - [ ] Add Drizzle dependencies to `packages/data`
   - `drizzle-orm`
   - `drizzle-kit` (dev dependency)
@@ -118,50 +123,74 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 - [ ] Apply migration to production environment
 
 **Drizzle Schema:**
+
 ```typescript
 // packages/data/src/schema.ts
-import { pgTable, uuid, varchar, text, timestamp, jsonb, integer, index, check } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  timestamp,
+  jsonb,
+  integer,
+  index,
+  check,
+} from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
-export const items = pgTable('items', {
-  id: uuid('id').primaryKey(),  // No defaultRandom - preserve existing IDs
-  type: varchar('type', { length: 50 }).notNull(),
-  shelf: varchar('shelf', { length: 50 }).notNull(),
-  title: varchar('title', { length: 500 }).notNull(),
-  rating: integer('rating'),  // 1-10 scale
-  imageUrl: text('image_url'),
-  imageWidth: integer('image_width'),
-  imageHeight: integer('image_height'),
-  externalId: varchar('external_id', { length: 255 }),
-  notes: text('notes'),
-  addedAt: timestamp('added_at', { withTimezone: true }).notNull().defaultNow(),
-  movedAt: timestamp('moved_at', { withTimezone: true }).notNull().defaultNow(),
-  seriesId: uuid('series_id').references(() => items.id),
-  data: jsonb('data').default({})
-}, (table) => [
-  index('idx_type_moved').on(table.type, table.movedAt),
-  index('idx_type_added').on(table.type, table.addedAt),
-  index('idx_type_shelf_moved').on(table.type, table.shelf, table.movedAt),
-  index('idx_type_shelf_added').on(table.type, table.shelf, table.addedAt),
-  index('idx_type_title').on(table.type, table.title),
-  index('idx_external_id').on(table.externalId).where(sql`external_id IS NOT NULL`),
-  index('idx_series_id').on(table.seriesId, table.movedAt).where(sql`series_id IS NOT NULL`),
-  index('idx_type_rating').on(table.type, table.rating),
-  index('idx_type_shelf_rating').on(table.type, table.shelf, table.rating),
-  check('chk_series_id', sql`series_id IS NULL OR type = 'TvSeason'`),
-]);
+export const items = pgTable(
+  "items",
+  {
+    id: uuid("id").primaryKey(), // No defaultRandom - preserve existing IDs
+    type: varchar("type", { length: 50 }).notNull(),
+    shelf: varchar("shelf", { length: 50 }).notNull(),
+    title: varchar("title", { length: 500 }).notNull(),
+    rating: integer("rating"), // 1-10 scale
+    imageUrl: text("image_url"),
+    imageWidth: integer("image_width"),
+    imageHeight: integer("image_height"),
+    externalId: varchar("external_id", { length: 255 }),
+    notes: text("notes"),
+    addedAt: timestamp("added_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    movedAt: timestamp("moved_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    seriesId: uuid("series_id").references(() => items.id),
+    data: jsonb("data").default({}),
+  },
+  (table) => [
+    index("idx_type_moved").on(table.type, table.movedAt),
+    index("idx_type_added").on(table.type, table.addedAt),
+    index("idx_type_shelf_moved").on(table.type, table.shelf, table.movedAt),
+    index("idx_type_shelf_added").on(table.type, table.shelf, table.addedAt),
+    index("idx_type_title").on(table.type, table.title),
+    index("idx_external_id")
+      .on(table.externalId)
+      .where(sql`external_id IS NOT NULL`),
+    index("idx_series_id")
+      .on(table.seriesId, table.movedAt)
+      .where(sql`series_id IS NOT NULL`),
+    index("idx_type_rating").on(table.type, table.rating),
+    index("idx_type_shelf_rating").on(table.type, table.shelf, table.rating),
+    check("chk_series_id", sql`series_id IS NULL OR type = 'TvSeason'`),
+  ],
+);
 ```
 
 **Database Connection with IAM Auth:**
+
 ```typescript
 // packages/data/src/db.ts
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import { DsqlSigner } from '@aws-sdk/dsql-signer';
-import * as schema from './schema';
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import { DsqlSigner } from "@aws-sdk/dsql-signer";
+import * as schema from "./schema";
 
 const endpoint = process.env.BILLIO_DSQL_ENDPOINT!;
-const region = process.env.AWS_REGION || 'us-east-1';
+const region = process.env.AWS_REGION || "us-east-1";
 
 async function getAuthToken(): Promise<string> {
   const signer = new DsqlSigner({ hostname: endpoint, region });
@@ -176,9 +205,9 @@ export async function getDb() {
     pool = new Pool({
       host: endpoint,
       port: 5432,
-      user: 'admin',
+      user: "admin",
       password: token,
-      database: 'postgres',
+      database: "postgres",
       ssl: { rejectUnauthorized: true },
     });
   }
@@ -187,14 +216,15 @@ export async function getDb() {
 ```
 
 **Drizzle Config:**
+
 ```typescript
 // packages/data/drizzle.config.ts
-import { defineConfig } from 'drizzle-kit';
+import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
-  schema: './src/dsql/schema.ts',
-  out: './migrations',
-  dialect: 'postgresql',
+  schema: "./src/schema.ts",
+  out: "./migrations",
+  dialect: "postgresql",
   dbCredentials: {
     // Connection details provided at runtime via environment
     url: process.env.DSQL_CONNECTION_URL!,
@@ -203,16 +233,17 @@ export default defineConfig({
 ```
 
 **Migration Script:**
+
 ```typescript
 // packages/data/src/migrate.ts
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { Pool } from 'pg';
-import { DsqlSigner } from '@aws-sdk/dsql-signer';
+import { drizzle } from "drizzle-orm/node-postgres";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { Pool } from "pg";
+import { DsqlSigner } from "@aws-sdk/dsql-signer";
 
 async function runMigrations() {
   const endpoint = process.env.BILLIO_DSQL_ENDPOINT!;
-  const region = process.env.AWS_REGION || 'us-east-1';
+  const region = process.env.AWS_REGION || "us-east-1";
 
   const signer = new DsqlSigner({ hostname: endpoint, region });
   const token = await signer.getDbConnectAdminAuthToken();
@@ -220,17 +251,17 @@ async function runMigrations() {
   const pool = new Pool({
     host: endpoint,
     port: 5432,
-    user: 'admin',
+    user: "admin",
     password: token,
-    database: 'postgres',
+    database: "postgres",
     ssl: { rejectUnauthorized: true },
   });
 
   const db = drizzle(pool);
 
-  console.log('Running migrations...');
-  await migrate(db, { migrationsFolder: './migrations' });
-  console.log('Migrations complete!');
+  console.log("Running migrations...");
+  await migrate(db, { migrationsFolder: "./migrations" });
+  console.log("Migrations complete!");
 
   await pool.end();
 }
@@ -239,6 +270,7 @@ runMigrations().catch(console.error);
 ```
 
 **CDK Role for GitHub Actions Migrations:**
+
 ```typescript
 // Add to packages/cdk/src/BillioDataStack.ts
 import * as iam from "aws-cdk-lib/aws-iam";
@@ -248,7 +280,7 @@ const githubProviderArn = `arn:aws:iam::${this.account}:oidc-provider/token.acti
 const githubProvider = iam.OpenIdConnectProvider.fromOpenIdConnectProviderArn(
   this,
   "GitHubOIDC",
-  githubProviderArn
+  githubProviderArn,
 );
 
 // Role for GitHub Actions to run migrations
@@ -263,7 +295,7 @@ this.migrationRole = new iam.Role(this, "GitHubMigrationRole", {
       StringLike: {
         "token.actions.githubusercontent.com:sub": "repo:mjwbenton/billio:*",
       },
-    }
+    },
   ),
 });
 
@@ -273,11 +305,12 @@ this.migrationRole.addToPolicy(
     effect: iam.Effect.ALLOW,
     actions: ["dsql:DbConnectAdmin"],
     resources: [this.dsqlCluster.attrResourceArn],
-  })
+  }),
 );
 ```
 
 **Deploy.yml Changes (add migrate job between deploy and graphql-tests):**
+
 ```yaml
 # .github/workflows/deploy.yml
 name: Deploy
@@ -348,13 +381,14 @@ jobs:
 ```
 
 **Package.json script:**
+
 ```json
 // Add to packages/data/package.json scripts
 {
   "scripts": {
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "migrate": "tsx src/dsql/migrate.ts"
+    "migrate": "tsx src/migrate.ts"
   }
 }
 ```
@@ -368,11 +402,13 @@ jobs:
 **Goal:** Export data from DynamoDB and import into Aurora DSQL, preserving existing UUIDs.
 
 **Files to modify:**
+
 - `packages/backup/src/bin/` - Add migration script
 
 **Important:** Existing UUIDs must be preserved as they are referenced by external systems.
 
 **Tasks:**
+
 - [ ] Run existing backup to get latest JSON exports
 - [ ] Create migration script to transform JSON → SQL INSERTs
 - [ ] Handle data transformations:
@@ -387,26 +423,39 @@ jobs:
 - [ ] Verify `seriesId` foreign key relationships are valid
 
 **Migration Script Outline:**
+
 ```typescript
 // packages/backup/src/bin/migrateToDsql.ts
-import { readFileSync } from 'fs';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import { items } from '@mattb.tech/billio-data/schema';
+import { readFileSync } from "fs";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import { items } from "@mattb.tech/billio-data/schema";
 
 const pool = new Pool({ connectionString: process.env.DSQL_CONNECTION_STRING });
 const db = drizzle(pool);
 
 async function migrateType(type: string) {
-  const data = JSON.parse(readFileSync(`./local/${type}.json`, 'utf-8'));
+  const data = JSON.parse(readFileSync(`./local/${type}.json`, "utf-8"));
 
   for (const item of data) {
     // Extract common fields - PRESERVE EXISTING ID
-    const { id, type: itemType, shelf, title, rating, image, externalId, notes,
-            addedAt, movedAt, seriesId, ...typeSpecificFields } = item;
+    const {
+      id,
+      type: itemType,
+      shelf,
+      title,
+      rating,
+      image,
+      externalId,
+      notes,
+      addedAt,
+      movedAt,
+      seriesId,
+      ...typeSpecificFields
+    } = item;
 
     await db.insert(items).values({
-      id,  // Preserve existing UUID - referenced by external systems
+      id, // Preserve existing UUID - referenced by external systems
       type: itemType,
       shelf,
       title,
@@ -418,8 +467,8 @@ async function migrateType(type: string) {
       notes,
       addedAt: new Date(addedAt),
       movedAt: new Date(movedAt),
-      seriesId: seriesId ?? null,  // Preserve TvSeason → TvSeries reference
-      data: typeSpecificFields
+      seriesId: seriesId ?? null, // Preserve TvSeason → TvSeries reference
+      data: typeSpecificFields,
     });
   }
 
@@ -428,7 +477,7 @@ async function migrateType(type: string) {
 
 async function main() {
   // Migrate TvSeries BEFORE TvSeason to satisfy FK constraint
-  const orderedTypes = ['Book', 'VideoGame', 'Feature', 'TvSeries', 'TvSeason'];
+  const orderedTypes = ["Book", "VideoGame", "Feature", "TvSeries", "TvSeason"];
   for (const type of orderedTypes) {
     await migrateType(type);
   }
@@ -446,9 +495,11 @@ async function main() {
 #### 4a. Data Layer Rewrite
 
 **Files to modify:**
+
 - `packages/data/src/` - Complete rewrite
 
 **Tasks:**
+
 - [ ] Add Drizzle ORM dependencies (`drizzle-orm`, `pg`)
 - [ ] Create Drizzle schema definition
 - [ ] Rewrite `Query` object with Drizzle queries
@@ -457,47 +508,63 @@ async function main() {
 - [ ] Remove Dynamoose dependency
 
 **Drizzle Schema:**
+
 ```typescript
 // packages/data/src/schema.ts
-import { pgTable, uuid, varchar, decimal, text, timestamp, jsonb, integer } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  decimal,
+  text,
+  timestamp,
+  jsonb,
+  integer,
+} from "drizzle-orm/pg-core";
 
-export const items = pgTable('items', {
-  id: uuid('id').primaryKey(),  // No defaultRandom - preserve existing IDs
-  type: varchar('type', { length: 50 }).notNull(),
-  shelf: varchar('shelf', { length: 50 }).notNull(),
-  title: varchar('title', { length: 500 }).notNull(),
-  rating: decimal('rating', { precision: 2, scale: 1 }),
-  imageUrl: text('image_url'),
-  imageWidth: integer('image_width'),
-  imageHeight: integer('image_height'),
-  externalId: varchar('external_id', { length: 255 }),
-  notes: text('notes'),
-  addedAt: timestamp('added_at', { withTimezone: true }).notNull().defaultNow(),
-  movedAt: timestamp('moved_at', { withTimezone: true }).notNull().defaultNow(),
-  seriesId: uuid('series_id'),
-  data: jsonb('data').default({})
+export const items = pgTable("items", {
+  id: uuid("id").primaryKey(), // No defaultRandom - preserve existing IDs
+  type: varchar("type", { length: 50 }).notNull(),
+  shelf: varchar("shelf", { length: 50 }).notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  rating: decimal("rating", { precision: 2, scale: 1 }),
+  imageUrl: text("image_url"),
+  imageWidth: integer("image_width"),
+  imageHeight: integer("image_height"),
+  externalId: varchar("external_id", { length: 255 }),
+  notes: text("notes"),
+  addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow(),
+  movedAt: timestamp("moved_at", { withTimezone: true }).notNull().defaultNow(),
+  seriesId: uuid("series_id"),
+  data: jsonb("data").default({}),
 });
 ```
 
 **Query Implementation:**
+
 ```typescript
 // packages/data/src/query.ts
-import { db } from './db';
-import { items } from './schema';
-import { eq, and, gte, lte, desc, asc, ilike, sql } from 'drizzle-orm';
+import { db } from "./db";
+import { items } from "./schema";
+import { eq, and, gte, lte, desc, asc, ilike, sql } from "drizzle-orm";
 
 export const Query = {
   withId: async ({ type, id }) => {
-    const [item] = await db.select().from(items)
+    const [item] = await db
+      .select()
+      .from(items)
       .where(and(eq(items.type, type), eq(items.id, id)));
     return item ?? null;
   },
 
-  ofType: async ({ type }, { first, after, startDate, endDate, sortBy, searchTerm, minRating }) => {
+  ofType: async (
+    { type },
+    { first, after, startDate, endDate, sortBy, searchTerm, minRating },
+  ) => {
     const conditions = [
       eq(items.type, type),
-      gte(items.movedAt, startDate ?? new Date('2010-01-01')),
-      lte(items.movedAt, endDate ?? new Date('2200-01-01'))
+      gte(items.movedAt, startDate ?? new Date("2010-01-01")),
+      lte(items.movedAt, endDate ?? new Date("2200-01-01")),
     ];
 
     // NEW: Can combine search + date (impossible in DynamoDB!)
@@ -510,9 +577,11 @@ export const Query = {
       conditions.push(gte(items.rating, minRating));
     }
 
-    const sortCol = sortBy === 'ADDED_AT' ? items.addedAt : items.movedAt;
+    const sortCol = sortBy === "ADDED_AT" ? items.addedAt : items.movedAt;
 
-    return db.select().from(items)
+    return db
+      .select()
+      .from(items)
       .where(and(...conditions))
       .orderBy(desc(sortCol))
       .limit(first)
@@ -521,49 +590,61 @@ export const Query = {
 
   onShelf: async ({ type, shelf }, options) => {
     // Similar to ofType with additional shelf filter
-    return db.select().from(items)
-      .where(and(
-        eq(items.type, type),
-        eq(items.shelf, shelf),
-        // ... other conditions
-      ))
+    return db
+      .select()
+      .from(items)
+      .where(
+        and(
+          eq(items.type, type),
+          eq(items.shelf, shelf),
+          // ... other conditions
+        ),
+      )
       .orderBy(desc(items.movedAt))
       .limit(options.first);
   },
 
   withSeriesId: async ({ seriesId }) => {
-    return db.select().from(items)
+    return db
+      .select()
+      .from(items)
       .where(eq(items.seriesId, seriesId))
       .orderBy(asc(sql`(data->>'seasonNumber')::int`));
   },
 
   withExternalId: async ({ externalId }) => {
-    const [item] = await db.select().from(items)
+    const [item] = await db
+      .select()
+      .from(items)
       .where(eq(items.externalId, externalId));
     return item ?? null;
   },
 
   // "Watching" category - hardcoded type grouping
   forWatching: async ({ first, after }) => {
-    return db.select().from(items)
+    return db
+      .select()
+      .from(items)
       .where(sql`type IN ('Feature', 'TvSeries')`)
       .orderBy(desc(items.movedAt))
       .limit(first)
       .offset(after ?? 0);
-  }
+  },
 };
 ```
 
 **Mutate Implementation:**
+
 ```typescript
 // packages/data/src/mutate.ts
 export const Mutate = {
   createItem: async (itemData) => {
-    const [created] = await db.insert(items)
+    const [created] = await db
+      .insert(items)
       .values({
         ...itemData,
         movedAt: itemData.movedAt ?? new Date(),
-        addedAt: itemData.addedAt ?? new Date()
+        addedAt: itemData.addedAt ?? new Date(),
       })
       .returning();
     return created;
@@ -575,7 +656,8 @@ export const Mutate = {
       updateData.movedAt = new Date();
     }
 
-    const [updated] = await db.update(items)
+    const [updated] = await db
+      .update(items)
       .set(updateData)
       .where(and(eq(items.type, type), eq(items.id, id)))
       .returning();
@@ -583,25 +665,27 @@ export const Mutate = {
   },
 
   deleteItem: async ({ id, type }) => {
-    await db.delete(items)
-      .where(and(eq(items.type, type), eq(items.id, id)));
-  }
+    await db.delete(items).where(and(eq(items.type, type), eq(items.id, id)));
+  },
 };
 ```
 
 #### 4b. GraphQL Layer Updates
 
 **Files to modify:**
+
 - `packages/graphql/src/resolvers/` - Minor updates
 - `packages/graphql/src/shared/schema.ts` - Add new filter inputs
 
 **Tasks:**
+
 - [ ] Remove "cannot combine search and date" error check
 - [ ] Add rating filter to GraphQL schema
 - [ ] Update transform functions for new data structure
 - [ ] Update error handling for PostgreSQL errors
 
 **New GraphQL Types:**
+
 ```graphql
 input ItemFilterInput {
   searchTerm: String
@@ -615,9 +699,11 @@ input ItemFilterInput {
 #### 4c. Config Updates
 
 **Files to modify:**
+
 - `packages/config/src/` - Add DSQL connection config
 
 **Tasks:**
+
 - [ ] Add DSQL connection string config
 - [ ] Update environment variable handling
 
@@ -628,6 +714,7 @@ input ItemFilterInput {
 **Goal:** Ensure new implementation works correctly.
 
 **Tasks:**
+
 - [ ] Run existing snapshot tests against new data layer
 - [ ] Fix any test failures
 - [ ] Test all query types manually
@@ -643,6 +730,7 @@ input ItemFilterInput {
 **Goal:** Deploy to production and switch traffic.
 
 **Tasks:**
+
 - [ ] Deploy DSQL cluster to production
 - [ ] Run data migration on production data
 - [ ] Deploy new code
@@ -656,10 +744,12 @@ input ItemFilterInput {
 **Goal:** Remove DynamoDB resources after successful migration.
 
 **Files to modify:**
+
 - `packages/cdk/src/BillioDataStack.ts` - Remove DynamoDB table and GSIs
 - `packages/data/` - Remove Dynamoose dependency
 
 **Tasks:**
+
 - [ ] Keep DynamoDB running for 1-2 weeks as fallback
 - [ ] Remove DynamoDB table from BillioDataStack
 - [ ] Remove `itemTable` export and update dependent stacks
@@ -671,77 +761,85 @@ input ItemFilterInput {
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| OCC retry needed | Add retry wrapper in data layer for transaction conflicts |
-| Cold start latency | Connection pooling, keep-alive |
-| Data migration errors | Run on test first, verify counts, spot-check records |
-| DSQL feature gaps | Stick to basic SQL, test thoroughly |
+| Risk                  | Mitigation                                                |
+| --------------------- | --------------------------------------------------------- |
+| OCC retry needed      | Add retry wrapper in data layer for transaction conflicts |
+| Cold start latency    | Connection pooling, keep-alive                            |
+| Data migration errors | Run on test first, verify counts, spot-check records      |
+| DSQL feature gaps     | Stick to basic SQL, test thoroughly                       |
 
 ---
 
 ## Files Summary
 
-| Package | Changes |
-|---------|---------|
-| `packages/cdk/src/BillioDataStack.ts` | Add DSQL cluster, IAM role for migrations, eventually remove DynamoDB |
-| `packages/cdk/src/BillioApiStack.ts` | Pass DSQL endpoint to Lambda environment |
-| `packages/data/src/schema.ts` | Drizzle schema definition |
-| `packages/data/src/db.ts` | Database connection with IAM auth |
-| `packages/data/src/migrate.ts` | Migration runner script |
-| `packages/data/drizzle.config.ts` | Drizzle-kit configuration |
-| `packages/data/migrations/` | SQL migration files (generated by drizzle-kit) |
-| `packages/data/` | Complete rewrite: Dynamoose → Drizzle ORM |
-| `packages/graphql/` | Minor updates: remove filter restrictions, add rating filter |
-| `packages/backup/` | Add data migration script |
-| `packages/config/` | Add DSQL connection config |
-| `.github/workflows/deploy.yml` | Add migrate job between deploy and graphql-tests |
+| Package                               | Changes                                                               |
+| ------------------------------------- | --------------------------------------------------------------------- |
+| `packages/cdk/src/BillioDataStack.ts` | Add DSQL cluster, eventually remove DynamoDB |
+| `packages/cdk/src/BillioDataMigrationStack.ts` | IAM role for GitHub Actions migrations |
+| `packages/cdk/src/BillioApiStack.ts`  | Pass DSQL endpoint to Lambda environment                              |
+| `packages/data/src/schema.ts`         | Drizzle schema definition                                             |
+| `packages/data/src/db.ts`             | Database connection with IAM auth                                     |
+| `packages/data/src/migrate.ts`        | Migration runner script                                               |
+| `packages/data/src/drizzle.config.ts` | Drizzle-kit configuration                                             |
+| `packages/data/migrations/`           | SQL migration files (generated by drizzle-kit)                        |
+| `packages/data/`                      | Complete rewrite: Dynamoose → Drizzle ORM                             |
+| `packages/graphql/`                   | Minor updates: remove filter restrictions, add rating filter          |
+| `packages/backup/`                    | Add data migration script                                             |
+| `packages/config/`                    | Add DSQL connection config                                            |
+| `.github/workflows/deploy.yml`        | Add migrate job between deploy and graphql-tests                      |
 
 ---
 
 ## Progress Tracking
 
 ### Phase 1: Infrastructure ✅
+
 - [x] DSQL cluster created (in CDK code)
 - [x] IAM roles configured (dsql:DbConnect permission)
 - [x] Lambda environment updated (BILLIO_DSQL_ENDPOINT)
 - [x] Deployment successful (all environments)
 
 ### Phase 2: Schema & Migrations
-- [ ] Drizzle dependencies added
-- [ ] Drizzle schema defined (`packages/data/src/schema.ts`)
-- [ ] Database connection module created (`packages/data/src/db.ts`)
-- [ ] drizzle-kit config created
-- [ ] Initial migration generated
-- [ ] Migration script created (`packages/data/src/migrate.ts`)
-- [ ] IAM role for GitHub Actions added to CDK
-- [ ] Deploy.yml updated with migrate job
+
+- [x] Drizzle dependencies added
+- [x] Drizzle schema defined (`packages/data/src/schema.ts`)
+- [x] Database connection module created (`packages/data/src/db.ts`)
+- [x] drizzle-kit config created (`packages/data/src/drizzle.config.ts`)
+- [x] Initial migration generated
+- [x] Migration script created (`packages/data/src/migrate.ts`)
+- [x] IAM role for GitHub Actions added to CDK
+- [x] Deploy.yml updated with migrate job
 - [ ] Migration applied to test environment
 - [ ] Migration applied to production environment
 
 ### Phase 3: Data Migration
+
 - [ ] Migration script written
 - [ ] Test migration successful
 - [ ] Data verified
 
 ### Phase 4: Code Changes
+
 - [ ] Query object rewritten
 - [ ] Mutate object rewritten
 - [ ] GraphQL resolvers updated
 - [ ] Config updated
 
 ### Phase 5: Testing
+
 - [ ] Snapshot tests passing
 - [ ] Manual testing complete
 - [ ] New features verified
 
 ### Phase 6: Deployment
+
 - [ ] Production DSQL deployed
 - [ ] Production data migrated
 - [ ] Production code deployed
 - [ ] Production verified
 
 ### Phase 7: Cleanup
+
 - [ ] DynamoDB retained for fallback period
 - [ ] DynamoDB resources removed
 - [ ] Dynamoose dependency removed

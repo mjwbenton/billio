@@ -11,14 +11,23 @@
     "clean": "../../scripts/clean.sh",
     "fix": "../../scripts/fix.sh",
     "check": "../../scripts/check.sh",
-    "watch": "../../scripts/watch.sh"
+    "watch": "../../scripts/watch.sh",
+    "db:generate": "drizzle-kit generate --config src/drizzle.config.ts",
+    "db:push": "drizzle-kit push --config src/drizzle.config.ts",
+    "migrate": "tsx src/migrate.ts"
   },
   "devDependencies": {
     "@types/node": "^16.11.10",
+    "@types/pg": "^8.16.0",
+    "drizzle-kit": "^0.31.8",
     "prettier": "^3.3.3",
+    "tsx": "^4.21.0",
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "dynamoose": "^2.8.5"
+    "@aws-sdk/dsql-signer": "^3.958.0",
+    "drizzle-orm": "^0.45.1",
+    "dynamoose": "^2.8.5",
+    "pg": "^8.16.3"
   }
 }

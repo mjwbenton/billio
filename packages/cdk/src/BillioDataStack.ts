@@ -1,4 +1,4 @@
-import { Stack } from "aws-cdk-lib";
+import { CfnOutput, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import {
   AttributeType,
@@ -64,9 +64,12 @@ export default class BillioDataStack extends Stack {
 
     this.itemTable = itemTable;
 
-    // Aurora DSQL cluster for migration
     this.dsqlCluster = new dsql.CfnCluster(this, "DsqlCluster", {
       deletionProtectionEnabled: true,
+    });
+
+    new CfnOutput(this, "DsqlEndpoint", {
+      value: `${this.dsqlCluster.attrIdentifier}.dsql.${this.region}.on.aws`,
     });
   }
 }

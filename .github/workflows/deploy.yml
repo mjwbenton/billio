@@ -27,8 +27,47 @@ jobs:
 
       - run: yarn install --frozen-lockfile
       - run: yarn deploy
-  graphql-tests:
+
+  migrate:
     needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::858777967843:role/billio-github-actions-dsql-migrate
+          aws-region: us-east-1
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Get DSQL endpoints from CloudFormation
+        id: endpoints
+        run: |
+          PROD_ENDPOINT=$(aws cloudformation describe-stacks --stack-name BillioDataV3 --query "Stacks[0].Outputs[?OutputKey=='DsqlEndpoint'].OutputValue" --output text)
+          TEST_ENDPOINT=$(aws cloudformation describe-stacks --stack-name BillioTestDataV3 --query "Stacks[0].Outputs[?OutputKey=='DsqlEndpoint'].OutputValue" --output text)
+          echo "prod=$PROD_ENDPOINT" >> $GITHUB_OUTPUT
+          echo "test=$TEST_ENDPOINT" >> $GITHUB_OUTPUT
+
+      - name: Run DSQL migrations (test)
+        env:
+          BILLIO_DSQL_ENDPOINT: ${{ steps.endpoints.outputs.test }}
+          AWS_REGION: us-east-1
+        run: yarn workspace @mattb.tech/billio-data migrate
+
+      - name: Run DSQL migrations (production)
+        env:
+          BILLIO_DSQL_ENDPOINT: ${{ steps.endpoints.outputs.prod }}
+          AWS_REGION: us-east-1
+        run: yarn workspace @mattb.tech/billio-data migrate
+
+  graphql-tests:
+    needs: migrate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

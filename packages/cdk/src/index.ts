@@ -3,6 +3,7 @@ import BillioAdminStack from "./BillioAdminStack";
 import BillioApiStack from "./BillioApiStack";
 import BillioAuthStack from "./BillioAuthStack";
 import BillioDataStack from "./BillioDataStack";
+import BillioDataMigrationStack from "./BillioDataMigrationStack";
 import BillioImageStack from "./BillioImageStack";
 import BillioCDNStack from "./BillioCDNStack";
 import BillioBackupStack from "./BillioBackupStack";
@@ -41,6 +42,11 @@ new BillioBackupStack(app, "BillioBackup", {
 
 // Integration test stacks
 const integrationDataStack = new BillioDataStack(app, "BillioTestDataV3");
+
+new BillioDataMigrationStack(app, "BillioDataMigration", {
+  dataStacks: [dataStack, integrationDataStack],
+});
+
 const integrationImageStack = new BillioImageStack(app, "BillioTestImage");
 const integrationCdnStack = new BillioCDNStack(app, "BillioTestCDN", {
   imageStack: integrationImageStack,
