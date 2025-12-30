@@ -1,40 +1,29 @@
 import { Pool, PoolClient } from "pg";
 import { DsqlSigner } from "@aws-sdk/dsql-signer";
-import { readFileSync } from "fs";
+import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
 
-interface MigrationJournal {
-  entries: Array<{
-    idx: number;
-    tag: string;
-    when: number;
-  }>;
-}
-
 interface AppliedMigration {
-  hash: string;
+  name: string;
   applied_at: number;
 }
 
 /**
  * Custom migration runner for Aurora DSQL.
  *
- * Drizzle's built-in migrator is incompatible with DSQL for two reasons:
- * 1. It uses SERIAL for its tracking table, but DSQL doesn't support sequences
- * 2. It may mix DDL and DML in the same transaction, but DSQL forbids this
+ * Uses hand-crafted SQL files instead of Drizzle-generated migrations because:
+ * 1. DSQL doesn't support SERIAL (used by Drizzle's tracking table)
+ * 2. DSQL doesn't support partial indexes (WHERE clause)
+ * 3. DSQL requires CREATE INDEX ASYNC for tables with data
  *
- * This custom runner avoids both issues by:
- * - Using a simple TEXT primary key instead of SERIAL
- * - Relying on autocommit so each statement is its own transaction
+ * Migration files are read directly from migrations/ directory, sorted by filename.
+ * Each statement is executed individually (autocommit) to avoid transaction issues.
  */
 
 async function ensureMigrationsTable(client: PoolClient) {
-  // Create the table with a hash-based primary key (no SERIAL needed)
-  // Uses custom table name to distinguish from Drizzle's built-in migrator
-  // which uses SERIAL (incompatible with DSQL)
   await client.query(`
     CREATE TABLE IF NOT EXISTS "_billio_migrations" (
-      hash TEXT PRIMARY KEY,
+      name TEXT PRIMARY KEY,
       applied_at BIGINT NOT NULL
     )
   `);
@@ -42,20 +31,26 @@ async function ensureMigrationsTable(client: PoolClient) {
 
 async function getAppliedMigrations(client: PoolClient): Promise<Set<string>> {
   const result = await client.query<AppliedMigration>(
-    `SELECT hash, applied_at FROM "_billio_migrations"`,
+    `SELECT name, applied_at FROM "_billio_migrations"`,
   );
-  return new Set(result.rows.map((row) => row.hash));
+  return new Set(result.rows.map((row) => row.name));
 }
 
 async function recordMigration(
   client: PoolClient,
-  hash: string,
+  name: string,
   appliedAt: number,
 ) {
   await client.query(
-    `INSERT INTO "_billio_migrations" (hash, applied_at) VALUES ($1, $2)`,
-    [hash, appliedAt],
+    `INSERT INTO "_billio_migrations" (name, applied_at) VALUES ($1, $2)`,
+    [name, appliedAt],
   );
+}
+
+function getMigrationFiles(migrationsFolder: string): string[] {
+  return readdirSync(migrationsFolder)
+    .filter((f) => f.endsWith(".sql"))
+    .sort();
 }
 
 async function runMigrations() {
@@ -90,43 +85,41 @@ async function runMigrations() {
     const appliedMigrations = await getAppliedMigrations(client);
     console.log(`Found ${appliedMigrations.size} already applied migrations`);
 
-    // Read the journal to find all migrations
+    // Read all migration files from the migrations directory
     const migrationsFolder = join(__dirname, "..", "migrations");
-    const journalPath = join(migrationsFolder, "meta", "_journal.json");
-    const journal: MigrationJournal = JSON.parse(
-      readFileSync(journalPath, "utf-8"),
-    );
+    const migrationFiles = getMigrationFiles(migrationsFolder);
 
     // Apply any new migrations
     let appliedCount = 0;
-    for (const entry of journal.entries) {
-      const hash = entry.tag;
+    for (const filename of migrationFiles) {
+      const name = filename.replace(".sql", "");
 
-      if (appliedMigrations.has(hash)) {
-        console.log(`Skipping already applied migration: ${hash}`);
+      if (appliedMigrations.has(name)) {
+        console.log(`Skipping already applied migration: ${name}`);
         continue;
       }
 
-      console.log(`Applying migration: ${hash}`);
+      console.log(`Applying migration: ${name}`);
 
       // Read the migration SQL
-      const sqlPath = join(migrationsFolder, `${hash}.sql`);
+      const sqlPath = join(migrationsFolder, filename);
       const sql = readFileSync(sqlPath, "utf-8");
 
-      // Split by statement breakpoint marker and execute each statement
+      // Split by semicolon followed by newline and execute each statement
       const statements = sql
-        .split("--> statement-breakpoint")
+        .split(/;\s*\n/)
         .map((s) => s.trim())
-        .filter((s) => s.length > 0);
+        .filter((s) => s.length > 0 && !s.startsWith("--"));
 
       for (const statement of statements) {
+        console.log(`  Executing: ${statement.substring(0, 60)}...`);
         await client.query(statement);
       }
 
       // Record the migration as applied
-      await recordMigration(client, hash, Date.now());
+      await recordMigration(client, name, Date.now());
       appliedCount++;
-      console.log(`Applied migration: ${hash}`);
+      console.log(`Applied migration: ${name}`);
     }
 
     if (appliedCount === 0) {

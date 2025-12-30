@@ -33,19 +33,13 @@ export const items = pgTable(
     data: text("data").default("{}"),
   },
   (table) => [
+    // Essential indexes (5 total) - matches 0001_initial_schema.sql
+    // DSQL doesn't support partial indexes (WHERE clause)
     index("idx_type_moved").on(table.type, table.movedAt),
-    index("idx_type_added").on(table.type, table.addedAt),
     index("idx_type_shelf_moved").on(table.type, table.shelf, table.movedAt),
-    index("idx_type_shelf_added").on(table.type, table.shelf, table.addedAt),
     index("idx_type_title").on(table.type, table.title),
-    index("idx_external_id")
-      .on(table.externalId)
-      .where(sql`external_id IS NOT NULL`),
-    index("idx_series_id")
-      .on(table.seriesId, table.movedAt)
-      .where(sql`series_id IS NOT NULL`),
-    index("idx_type_rating").on(table.type, table.rating),
-    index("idx_type_shelf_rating").on(table.type, table.shelf, table.rating),
+    index("idx_external_id").on(table.externalId),
+    index("idx_series_id").on(table.seriesId, table.movedAt),
     check("chk_series_id", sql`series_id IS NULL OR type = 'TvSeason'`),
   ],
 );

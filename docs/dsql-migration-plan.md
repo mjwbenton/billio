@@ -48,22 +48,23 @@ CREATE TABLE items (
   -- TvSeasons: {"seasonNumber": 1, "seasonTitle": "...", "releaseYear": "2020", "rewatch": false}
 );
 
--- Core indexes
-CREATE INDEX idx_type_moved ON items(type, moved_at DESC);
-CREATE INDEX idx_type_added ON items(type, added_at DESC);
-CREATE INDEX idx_type_shelf_moved ON items(type, shelf, moved_at DESC);
-CREATE INDEX idx_type_shelf_added ON items(type, shelf, added_at DESC);
+-- Essential indexes (5 total)
+-- Note: DSQL doesn't support DESC, USING btree, or WHERE clause on indexes
+CREATE INDEX idx_type_moved ON items(type, moved_at);
+CREATE INDEX idx_type_shelf_moved ON items(type, shelf, moved_at);
 CREATE INDEX idx_type_title ON items(type, title);
-CREATE INDEX idx_external_id ON items(external_id) WHERE external_id IS NOT NULL;
-CREATE INDEX idx_series_id ON items(series_id, moved_at DESC) WHERE series_id IS NOT NULL;
-
--- Rating filter support
-CREATE INDEX idx_type_rating ON items(type, rating DESC NULLS LAST);
-CREATE INDEX idx_type_shelf_rating ON items(type, shelf, rating DESC NULLS LAST);
+CREATE INDEX idx_external_id ON items(external_id);
+CREATE INDEX idx_series_id ON items(series_id, moved_at);
 
 -- Constraint: series_id only valid for TvSeason
 ALTER TABLE items ADD CONSTRAINT chk_series_id
   CHECK (series_id IS NULL OR type = 'TvSeason');
+
+-- Future indexes (add with CREATE INDEX ASYNC after data exists)
+-- CREATE INDEX ASYNC idx_type_added ON items(type, added_at);
+-- CREATE INDEX ASYNC idx_type_shelf_added ON items(type, shelf, added_at);
+-- CREATE INDEX ASYNC idx_type_rating ON items(type, rating);
+-- CREATE INDEX ASYNC idx_type_shelf_rating ON items(type, shelf, rating);
 ```
 
 **Note:** `category` field removed - type groupings (e.g., "watching" = Feature + TvSeries) will be hardcoded in application code.
@@ -92,36 +93,38 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 
 ---
 
-### Phase 2: Schema & Migrations (Drizzle) ✅
+### Phase 2: Schema & Migrations ✅
 
-**Goal:** Define Drizzle schema and set up migrations with drizzle-kit. Apply migrations via GitHub Actions.
+**Goal:** Define schema and set up migrations with custom DSQL-compatible SQL. Apply migrations via GitHub Actions.
 
 **Files to create/modify:**
 
-- `packages/data/src/schema.ts` - Drizzle schema definition
+- `packages/data/src/schema.ts` - Drizzle schema definition (for ORM use, not migrations)
 - `packages/data/src/db.ts` - Database connection
-- `packages/data/src/drizzle.config.ts` - Drizzle-kit configuration
-- `packages/data/src/migrate.ts` - Migration runner script
-- `packages/data/migrations/` - Migration files (generated)
+- `packages/data/src/migrate.ts` - Custom migration runner script
+- `packages/data/migrations/` - Hand-crafted SQL migration files
 - `packages/cdk/src/BillioDataMigrationStack.ts` - IAM role for GitHub Actions migrations
 - `.github/workflows/deploy.yml` - Add migration step after deploy
 
 **Tasks:**
 
-- [x] Add Drizzle dependencies to `packages/data`
-  - `drizzle-orm`
-  - `drizzle-kit` (dev dependency)
+- [x] Add dependencies to `packages/data`
+  - `drizzle-orm` (for ORM queries, not migrations)
   - `@aws-sdk/dsql-signer` (for IAM auth token generation)
   - `pg` (PostgreSQL driver)
 - [x] Create Drizzle schema definition (`packages/data/src/schema.ts`)
 - [x] Create database connection module with IAM auth (`packages/data/src/db.ts`)
-- [x] Create drizzle-kit config (`packages/data/src/drizzle.config.ts`)
-- [x] Generate initial migration with `drizzle-kit generate`
-- [x] Create migration script that can run against any environment
+- [x] Create custom migration runner (`packages/data/src/migrate.ts`)
+- [x] Create hand-crafted DSQL-compatible initial migration
 - [x] Add IAM role to CDK for GitHub Actions to assume for migrations (`BillioDataMigrationStack`)
 - [x] Add migration step to deploy.yml (after deploy, before graphql tests)
 - [ ] Apply migration to test environment (will run on next deploy)
 - [ ] Apply migration to production environment (will run on next deploy)
+
+**Note:** We use custom SQL migrations instead of drizzle-kit because DSQL doesn't support:
+- Partial indexes (`WHERE` clause)
+- `USING btree` syntax
+- `CREATE INDEX` on tables with data (must use `CREATE INDEX ASYNC`)
 
 **Drizzle Schema:**
 
@@ -162,19 +165,12 @@ export const items = pgTable(
     data: text("data").default('{}'), // TEXT instead of JSONB - DSQL doesn't support JSONB columns
   },
   (table) => [
+    // Essential indexes (5 total) - DSQL doesn't support partial indexes
     index("idx_type_moved").on(table.type, table.movedAt),
-    index("idx_type_added").on(table.type, table.addedAt),
     index("idx_type_shelf_moved").on(table.type, table.shelf, table.movedAt),
-    index("idx_type_shelf_added").on(table.type, table.shelf, table.addedAt),
     index("idx_type_title").on(table.type, table.title),
-    index("idx_external_id")
-      .on(table.externalId)
-      .where(sql`external_id IS NOT NULL`),
-    index("idx_series_id")
-      .on(table.seriesId, table.movedAt)
-      .where(sql`series_id IS NOT NULL`),
-    index("idx_type_rating").on(table.type, table.rating),
-    index("idx_type_shelf_rating").on(table.type, table.shelf, table.rating),
+    index("idx_external_id").on(table.externalId),
+    index("idx_series_id").on(table.seriesId, table.movedAt),
     check("chk_series_id", sql`series_id IS NULL OR type = 'TvSeason'`),
   ],
 );
@@ -384,15 +380,15 @@ graphql-tests:
 **Package.json scripts:**
 
 ```json
-// Add to packages/data/package.json scripts
+// packages/data/package.json scripts
 {
   "scripts": {
-    "db:generate": "drizzle-kit generate --config src/drizzle.config.ts",
-    "db:push": "drizzle-kit push --config src/drizzle.config.ts",
     "migrate": "tsx src/migrate.ts"
   }
 }
 ```
+
+**Note:** We removed `db:generate` and `db:push` scripts since we now use hand-crafted SQL migrations.
 
 **Deliverable:** Drizzle schema defined, migrations generated, and GitHub Actions workflow ready to apply migrations to any environment.
 
@@ -799,11 +795,10 @@ Aurora DSQL has several PostgreSQL compatibility limitations that affect this sc
 | `packages/cdk/src/BillioDataStack.ts` | Add DSQL cluster, eventually remove DynamoDB |
 | `packages/cdk/src/BillioDataMigrationStack.ts` | IAM role for GitHub Actions migrations |
 | `packages/cdk/src/BillioApiStack.ts`  | Pass DSQL endpoint to Lambda environment                              |
-| `packages/data/src/schema.ts`         | Drizzle schema definition                                             |
+| `packages/data/src/schema.ts`         | Drizzle schema definition (for ORM use)                               |
 | `packages/data/src/db.ts`             | Database connection with IAM auth                                     |
-| `packages/data/src/migrate.ts`        | Migration runner script                                               |
-| `packages/data/src/drizzle.config.ts` | Drizzle-kit configuration                                             |
-| `packages/data/migrations/`           | SQL migration files (generated by drizzle-kit)                        |
+| `packages/data/src/migrate.ts`        | Custom migration runner script                                        |
+| `packages/data/migrations/`           | Hand-crafted DSQL-compatible SQL migration files                      |
 | `packages/data/`                      | Complete rewrite: Dynamoose → Drizzle ORM                             |
 | `packages/graphql/`                   | Minor updates: remove filter restrictions, add rating filter          |
 | `packages/backup/`                    | Add data migration script                                             |
@@ -823,12 +818,11 @@ Aurora DSQL has several PostgreSQL compatibility limitations that affect this sc
 
 ### Phase 2: Schema & Migrations
 
-- [x] Drizzle dependencies added
+- [x] Dependencies added (drizzle-orm, pg, dsql-signer)
 - [x] Drizzle schema defined (`packages/data/src/schema.ts`)
 - [x] Database connection module created (`packages/data/src/db.ts`)
-- [x] drizzle-kit config created (`packages/data/src/drizzle.config.ts`)
-- [x] Initial migration generated
-- [x] Migration script created (`packages/data/src/migrate.ts`)
+- [x] Custom migration runner created (`packages/data/src/migrate.ts`)
+- [x] Hand-crafted DSQL-compatible initial migration (`migrations/0001_initial_schema.sql`)
 - [x] IAM role for GitHub Actions added to CDK
 - [x] Deploy.yml updated with migrate job
 - [ ] Migration applied to test environment
