@@ -196,14 +196,14 @@ export const Query = {
     return rows.map(rowToItem);
   },
 
-  // Only used for Tv Series
+  // Only used for Tv Series - order by seasonNumber for "last season" logic
   withSeriesId: async ({ seriesId }: { seriesId: string }): Promise<Item[]> => {
     const db = await getDb();
     const rows = await db
       .select()
       .from(items)
       .where(eq(items.seriesId, seriesId))
-      .orderBy(asc(items.movedAt));
+      .orderBy(asc(sql`(${items.data}::json->>'seasonNumber')::int`));
     return rows.map(rowToItem);
   },
 
