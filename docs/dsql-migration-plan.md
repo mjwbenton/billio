@@ -836,7 +836,7 @@ Aurora DSQL has several PostgreSQL compatibility limitations that affect this sc
 
 ### Phase 3: Data Migration
 
-- [ ] Migration script written
+- [x] Migration script written (`packages/backup/src/bin/migrateToDsql.ts`)
 - [ ] Test migration successful
 - [ ] Data verified
 

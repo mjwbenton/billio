@@ -11,15 +11,21 @@
     "clean": "../../scripts/clean.sh",
     "fix": "../../scripts/fix.sh",
     "check": "../../scripts/check.sh",
-    "watch": "../../scripts/watch.sh"
+    "watch": "../../scripts/watch.sh",
+    "backup:local": "tsx src/bin/localBackup.ts",
+    "migrate:dsql": "tsx src/bin/migrateToDsql.ts"
   },
   "devDependencies": {
     "prettier": "^3.3.3",
+    "tsx": "^4.19.2",
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "@aws-sdk/dsql-signer": "^3.958.0",
     "@mattb.tech/billio-config": "1.0.0",
     "@mattb.tech/billio-data": "1.0.0",
-    "aws-sdk": "^2.1035.0"
+    "aws-sdk": "^2.1035.0",
+    "drizzle-orm": "^0.45.1",
+    "pg": "^8.16.3"
   }
 }

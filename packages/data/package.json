@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "description": "Data layer for billio",
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./schema": "./dist/schema.js"
+  },
   "author": "Matt Benton <m@mattb.tech>",
   "license": "MIT",
   "scripts": {
