@@ -1,5 +1,5 @@
 {
-  "id": "3be4d326-0191-4131-8684-e9dfcf5ce59a",
+  "id": "3c17f380-68af-4c49-8174-2bba86c7b6fb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -90,10 +90,10 @@
         },
         "data": {
           "name": "data",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "default": "'{}'::jsonb"
+          "default": "'{}'"
         }
       },
       "indexes": {

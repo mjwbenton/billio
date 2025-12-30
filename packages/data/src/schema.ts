@@ -4,7 +4,6 @@ import {
   varchar,
   text,
   timestamp,
-  jsonb,
   integer,
   index,
   check,
@@ -31,7 +30,7 @@ export const items = pgTable(
       .notNull()
       .defaultNow(),
     seriesId: uuid("series_id"),
-    data: jsonb("data").default({}),
+    data: text("data").default("{}"),
   },
   (table) => [
     index("idx_type_moved").on(table.type, table.movedAt),

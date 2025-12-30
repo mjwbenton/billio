@@ -36,11 +36,11 @@ CREATE TABLE items (
   added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   moved_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-  -- TvSeason -> TvSeries relationship
-  series_id UUID REFERENCES items(id),
+  -- TvSeason -> TvSeries relationship (no FK constraint - not enforced in DSQL)
+  series_id UUID,
 
-  -- Type-specific fields
-  data JSONB DEFAULT '{}'::jsonb
+  -- Type-specific fields stored as JSON text (JSONB not supported in DSQL)
+  data TEXT DEFAULT '{}'
   -- Books: {"author": "...", "reread": false}
   -- VideoGames: {"platforms": [...], "devices": [...], "hoursPlayed": 50, "replay": false}
   -- Features: {"releaseYear": "2023", "rewatch": false}
@@ -133,7 +133,6 @@ import {
   varchar,
   text,
   timestamp,
-  jsonb,
   integer,
   index,
   check,
@@ -159,8 +158,8 @@ export const items = pgTable(
     movedAt: timestamp("moved_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
-    seriesId: uuid("series_id"),
-    data: jsonb("data").default({}),
+    seriesId: uuid("series_id"), // No FK constraint - DSQL doesn't enforce foreign keys
+    data: text("data").default('{}'), // TEXT instead of JSONB - DSQL doesn't support JSONB columns
   },
   (table) => [
     index("idx_type_moved").on(table.type, table.movedAt),
@@ -761,6 +760,25 @@ input ItemFilterInput {
 
 ---
 
+## Aurora DSQL Compatibility Notes
+
+Aurora DSQL has several PostgreSQL compatibility limitations that affect this schema:
+
+| Feature | Status | Workaround |
+| ------- | ------ | ---------- |
+| JSONB columns | ❌ Not supported | Use TEXT column, JSON.parse/stringify in app |
+| Foreign keys | ❌ Not enforced | Referential integrity checked in app code |
+| CHECK constraints | ✅ Supported | Used for `chk_series_id` |
+| Partial indexes | ✅ Supported | Used for `idx_external_id`, `idx_series_id` |
+| Timestamps with TZ | ✅ Supported | Used for `added_at`, `moved_at` |
+| UUIDs | ✅ Supported | Primary key type |
+
+**Sources:**
+- [Aurora DSQL Supported Data Types](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/working-with-postgresql-compatibility-supported-data-types.html)
+- [Aurora DSQL Unsupported Features](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/working-with-postgresql-compatibility-unsupported-features.html)
+
+---
+
 ## Risks & Mitigations
 
 | Risk                  | Mitigation                                                |
@@ -769,6 +787,8 @@ input ItemFilterInput {
 | Cold start latency    | Connection pooling, keep-alive                            |
 | Data migration errors | Run on test first, verify counts, spot-check records      |
 | DSQL feature gaps     | Stick to basic SQL, test thoroughly                       |
+| JSONB not supported   | Use TEXT column with JSON serialization in application    |
+| FK not enforced       | Validate series_id references in application layer        |
 
 ---
 

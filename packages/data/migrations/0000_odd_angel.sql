@@ -12,7 +12,7 @@ CREATE TABLE "items" (
 	"added_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"moved_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"series_id" uuid,
-	"data" jsonb DEFAULT '{}'::jsonb,
+	"data" text DEFAULT '{}',
 	CONSTRAINT "chk_series_id" CHECK (series_id IS NULL OR type = 'TvSeason')
 );
 --> statement-breakpoint
