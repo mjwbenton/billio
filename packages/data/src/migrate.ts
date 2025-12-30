@@ -14,7 +14,7 @@ interface AppliedMigration {
  * Uses hand-crafted SQL files instead of Drizzle-generated migrations because:
  * 1. DSQL doesn't support SERIAL (used by Drizzle's tracking table)
  * 2. DSQL doesn't support partial indexes (WHERE clause)
- * 3. DSQL requires CREATE INDEX ASYNC for tables with data
+ * 3. DSQL requires CREATE INDEX ASYNC for all index creation
  *
  * Migration files are read directly from migrations/ directory, sorted by filename.
  * Each statement is executed individually (autocommit) to avoid transaction issues.
@@ -113,7 +113,23 @@ async function runMigrations() {
 
       for (const statement of statements) {
         console.log(`  Executing: ${statement.substring(0, 60)}...`);
-        await client.query(statement);
+        const result = await client.query(statement);
+
+        // Handle CREATE INDEX ASYNC - wait for the job to complete
+        if (statement.toUpperCase().includes("CREATE INDEX ASYNC")) {
+          const jobId = result.rows[0]?.job_id;
+          if (jobId) {
+            console.log(`  Waiting for async index job ${jobId}...`);
+            const waitResult = await client.query<{ wait_for_job: boolean }>(
+              `SELECT sys.wait_for_job($1) as wait_for_job`,
+              [jobId],
+            );
+            if (!waitResult.rows[0]?.wait_for_job) {
+              throw new Error(`Async index job ${jobId} failed`);
+            }
+            console.log(`  Async index job ${jobId} completed`);
+          }
+        }
       }
 
       // Record the migration as applied

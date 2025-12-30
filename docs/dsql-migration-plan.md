@@ -49,12 +49,12 @@ CREATE TABLE items (
 );
 
 -- Essential indexes (5 total)
--- Note: DSQL doesn't support DESC, USING btree, or WHERE clause on indexes
-CREATE INDEX idx_type_moved ON items(type, moved_at);
-CREATE INDEX idx_type_shelf_moved ON items(type, shelf, moved_at);
-CREATE INDEX idx_type_title ON items(type, title);
-CREATE INDEX idx_external_id ON items(external_id);
-CREATE INDEX idx_series_id ON items(series_id, moved_at);
+-- Note: DSQL requires CREATE INDEX ASYNC, doesn't support DESC, USING btree, or WHERE
+CREATE INDEX ASYNC idx_type_moved ON items(type, moved_at);
+CREATE INDEX ASYNC idx_type_shelf_moved ON items(type, shelf, moved_at);
+CREATE INDEX ASYNC idx_type_title ON items(type, title);
+CREATE INDEX ASYNC idx_external_id ON items(external_id);
+CREATE INDEX ASYNC idx_series_id ON items(series_id, moved_at);
 
 -- Constraint: series_id only valid for TvSeason
 ALTER TABLE items ADD CONSTRAINT chk_series_id
@@ -124,7 +124,7 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 **Note:** We use custom SQL migrations instead of drizzle-kit because DSQL doesn't support:
 - Partial indexes (`WHERE` clause)
 - `USING btree` syntax
-- `CREATE INDEX` on tables with data (must use `CREATE INDEX ASYNC`)
+- Synchronous `CREATE INDEX` (must always use `CREATE INDEX ASYNC`)
 
 **Drizzle Schema:**
 

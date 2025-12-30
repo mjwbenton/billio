@@ -20,9 +20,9 @@ CREATE TABLE items (
 );
 
 -- Essential indexes (5 total)
--- Using CREATE INDEX (not ASYNC) because table is empty at initial creation
-CREATE INDEX idx_type_moved ON items (type, moved_at);
-CREATE INDEX idx_type_shelf_moved ON items (type, shelf, moved_at);
-CREATE INDEX idx_type_title ON items (type, title);
-CREATE INDEX idx_external_id ON items (external_id);
-CREATE INDEX idx_series_id ON items (series_id, moved_at);
+-- DSQL requires CREATE INDEX ASYNC for all index creation
+CREATE INDEX ASYNC idx_type_moved ON items (type, moved_at);
+CREATE INDEX ASYNC idx_type_shelf_moved ON items (type, shelf, moved_at);
+CREATE INDEX ASYNC idx_type_title ON items (type, title);
+CREATE INDEX ASYNC idx_external_id ON items (external_id);
+CREATE INDEX ASYNC idx_series_id ON items (series_id, moved_at);
