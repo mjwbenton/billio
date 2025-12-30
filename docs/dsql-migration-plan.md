@@ -92,7 +92,7 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 
 ---
 
-### Phase 2: Schema & Migrations (Drizzle)
+### Phase 2: Schema & Migrations (Drizzle) ✅
 
 **Goal:** Define Drizzle schema and set up migrations with drizzle-kit. Apply migrations via GitHub Actions.
 
@@ -100,27 +100,28 @@ ALTER TABLE items ADD CONSTRAINT chk_series_id
 
 - `packages/data/src/schema.ts` - Drizzle schema definition
 - `packages/data/src/db.ts` - Database connection
-- `packages/data/drizzle.config.ts` - Drizzle-kit configuration
+- `packages/data/src/drizzle.config.ts` - Drizzle-kit configuration
+- `packages/data/src/migrate.ts` - Migration runner script
 - `packages/data/migrations/` - Migration files (generated)
-- `packages/cdk/src/BillioDataStack.ts` - Add IAM role for GitHub Actions migrations
+- `packages/cdk/src/BillioDataMigrationStack.ts` - IAM role for GitHub Actions migrations
 - `.github/workflows/deploy.yml` - Add migration step after deploy
 
 **Tasks:**
 
-- [ ] Add Drizzle dependencies to `packages/data`
+- [x] Add Drizzle dependencies to `packages/data`
   - `drizzle-orm`
   - `drizzle-kit` (dev dependency)
   - `@aws-sdk/dsql-signer` (for IAM auth token generation)
   - `pg` (PostgreSQL driver)
-- [ ] Create Drizzle schema definition (`packages/data/src/schema.ts`)
-- [ ] Create database connection module with IAM auth (`packages/data/src/db.ts`)
-- [ ] Create drizzle-kit config (`packages/data/drizzle.config.ts`)
-- [ ] Generate initial migration with `drizzle-kit generate`
-- [ ] Create migration script that can run against any environment
-- [ ] Add IAM role to CDK for GitHub Actions to assume for migrations
-- [ ] Add migration step to deploy.yml (after deploy, before graphql tests)
-- [ ] Apply migration to test environment
-- [ ] Apply migration to production environment
+- [x] Create Drizzle schema definition (`packages/data/src/schema.ts`)
+- [x] Create database connection module with IAM auth (`packages/data/src/db.ts`)
+- [x] Create drizzle-kit config (`packages/data/src/drizzle.config.ts`)
+- [x] Generate initial migration with `drizzle-kit generate`
+- [x] Create migration script that can run against any environment
+- [x] Add IAM role to CDK for GitHub Actions to assume for migrations (`BillioDataMigrationStack`)
+- [x] Add migration step to deploy.yml (after deploy, before graphql tests)
+- [ ] Apply migration to test environment (will run on next deploy)
+- [ ] Apply migration to production environment (will run on next deploy)
 
 **Drizzle Schema:**
 
@@ -158,7 +159,7 @@ export const items = pgTable(
     movedAt: timestamp("moved_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
-    seriesId: uuid("series_id").references(() => items.id),
+    seriesId: uuid("series_id"),
     data: jsonb("data").default({}),
   },
   (table) => [
@@ -218,17 +219,13 @@ export async function getDb() {
 **Drizzle Config:**
 
 ```typescript
-// packages/data/drizzle.config.ts
+// packages/data/src/drizzle.config.ts
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
   schema: "./src/schema.ts",
   out: "./migrations",
   dialect: "postgresql",
-  dbCredentials: {
-    // Connection details provided at runtime via environment
-    url: process.env.DSQL_CONNECTION_URL!,
-  },
 });
 ```
 
@@ -269,125 +266,130 @@ async function runMigrations() {
 runMigrations().catch(console.error);
 ```
 
-**CDK Role for GitHub Actions Migrations:**
+**CDK Stack for GitHub Actions Migrations:**
 
 ```typescript
-// Add to packages/cdk/src/BillioDataStack.ts
+// packages/cdk/src/BillioDataMigrationStack.ts
+import { Stack } from "aws-cdk-lib";
+import { Construct } from "constructs";
 import * as iam from "aws-cdk-lib/aws-iam";
+import BillioDataStack from "./BillioDataStack";
 
-// Import existing GitHub OIDC provider (ARN is deterministic per account)
-const githubProviderArn = `arn:aws:iam::${this.account}:oidc-provider/token.actions.githubusercontent.com`;
-const githubProvider = iam.OpenIdConnectProvider.fromOpenIdConnectProviderArn(
-  this,
-  "GitHubOIDC",
-  githubProviderArn,
-);
+interface BillioDataMigrationStackProps {
+  dataStacks: BillioDataStack[];
+}
 
-// Role for GitHub Actions to run migrations
-this.migrationRole = new iam.Role(this, "GitHubMigrationRole", {
-  roleName: "github-actions-dsql-migrate",
-  assumedBy: new iam.WebIdentityPrincipal(
-    githubProvider.openIdConnectProviderArn,
-    {
-      StringEquals: {
-        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-      },
-      StringLike: {
-        "token.actions.githubusercontent.com:sub": "repo:mjwbenton/billio:*",
-      },
-    },
-  ),
-});
+export default class BillioDataMigrationStack extends Stack {
+  constructor(
+    scope: Construct,
+    id: string,
+    props: BillioDataMigrationStackProps,
+  ) {
+    super(scope, id);
 
-// Grant permission to connect to DSQL
-this.migrationRole.addToPolicy(
-  new iam.PolicyStatement({
-    effect: iam.Effect.ALLOW,
-    actions: ["dsql:DbConnectAdmin"],
-    resources: [this.dsqlCluster.attrResourceArn],
-  }),
-);
+    const githubProviderArn = `arn:aws:iam::${this.account}:oidc-provider/token.actions.githubusercontent.com`;
+    const githubProvider =
+      iam.OpenIdConnectProvider.fromOpenIdConnectProviderArn(
+        this,
+        "GitHubOIDC",
+        githubProviderArn,
+      );
+
+    const migrationRole = new iam.Role(this, "GitHubMigrationRole", {
+      roleName: "billio-github-actions-dsql-migrate",
+      assumedBy: new iam.WebIdentityPrincipal(
+        githubProvider.openIdConnectProviderArn,
+        {
+          StringEquals: {
+            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          },
+          StringLike: {
+            "token.actions.githubusercontent.com:sub":
+              "repo:mjwbenton/billio:*",
+          },
+        },
+      ),
+    });
+
+    migrationRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ["dsql:DbConnectAdmin"],
+        resources: props.dataStacks.map(
+          (stack) => stack.dsqlCluster.attrResourceArn,
+        ),
+      }),
+    );
+
+    migrationRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ["cloudformation:DescribeStacks"],
+        resources: props.dataStacks.map(
+          (stack) =>
+            `arn:aws:cloudformation:${stack.region}:${stack.account}:stack/${stack.stackName}/*`,
+        ),
+      }),
+    );
+  }
+}
 ```
 
 **Deploy.yml Changes (add migrate job between deploy and graphql-tests):**
 
 ```yaml
-# .github/workflows/deploy.yml
-name: Deploy
-on:
-  push:
-    branches: [main]
-permissions:
-  id-token: write
-  contents: read
-concurrency: production
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+# .github/workflows/deploy.yml - migrate job (added between deploy and graphql-tests)
+migrate:
+  needs: deploy
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "yarn"
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "24"
+        cache: "yarn"
 
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::858777967843:role/github-actions-cdk
-          aws-region: us-east-1
+    - uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::858777967843:role/billio-github-actions-dsql-migrate
+        aws-region: us-east-1
 
-      - name: create graphql .env
-        run: printf "IGDB_CLIENT_ID=${{ secrets.IGDB_CLIENT_ID }}\nIGDB_CLIENT_SECRET=${{ secrets.IGDB_CLIENT_SECRET }}\nTMDB_API_KEY=${{ secrets.TMDB_API_KEY }}\n" > packages/graphql/.env
+    - run: yarn install --frozen-lockfile
 
-      - run: yarn install --frozen-lockfile
-      - run: yarn deploy
+    - name: Get DSQL endpoints from CloudFormation
+      id: endpoints
+      run: |
+        PROD_ENDPOINT=$(aws cloudformation describe-stacks --stack-name BillioDataV3 --query "Stacks[0].Outputs[?OutputKey=='DsqlEndpoint'].OutputValue" --output text)
+        TEST_ENDPOINT=$(aws cloudformation describe-stacks --stack-name BillioTestDataV3 --query "Stacks[0].Outputs[?OutputKey=='DsqlEndpoint'].OutputValue" --output text)
+        echo "prod=$PROD_ENDPOINT" >> $GITHUB_OUTPUT
+        echo "test=$TEST_ENDPOINT" >> $GITHUB_OUTPUT
 
-  migrate:
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    - name: Run DSQL migrations (test)
+      env:
+        BILLIO_DSQL_ENDPOINT: ${{ steps.endpoints.outputs.test }}
+        AWS_REGION: us-east-1
+      run: yarn workspace @mattb.tech/billio-data migrate
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "yarn"
+    - name: Run DSQL migrations (production)
+      env:
+        BILLIO_DSQL_ENDPOINT: ${{ steps.endpoints.outputs.prod }}
+        AWS_REGION: us-east-1
+      run: yarn workspace @mattb.tech/billio-data migrate
 
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::858777967843:role/github-actions-dsql-migrate
-          aws-region: us-east-1
-
-      - run: yarn install --frozen-lockfile
-
-      - name: Run DSQL migrations
-        env:
-          BILLIO_DSQL_ENDPOINT: ${{ secrets.DSQL_ENDPOINT }}
-          AWS_REGION: us-east-1
-        run: yarn workspace @mattb.tech/billio-data migrate
-
-  graphql-tests:
-    needs: migrate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "yarn"
-      - run: yarn install --frozen-lockfile
-      - run: yarn test:graphql-integration
+graphql-tests:
+  needs: migrate
+  # ... rest unchanged
 ```
 
-**Package.json script:**
+**Package.json scripts:**
 
 ```json
 // Add to packages/data/package.json scripts
 {
   "scripts": {
-    "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate --config src/drizzle.config.ts",
+    "db:push": "drizzle-kit push --config src/drizzle.config.ts",
     "migrate": "tsx src/migrate.ts"
   }
 }
