@@ -37,7 +37,7 @@ export default class BillioBackupStack extends Stack {
           NODE_ENV: "production",
         },
       },
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
       memorySize: 3008,
       timeout: Duration.minutes(1),
       environment: {
