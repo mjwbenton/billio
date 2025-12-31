@@ -19,18 +19,16 @@ Migrate Billio from DynamoDB to Aurora DSQL to gain:
 
 ## Schema Design
 
-Single table with type-specific fields in JSONB column called `data`:
+Single table (`items_v2`) with type-specific fields in TEXT column called `data`:
 
 ```sql
-CREATE TABLE items (
+CREATE TABLE items_v2 (
   id UUID PRIMARY KEY,  -- Preserve existing IDs from DynamoDB (no auto-generation)
   type VARCHAR(50) NOT NULL,  -- 'Book', 'VideoGame', 'Feature', 'TvSeries', 'TvSeason'
   shelf VARCHAR(50) NOT NULL,
   title VARCHAR(500) NOT NULL,
   rating INTEGER,  -- 1-10 scale
-  image_url TEXT,
-  image_width INT,
-  image_height INT,
+  image TEXT,  -- JSON with full structure including sizes array for optimized images
   external_id VARCHAR(255),
   notes TEXT,
   added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -50,22 +48,18 @@ CREATE TABLE items (
 
 -- Essential indexes (5 total)
 -- Note: DSQL requires CREATE INDEX ASYNC, doesn't support DESC, USING btree, or WHERE
-CREATE INDEX ASYNC idx_type_moved ON items(type, moved_at);
-CREATE INDEX ASYNC idx_type_shelf_moved ON items(type, shelf, moved_at);
-CREATE INDEX ASYNC idx_type_title ON items(type, title);
-CREATE INDEX ASYNC idx_external_id ON items(external_id);
-CREATE INDEX ASYNC idx_series_id ON items(series_id, moved_at);
+CREATE INDEX ASYNC idx_type_moved_v2 ON items_v2(type, moved_at);
+CREATE INDEX ASYNC idx_type_shelf_moved_v2 ON items_v2(type, shelf, moved_at);
+CREATE INDEX ASYNC idx_type_title_v2 ON items_v2(type, title);
+CREATE INDEX ASYNC idx_external_id_v2 ON items_v2(external_id);
+CREATE INDEX ASYNC idx_series_id_v2 ON items_v2(series_id, moved_at);
 
 -- Constraint: series_id only valid for TvSeason
-ALTER TABLE items ADD CONSTRAINT chk_series_id
+ALTER TABLE items_v2 ADD CONSTRAINT chk_series_id_v2
   CHECK (series_id IS NULL OR type = 'TvSeason');
-
--- Future indexes (add with CREATE INDEX ASYNC after data exists)
--- CREATE INDEX ASYNC idx_type_added ON items(type, added_at);
--- CREATE INDEX ASYNC idx_type_shelf_added ON items(type, shelf, added_at);
--- CREATE INDEX ASYNC idx_type_rating ON items(type, rating);
--- CREATE INDEX ASYNC idx_type_shelf_rating ON items(type, shelf, rating);
 ```
+
+**Note on `items_v2`:** DSQL doesn't support `ALTER TABLE DROP COLUMN`, so we created a new table with the correct schema rather than modifying the original `items` table. The old `items` table is dropped after data migration.
 
 **Note:** `category` field removed - type groupings (e.g., "watching" = Feature + TvSeries) will be hardcoded in application code.
 
@@ -144,16 +138,14 @@ import {
 import { sql } from "drizzle-orm";
 
 export const items = pgTable(
-  "items",
+  "items_v2",
   {
     id: uuid("id").primaryKey(), // No defaultRandom - preserve existing IDs
     type: varchar("type", { length: 50 }).notNull(),
     shelf: varchar("shelf", { length: 50 }).notNull(),
     title: varchar("title", { length: 500 }).notNull(),
     rating: integer("rating"), // 1-10 scale
-    imageUrl: text("image_url"),
-    imageWidth: integer("image_width"),
-    imageHeight: integer("image_height"),
+    image: text("image"), // JSON string with full structure including sizes array
     externalId: varchar("external_id", { length: 255 }),
     notes: text("notes"),
     addedAt: timestamp("added_at", { withTimezone: true })
@@ -424,61 +416,34 @@ graphql-tests:
 
 ```typescript
 // packages/backup/src/bin/migrateToDsql.ts
-import { readFileSync } from "fs";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
-import { items } from "@mattb.tech/billio-data/schema";
+// Preserves full image structure including sizes array for optimized images
 
-const pool = new Pool({ connectionString: process.env.DSQL_CONNECTION_STRING });
-const db = drizzle(pool);
-
-async function migrateType(type: string) {
-  const data = JSON.parse(readFileSync(`./local/${type}.json`, "utf-8"));
-
-  for (const item of data) {
-    // Extract common fields - PRESERVE EXISTING ID
-    const {
-      id,
-      type: itemType,
-      shelf,
-      title,
-      rating,
-      image,
-      externalId,
-      notes,
-      addedAt,
-      movedAt,
-      seriesId,
-      ...typeSpecificFields
-    } = item;
-
-    await db.insert(items).values({
-      id, // Preserve existing UUID - referenced by external systems
-      type: itemType,
-      shelf,
-      title,
-      rating,
-      imageUrl: image?.url,
-      imageWidth: image?.width,
-      imageHeight: image?.height,
-      externalId,
-      notes,
-      addedAt: new Date(addedAt),
-      movedAt: new Date(movedAt),
-      seriesId: seriesId ?? null, // Preserve TvSeason → TvSeries reference
-      data: typeSpecificFields,
+function transformItem(item: DynamoItem) {
+  // Preserve full image structure including sizes array
+  let image: string | null = null;
+  if (item.image) {
+    image = JSON.stringify({
+      url: item.image.url,
+      width: item.image.width,
+      height: item.image.height,
+      sizes: item.image.sizes || [],
     });
   }
 
-  console.log(`Migrated ${data.length} ${type} items`);
-}
-
-async function main() {
-  // Migrate TvSeries BEFORE TvSeason to satisfy FK constraint
-  const orderedTypes = ["Book", "VideoGame", "Feature", "TvSeries", "TvSeason"];
-  for (const type of orderedTypes) {
-    await migrateType(type);
-  }
+  return {
+    id: item.id,
+    type: item.type,
+    shelf: item.shelf,
+    title: item.title,
+    rating: item.rating ?? null,
+    image, // JSON string with full structure
+    externalId: item.externalId ?? null,
+    notes: item.notes ?? null,
+    addedAt: parseTimestamp(item.addedAt),
+    movedAt: parseTimestamp(item.movedAt),
+    seriesId: item.type === "TvSeason" ? item.seriesId : null,
+    data: JSON.stringify(typeSpecificData),
+  };
 }
 ```
 
@@ -498,45 +463,14 @@ async function main() {
 
 **Tasks:**
 
-- [ ] Add Drizzle ORM dependencies (`drizzle-orm`, `pg`)
-- [ ] Create Drizzle schema definition
-- [ ] Rewrite `Query` object with Drizzle queries
-- [ ] Rewrite `Mutate` object with Drizzle mutations
-- [ ] Update pagination to use OFFSET/LIMIT or keyset pagination
-- [ ] Remove Dynamoose dependency
+- [x] Add Drizzle ORM dependencies (`drizzle-orm`, `pg`)
+- [x] Create Drizzle schema definition
+- [x] Rewrite `Query` object with Drizzle queries
+- [x] Rewrite `Mutate` object with Drizzle mutations
+- [x] Update pagination to use OFFSET/LIMIT or keyset pagination
+- [x] Remove Dynamoose dependency
 
-**Drizzle Schema:**
-
-```typescript
-// packages/data/src/schema.ts
-import {
-  pgTable,
-  uuid,
-  varchar,
-  decimal,
-  text,
-  timestamp,
-  jsonb,
-  integer,
-} from "drizzle-orm/pg-core";
-
-export const items = pgTable("items", {
-  id: uuid("id").primaryKey(), // No defaultRandom - preserve existing IDs
-  type: varchar("type", { length: 50 }).notNull(),
-  shelf: varchar("shelf", { length: 50 }).notNull(),
-  title: varchar("title", { length: 500 }).notNull(),
-  rating: decimal("rating", { precision: 2, scale: 1 }),
-  imageUrl: text("image_url"),
-  imageWidth: integer("image_width"),
-  imageHeight: integer("image_height"),
-  externalId: varchar("external_id", { length: 255 }),
-  notes: text("notes"),
-  addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow(),
-  movedAt: timestamp("moved_at", { withTimezone: true }).notNull().defaultNow(),
-  seriesId: uuid("series_id"),
-  data: jsonb("data").default({}),
-});
-```
+**Drizzle Schema:** (See Phase 2 above for full schema)
 
 **Query Implementation:**
 
@@ -713,13 +647,13 @@ input ItemFilterInput {
 
 **Tasks:**
 
-- [ ] Run existing snapshot tests against new data layer
-- [ ] Fix any test failures
-- [ ] Test all query types manually
-- [ ] Test mutations (create, update, delete)
-- [ ] Test TV series/season relationship queries
-- [ ] Verify pagination works correctly
-- [ ] Test new capabilities (combined search+date, rating filter)
+- [x] Run existing snapshot tests against new data layer
+- [x] Fix any test failures
+- [x] Test all query types manually
+- [x] Test mutations (create, update, delete)
+- [x] Test TV series/season relationship queries
+- [x] Verify pagination works correctly
+- [x] Test new capabilities (combined search+date, rating filter)
 
 ---
 
@@ -729,11 +663,11 @@ input ItemFilterInput {
 
 **Tasks:**
 
-- [ ] Deploy DSQL cluster to production
-- [ ] Run data migration on production data
-- [ ] Deploy new code
-- [ ] Verify production is working
-- [ ] Monitor for errors
+- [x] Deploy DSQL cluster to production
+- [x] Run data migration on production data
+- [x] Deploy new code
+- [x] Verify production is working
+- [x] Monitor for errors
 
 ---
 
@@ -765,8 +699,9 @@ Aurora DSQL has several PostgreSQL compatibility limitations that affect this sc
 | ------------------ | ---------------- | -------------------------------------------- |
 | JSONB columns      | ❌ Not supported | Use TEXT column, JSON.parse/stringify in app |
 | Foreign keys       | ❌ Not enforced  | Referential integrity checked in app code    |
+| DROP COLUMN        | ❌ Not supported | Create new table (`items_v2`) instead        |
 | CHECK constraints  | ✅ Supported     | Used for `chk_series_id`                     |
-| Partial indexes    | ✅ Supported     | Used for `idx_external_id`, `idx_series_id`  |
+| Partial indexes    | ❌ Not supported | Use regular indexes                          |
 | Timestamps with TZ | ✅ Supported     | Used for `added_at`, `moved_at`              |
 | UUIDs              | ✅ Supported     | Primary key type                             |
 
@@ -796,15 +731,14 @@ Aurora DSQL has several PostgreSQL compatibility limitations that affect this sc
 | ---------------------------------------------- | ------------------------------------------------------------ |
 | `packages/cdk/src/BillioDataStack.ts`          | Add DSQL cluster, eventually remove DynamoDB                 |
 | `packages/cdk/src/BillioDataMigrationStack.ts` | IAM role for GitHub Actions migrations                       |
-| `packages/cdk/src/BillioApiStack.ts`           | Pass DSQL endpoint to Lambda environment                     |
-| `packages/data/src/schema.ts`                  | Drizzle schema definition (for ORM use)                      |
+| `packages/cdk/src/BillioApiStack.ts`           | Pass DSQL endpoint to Lambda environment, DbConnectAdmin     |
+| `packages/data/src/schema.ts`                  | Drizzle schema for `items_v2` table with image JSON column   |
 | `packages/data/src/db.ts`                      | Database connection with IAM auth                            |
+| `packages/data/src/index.ts`                   | Query/Mutate with JSON image serialization                   |
 | `packages/data/src/migrate.ts`                 | Custom migration runner script                               |
-| `packages/data/migrations/`                    | Hand-crafted DSQL-compatible SQL migration files             |
-| `packages/data/`                               | Complete rewrite: Dynamoose → Drizzle ORM                    |
-| `packages/graphql/`                            | Minor updates: remove filter restrictions, add rating filter |
-| `packages/backup/`                             | Add data migration script                                    |
-| `packages/config/`                             | Add DSQL connection config                                   |
+| `packages/data/migrations/`                    | 0001: initial items, 0002: items_v2, 0003: drop items        |
+| `packages/graphql/src/shared/Image.ts`         | Dual upload (original + 128px), selectImage picks small size |
+| `packages/backup/src/bin/migrateToDsql.ts`     | Data migration preserving full image structure with sizes    |
 | `.github/workflows/deploy.yml`                 | Add migrate job between deploy and graphql-tests             |
 
 ---
@@ -840,9 +774,11 @@ Aurora DSQL has several PostgreSQL compatibility limitations that affect this sc
 
 - [x] Query object rewritten (Drizzle ORM, offset-based pagination)
 - [x] Mutate object rewritten (Drizzle ORM with upsert support)
-- [x] `sizes` array removed from Image handling (was always empty)
+- [x] Image handling: `sizes` array restored (stores both original + 128px resized versions)
+- [x] Image stored as single JSON column (not flat columns) to preserve full structure
 - [x] `consistent` flag removed from Query.withId (DSQL has strong consistency)
 - [x] Dynamoose dependency removed from package.json
+- [x] Table renamed to `items_v2` (DSQL doesn't support DROP COLUMN)
 - [ ] GraphQL resolvers updated (not needed - interface maintained)
 - [ ] Config updated (not needed - uses existing BILLIO_DSQL_ENDPOINT)
 

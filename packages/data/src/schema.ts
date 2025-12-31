@@ -11,16 +11,14 @@ import {
 import { sql } from "drizzle-orm";
 
 export const items = pgTable(
-  "items",
+  "items_v2",
   {
     id: uuid("id").primaryKey(), // No defaultRandom - preserve existing IDs
     type: varchar("type", { length: 50 }).notNull(),
     shelf: varchar("shelf", { length: 50 }).notNull(),
     title: varchar("title", { length: 500 }).notNull(),
     rating: integer("rating"),
-    imageUrl: text("image_url"),
-    imageWidth: integer("image_width"),
-    imageHeight: integer("image_height"),
+    image: text("image"), // JSON string with full structure including sizes array
     externalId: varchar("external_id", { length: 255 }),
     notes: text("notes"),
     addedAt: timestamp("added_at", { withTimezone: true })

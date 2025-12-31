@@ -9,9 +9,14 @@ const HASH_FUNCTION = "md5";
 const ENCODING = "hex";
 const MIME_TYPE = "image/jpeg";
 
-const STANDARD_WIDTH = 128;
-const STANDARD_QUALITY = 80;
-const FILE_ENDING = ".jpg";
+const ORIGINAL_ENDING = "_o.jpg";
+const STANDARD_V1_ENDING = "_s_v1.jpg";
+const STANDARD_V1_WIDTH = 128;
+const STANDARD_V1_QUALITY = 80;
+const STANDARD_V1_SIZE = "StandardV1";
+
+type ImageSize = typeof STANDARD_V1_SIZE;
+export type ImageData = Image & { sizes?: Array<Image & { size: ImageSize }> };
 
 const s3 = new S3();
 
@@ -19,24 +24,24 @@ export async function storeImage({
   imageUrl,
 }: {
   imageUrl: string;
-}): Promise<Image> {
+}): Promise<ImageData> {
   const { data } = await axios.get(imageUrl, {
     responseType: "arraybuffer",
   });
-  return uploadImage(data);
+  const [originalImage, resizedImage] = await Promise.all([
+    uploadOriginal(data),
+    uploadResized(data),
+  ]);
+  return {
+    ...originalImage,
+    sizes: resizedImage ? [resizedImage] : [],
+  };
 }
 
-async function uploadImage(data: Buffer): Promise<Image> {
+async function uploadOriginal(data: Buffer): Promise<Image> {
   const jimpImage = await Jimp.read(data);
-
-  // Resize if larger than standard width
-  const needsResize = jimpImage.getWidth() > STANDARD_WIDTH;
-  if (needsResize) {
-    jimpImage.resize(STANDARD_WIDTH, Jimp.AUTO).quality(STANDARD_QUALITY);
-  }
-
-  const imageData = await jimpImage.getBufferAsync(MIME_JPEG);
-  const key = createKey(imageData, FILE_ENDING);
+  const imageData = await jimpImage.quality(90).getBufferAsync(MIME_JPEG);
+  const key = createKey(imageData, ORIGINAL_ENDING);
 
   await s3
     .upload({
@@ -54,8 +59,45 @@ async function uploadImage(data: Buffer): Promise<Image> {
   };
 }
 
-export function selectImage(imageData: Image | undefined): Image | undefined {
-  return imageData;
+async function uploadResized(
+  data: Buffer,
+): Promise<(Image & { size: ImageSize }) | null> {
+  const jimpImage = await Jimp.read(data);
+
+  // Only resize if larger than standard width
+  if (jimpImage.getWidth() <= STANDARD_V1_WIDTH) {
+    return null;
+  }
+
+  const resizedImage = jimpImage
+    .resize(STANDARD_V1_WIDTH, Jimp.AUTO)
+    .quality(STANDARD_V1_QUALITY);
+  const resizedData = await resizedImage.getBufferAsync(MIME_JPEG);
+  const key = createKey(resizedData, STANDARD_V1_ENDING);
+
+  await s3
+    .upload({
+      Bucket: BUCKET,
+      Key: key,
+      Body: resizedData,
+      ContentType: MIME_TYPE,
+    })
+    .promise();
+
+  return {
+    size: STANDARD_V1_SIZE,
+    url: key,
+    width: resizedImage.getWidth(),
+    height: resizedImage.getHeight(),
+  };
+}
+
+export function selectImage(
+  imageData: ImageData | undefined,
+): Image | undefined {
+  return (
+    imageData?.sizes?.find(({ size }) => size === STANDARD_V1_SIZE) ?? imageData
+  );
 }
 
 function createKey(data: Buffer, ending: string) {

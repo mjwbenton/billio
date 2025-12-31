@@ -45,9 +45,6 @@ const KNOWN_COLUMNS = [
   "movedAt",
   "seriesId",
   "image",
-  "imageUrl",
-  "imageWidth",
-  "imageHeight",
 ];
 
 // Transform database row to Item interface
@@ -64,16 +61,8 @@ function rowToItem(row: typeof items.$inferSelect): Item {
     addedAt: row.addedAt,
     movedAt: row.movedAt,
     seriesId: row.seriesId ?? undefined,
-    // Reconstruct image object from flat columns
-    ...(row.imageUrl
-      ? {
-          image: {
-            url: row.imageUrl,
-            width: row.imageWidth ?? undefined,
-            height: row.imageHeight ?? undefined,
-          },
-        }
-      : {}),
+    // Parse image JSON (includes sizes array)
+    ...(row.image ? { image: JSON.parse(row.image) } : {}),
     // Spread type-specific fields from data JSON
     ...data,
   };
@@ -120,9 +109,7 @@ function itemToInsertRow(item: Partial<Item>) {
     addedAt: addedAt!,
     movedAt: movedAt!,
     seriesId: seriesId ?? null,
-    imageUrl: image?.url ?? null,
-    imageWidth: image?.width ?? null,
-    imageHeight: image?.height ?? null,
+    image: image ? JSON.stringify(image) : null,
     data: extractTypeSpecificData(rest),
   };
 }
@@ -154,11 +141,7 @@ function itemToUpdateRow(item: Partial<Item>) {
     ...(movedAt !== undefined ? { movedAt } : {}),
     ...(seriesId !== undefined ? { seriesId } : {}),
     ...(image !== undefined
-      ? {
-          imageUrl: image?.url ?? null,
-          imageWidth: image?.width ?? null,
-          imageHeight: image?.height ?? null,
-        }
+      ? { image: image ? JSON.stringify(image) : null }
       : {}),
     // Always update data if there are type-specific fields in the update
     ...(Object.keys(rest).length > 0

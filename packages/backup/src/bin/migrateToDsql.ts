@@ -28,15 +28,13 @@ import { readFileSync, existsSync } from "fs";
 import { TYPES } from "@mattb.tech/billio-config";
 
 // Define the items table schema inline (matches packages/data/src/schema.ts)
-const items = pgTable("items", {
+const items = pgTable("items_v2", {
   id: uuid("id").primaryKey(),
   type: varchar("type", { length: 50 }).notNull(),
   shelf: varchar("shelf", { length: 50 }).notNull(),
   title: varchar("title", { length: 500 }).notNull(),
   rating: integer("rating"),
-  imageUrl: text("image_url"),
-  imageWidth: integer("image_width"),
-  imageHeight: integer("image_height"),
+  image: text("image"), // JSON string with full structure including sizes array
   externalId: varchar("external_id", { length: 255 }),
   notes: text("notes"),
   addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow(),
@@ -46,10 +44,18 @@ const items = pgTable("items", {
 });
 
 // Type definitions for DynamoDB backup items
+interface DynamoImageSize {
+  url: string;
+  width?: number;
+  height?: number;
+  size: string;
+}
+
 interface DynamoImage {
   url?: string;
   width?: number;
   height?: number;
+  sizes?: DynamoImageSize[];
 }
 
 interface DynamoBaseItem {
@@ -59,9 +65,6 @@ interface DynamoBaseItem {
   title: string;
   rating?: number;
   image?: DynamoImage;
-  imageUrl?: string;
-  imageWidth?: number;
-  imageHeight?: number;
   externalId?: string;
   notes?: string;
   addedAt: string | number;
@@ -131,9 +134,6 @@ const COMMON_FIELDS = [
   "title",
   "rating",
   "image",
-  "imageUrl",
-  "imageWidth",
-  "imageHeight",
   "externalId",
   "notes",
   "addedAt",
@@ -201,19 +201,16 @@ function extractTypeSpecificData(item: DynamoItem): Record<string, unknown> {
 }
 
 function transformItem(item: DynamoItem) {
-  // Handle image field - can be object or separate fields
-  let imageUrl: string | null = null;
-  let imageWidth: number | null = null;
-  let imageHeight: number | null = null;
+  // Preserve full image structure including sizes array
+  let image: string | null = null;
 
   if (item.image) {
-    imageUrl = item.image.url ?? null;
-    imageWidth = item.image.width ?? null;
-    imageHeight = item.image.height ?? null;
-  } else {
-    imageUrl = item.imageUrl ?? null;
-    imageWidth = item.imageWidth ?? null;
-    imageHeight = item.imageHeight ?? null;
+    image = JSON.stringify({
+      url: item.image.url,
+      width: item.image.width,
+      height: item.image.height,
+      sizes: item.image.sizes || [],
+    });
   }
 
   // Extract type-specific fields for data column
@@ -225,9 +222,7 @@ function transformItem(item: DynamoItem) {
     shelf: item.shelf,
     title: item.title,
     rating: item.rating ?? null,
-    imageUrl,
-    imageWidth,
-    imageHeight,
+    image,
     externalId: item.externalId ?? null,
     notes: item.notes ?? null,
     addedAt: parseTimestamp(item.addedAt),
