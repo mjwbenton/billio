@@ -62,7 +62,6 @@ export default class BillioApiStack extends Stack {
       memorySize: 2048,
       timeout: Duration.seconds(10),
       environment: {
-        BILLIO_TABLE: dataStack.itemTable.tableName,
         BILLIO_DSQL_ENDPOINT: dataStack.dsqlEndpoint,
         BILLIO_IMAGE_BUCKET: imageStack.imageBucket.bucketName,
         BILLIO_IMAGE_DOMAIN: cdnStack.endpoint,
@@ -72,10 +71,7 @@ export default class BillioApiStack extends Stack {
     });
 
     if (enableMutations) {
-      dataStack.itemTable.grantReadWriteData(lambdaFunction);
       imageStack.imageBucket.grantReadWrite(lambdaFunction);
-    } else {
-      dataStack.itemTable.grantReadData(lambdaFunction);
     }
 
     lambdaFunction.addToRolePolicy(

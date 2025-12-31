@@ -12,8 +12,7 @@
     "fix": "../../scripts/fix.sh",
     "check": "../../scripts/check.sh",
     "watch": "../../scripts/watch.sh",
-    "backup:local": "AWS_SDK_LOAD_CONFIG=1 AWS_REGION=us-east-1 BILLIO_TABLE=BillioDataV3-ItemTable276B2AC8-71REK85N61EZ AWS_PROFILE=admin tsx src/bin/localBackup.ts",
-    "migrate:dsql": "tsx src/bin/migrateToDsql.ts"
+    "backup:local": "AWS_SDK_LOAD_CONFIG=1 AWS_REGION=us-east-1 BILLIO_TABLE=BillioDataV3-ItemTable276B2AC8-71REK85N61EZ AWS_PROFILE=admin tsx src/bin/localBackup.ts"
   },
   "devDependencies": {
     "prettier": "^3.3.3",
