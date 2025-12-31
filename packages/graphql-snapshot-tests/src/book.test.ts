@@ -145,6 +145,40 @@ test("can fetch books by shelf", async () => {
   expect(data).toMatchSnapshot();
 });
 
+test("can filter books by rating", async () => {
+  // First, update the imported book to have rating 10
+  await client.mutate({
+    mutation: gql`
+      mutation Test_SetRatingForFilter($id: ID!) {
+        updateBook(id: $id, item: { rating: 10 }) {
+          rating
+        }
+      }
+    `,
+    variables: { id: IMPORTED_ID },
+  });
+
+  // Query with gte: 10 - should only return the imported book
+  const { data } = await client.query({
+    query: gql`
+      {
+        books(first: 10, rating: { gte: 10 }) {
+          items {
+            title
+            rating
+          }
+          total
+        }
+      }
+    `,
+  });
+
+  // The added book has rating 1, so only the imported book (rating 10) should be returned
+  expect(data.books.total).toBe(1);
+  expect(data.books.items.length).toBe(1);
+  expect(data.books.items[0].rating).toBe(10);
+});
+
 test("can search for external books", async () => {
   const { data } = await client.query({
     query: gql`
