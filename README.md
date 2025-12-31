@@ -12,7 +12,7 @@ Billio allows you to store books or video games ("items") on particular "shelves
 
 ## Architecture
 
-Billio has 3 main constituant parts. A Data Layer enabling the storage of items in DynamoDB, a GraphQL API enabling both queries and mutations and an Admin UI allowing you to add, remove and move items. Authentication is handled by Cognito, and everything runs inside AWS orchestrated by CDK.
+Billio has 3 main constituant parts. A Data Layer enabling the storage of items in AWS DSQL (PostgreSQL), a GraphQL API enabling both queries and mutations and an Admin UI allowing you to add, remove and move items. Authentication is handled by Cognito, and everything runs inside AWS orchestrated by CDK.
 
 ![Diagram of Architecture](./images/architecture.png)
 
@@ -22,7 +22,7 @@ The first is the read/write API used by the Admin UI. It requires calls to by si
 
 The second is a readonly API. This can be used by any downstream system that wants access to the data. This is unauthenticated for convenience (in this instance I consider what I'm reading and playing to be public data). At the moment I am schema stitching this API into the main GraphQL API I use to power my [personal website](https://lonesome.mattb.tech/).
 
-The third is a test API. This supports both reading and writing, and for convenience is unauthenticated. It writes to a separate DynamoDB table that I use in development.
+The third is a test API. This supports both reading and writing, and for convenience is unauthenticated. It writes to a separate database that I use in development.
 
 ### Hardcodings
 
@@ -41,7 +41,7 @@ The package containing the CDK definitions for billio. Deploys all the other com
 
 ### @mattb.tech/billio-data
 
-The package containing the data layer. Contains all the logic to query and mutate the data stored in DynamoDB. Handles all types as generic "items" with any type specific logic handled in the graphql layer.
+The package containing the data layer. Contains all the logic to query and mutate the data stored in AWS DSQL using Drizzle ORM. Handles all types as generic "items" with any type specific logic handled in the graphql layer.
 
 ### @mattb.tech/billio-graphql
 
@@ -95,7 +95,7 @@ Set `REACT_APP_USE_LOCAL_GRAPHQL=1` if you want to run against the local graphql
 
 The only tests in this project currently are in the `graphql-snapshot-tests` package.
 
-To run against local instance (generally started with INRA_STACK=test):
+To run against local instance (generally started with INFRA_STACK=test):
 
 ```sh
 $ yarn test:graphql-local

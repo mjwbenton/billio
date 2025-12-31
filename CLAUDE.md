@@ -23,7 +23,7 @@ yarn deploy
 
 # Run GraphQL server locally
 yarn start:graphql
-# Use INFRA_STACK=test to connect to test DynamoDB table instead of local dev table
+# Use INFRA_STACK=test to connect to test DSQL table instead of local dev table
 
 # Run Admin UI locally
 yarn start:admin
@@ -34,13 +34,19 @@ yarn test:graphql-local
 
 # Run tests against deployed test API
 yarn test:graphql-integration
+
+# Run database migrations
+yarn workspace @mattb.tech/billio-data migrate
+
+# Regenerate GraphQL TypeScript types
+yarn workspace @mattb.tech/billio-graphql codegen
 ```
 
 ## Architecture
 
 ### Monorepo Structure (Yarn Workspaces + Turborepo)
 
-- **packages/data** - DynamoDB data layer using Dynamoose. Exports `Query` and `Mutate` objects for all database operations. Single table design with composite keys (`type:id`, `type:shelf`).
+- **packages/data** - PostgreSQL data layer using Drizzle ORM with AWS DSQL. Exports `Query` and `Mutate` objects for all database operations. Schema defined in `schema.ts`, uses `items_v2` table with type-specific data stored in a JSON `data` column.
 
 - **packages/graphql** - Apollo Server GraphQL layer. Uses a modular pattern where each item type (book, videogame, feature/movie, tvSeries, watching) is a `GqlModule` that gets combined via `combineModules()`. Resolvers are generic and parameterized by type-specific transforms.
 
@@ -53,20 +59,24 @@ yarn test:graphql-integration
 
 - **packages/graphql-snapshot-tests** - Integration tests using Jest snapshots against the GraphQL API.
 
-- **packages/backup** - Lambda that exports data monthly.
+- **packages/backup** - Lambda that exports data monthly to S3.
+
+- **packages/restore** - Utilities for restoring data from backups.
+
+- **packages/bulk-import** - Bulk import from external sources (Goodreads for books, IMDb for movies/TV).
 
 ### Adding a New Item Type
 
 1. Create a new directory under `packages/graphql/src/` (e.g., `tvSeries/`)
 2. Define GraphQL schema with `gql` template literal
-3. Create type-specific transforms: `AddInputTransform`, `UpdateInputTransform`, `OutputTransform`
+3. Create type-specific transforms: `AddInputTransform`, `UpdateInputTransform`, `OutputTransform`, `ExternalToInputTransform`
 4. Use generic resolvers from `resolvers/` directory
 5. Export a `GqlModule` and add it to `schema.ts` via `combineModules()`
 6. If external data needed, implement `ExternalApi` interface
 
 ### Key Patterns
 
-- **Composite Keys**: DynamoDB uses `type:id` as hash key and `type:shelf` for shelf queries
-- **Transform Pattern**: Generic resolvers accept transform functions to handle type-specific field mapping
-- **Shelf System**: Each item type has its own shelf enum (e.g., `BookShelfId`, `VideogameShelfId`)
-- **GraphQL Codegen**: Run `yarn codegen` in graphql package to regenerate TypeScript types from schema
+- **Data Layer**: Uses Drizzle ORM with PostgreSQL (AWS DSQL). Common fields (id, type, shelf, title, rating, etc.) are stored as columns; type-specific fields go in the `data` JSON column.
+- **Transform Pattern**: Generic resolvers accept transform functions to handle type-specific field mapping between GraphQL and database representations.
+- **Shelf System**: Each item type has its own shelf enum (e.g., `BookShelfId`, `VideogameShelfId`) with corresponding names map.
+- **GraphQL Codegen**: Types are auto-generated from schema - run `yarn codegen` in graphql package after schema changes.
