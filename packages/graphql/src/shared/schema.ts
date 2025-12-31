@@ -19,6 +19,11 @@ const typeDefs = gql`
     ADDED_AT
   }
 
+  input RatingFilter {
+    gte: Int
+    lte: Int
+  }
+
   interface Item {
     id: ID!
     addedAt: DateTime!

@@ -15,17 +15,25 @@ export default function resolveShelfItems<
       startDate,
       endDate,
       sortBy,
+      rating,
     }: {
       first: number;
       after?: string | null;
       startDate?: Date | null;
       endDate?: Date | null;
       sortBy?: SortBy | null;
+      rating?: { gte?: number | null; lte?: number | null } | null;
     },
   ) => {
     if (!id) {
       throw new Error(`Missing id`);
     }
+    const ratingFilter = rating
+      ? {
+          gte: rating.gte ?? undefined,
+          lte: rating.lte ?? undefined,
+        }
+      : undefined;
     const { count, items, lastKey } = await DataQuery.onShelf(
       { type, shelf: id },
       {
@@ -34,6 +42,7 @@ export default function resolveShelfItems<
         startDate: startDate ?? undefined,
         endDate: endDate ?? undefined,
         sortBy: sortBy ?? undefined,
+        rating: ratingFilter,
       },
     );
     return {

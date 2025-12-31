@@ -16,6 +16,7 @@ export default function resolveForType<
       startDate,
       endDate,
       sortBy,
+      rating,
     }: {
       first: number;
       after?: string | null;
@@ -23,15 +24,27 @@ export default function resolveForType<
       startDate?: Date | null;
       endDate?: Date | null;
       sortBy?: SortBy | null;
+      rating?: { gte?: number | null; lte?: number | null } | null;
     },
   ) => {
     if (searchTerm && (startDate || endDate)) {
       throw new Error("Cannot combine search and date queries");
     }
+    const ratingFilter = rating
+      ? {
+          gte: rating.gte ?? undefined,
+          lte: rating.lte ?? undefined,
+        }
+      : undefined;
     const { count, items, lastKey } = searchTerm
       ? await DataQuery.searchType(
           { type: type },
-          { first, after: after ?? undefined, query: searchTerm },
+          {
+            first,
+            after: after ?? undefined,
+            query: searchTerm,
+            rating: ratingFilter,
+          },
         )
       : await DataQuery.ofType(
           { type: type },
@@ -41,6 +54,7 @@ export default function resolveForType<
             startDate: startDate ?? undefined,
             endDate: endDate ?? undefined,
             sortBy: sortBy ?? undefined,
+            rating: ratingFilter,
           },
         );
     return {

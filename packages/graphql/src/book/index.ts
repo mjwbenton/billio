@@ -41,6 +41,7 @@ const typeDefs = gql`
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
+      rating: RatingFilter
     ): BookPage!
     searchExternalBook(term: String!): [ExternalBook!]!
   }
@@ -68,6 +69,7 @@ const typeDefs = gql`
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
+      rating: RatingFilter
     ): BookPage!
   }
 

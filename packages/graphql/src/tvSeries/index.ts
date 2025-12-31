@@ -52,6 +52,7 @@ export const typeDefs = gql`
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
+      rating: RatingFilter
     ): TvSeasonPage!
     tvSeries(
       after: ID
@@ -60,6 +61,7 @@ export const typeDefs = gql`
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
+      rating: RatingFilter
     ): TvSeriesPage!
     tvSeasonShelf(id: TvSeasonShelfId!): TvSeasonShelf
     tvSeriesShelf(id: TvSeriesShelfId!): TvSeriesShelf
@@ -106,6 +108,7 @@ export const typeDefs = gql`
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
+      rating: RatingFilter
     ): TvSeasonPage!
   }
 
@@ -118,6 +121,7 @@ export const typeDefs = gql`
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
+      rating: RatingFilter
     ): TvSeriesPage!
   }
 

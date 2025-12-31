@@ -1,11 +1,27 @@
 import { getDb } from "./db";
 import { items } from "./schema";
-import { eq, and, between, desc, asc, ilike, sql, count } from "drizzle-orm";
+import {
+  eq,
+  and,
+  between,
+  desc,
+  asc,
+  ilike,
+  sql,
+  count,
+  gte,
+  lte,
+} from "drizzle-orm";
 
 const DEFAULT_START = new Date("2010-01-01T00:00:00");
 const DEFAULT_END = new Date("2200-01-01T00:00:00");
 
 type SortBy = "MOVED_AT" | "ADDED_AT";
+
+type RatingFilter = {
+  gte?: number;
+  lte?: number;
+};
 
 export interface Item {
   type: string;
@@ -158,6 +174,18 @@ function fromBase64(cursor: string): After {
   return JSON.parse(Buffer.from(cursor, "base64").toString("utf-8"));
 }
 
+function buildRatingCondition(rating?: RatingFilter) {
+  if (!rating) return undefined;
+  const conditions = [];
+  if (rating.gte != null) {
+    conditions.push(gte(items.rating, rating.gte));
+  }
+  if (rating.lte != null) {
+    conditions.push(lte(items.rating, rating.lte));
+  }
+  return conditions.length > 0 ? and(...conditions) : undefined;
+}
+
 export const Query = {
   withId: async ({ id }: ItemKey): Promise<Item | undefined> => {
     const db = await getDb();
@@ -198,23 +226,30 @@ export const Query = {
       startDate = DEFAULT_START,
       endDate = DEFAULT_END,
       sortBy = "MOVED_AT",
+      rating,
     }: {
       first: number;
       after?: string;
       startDate?: Date;
       endDate?: Date;
       sortBy?: SortBy;
+      rating?: RatingFilter;
     },
   ): Promise<QueryResponse> => {
     const db = await getDb();
     const sortColumn = sortBy === "ADDED_AT" ? items.addedAt : items.movedAt;
+    const ratingCondition = buildRatingCondition(rating);
 
     // Get total count
     const [countResult] = await db
       .select({ count: count() })
       .from(items)
       .where(
-        and(eq(items.type, type), between(sortColumn, startDate, endDate)),
+        and(
+          eq(items.type, type),
+          between(sortColumn, startDate, endDate),
+          ratingCondition,
+        ),
       );
     const total = countResult?.count ?? 0;
 
@@ -225,7 +260,13 @@ export const Query = {
     const rows = await db
       .select()
       .from(items)
-      .where(and(eq(items.type, type), between(sortColumn, startDate, endDate)))
+      .where(
+        and(
+          eq(items.type, type),
+          between(sortColumn, startDate, endDate),
+          ratingCondition,
+        ),
+      )
       .orderBy(desc(sortColumn))
       .limit(first)
       .offset(offset);
@@ -242,15 +283,27 @@ export const Query = {
 
   searchType: async (
     { type }: TypeKey,
-    { first, after, query }: { first: number; after?: string; query: string },
+    {
+      first,
+      after,
+      query,
+      rating,
+    }: { first: number; after?: string; query: string; rating?: RatingFilter },
   ): Promise<QueryResponse> => {
     const db = await getDb();
+    const ratingCondition = buildRatingCondition(rating);
 
     // Get total count - use ILIKE for case-insensitive substring search
     const [countResult] = await db
       .select({ count: count() })
       .from(items)
-      .where(and(eq(items.type, type), ilike(items.title, `${query}%`)));
+      .where(
+        and(
+          eq(items.type, type),
+          ilike(items.title, `${query}%`),
+          ratingCondition,
+        ),
+      );
     const total = countResult?.count ?? 0;
 
     // Parse cursor
@@ -260,7 +313,13 @@ export const Query = {
     const rows = await db
       .select()
       .from(items)
-      .where(and(eq(items.type, type), ilike(items.title, `${query}%`)))
+      .where(
+        and(
+          eq(items.type, type),
+          ilike(items.title, `${query}%`),
+          ratingCondition,
+        ),
+      )
       .orderBy(asc(items.title))
       .limit(first)
       .offset(offset);
@@ -321,16 +380,19 @@ export const Query = {
       startDate = DEFAULT_START,
       endDate = DEFAULT_END,
       sortBy = "MOVED_AT",
+      rating,
     }: {
       first: number;
       after?: string;
       startDate?: Date;
       endDate?: Date;
       sortBy?: SortBy;
+      rating?: RatingFilter;
     },
   ): Promise<QueryResponse> => {
     const db = await getDb();
     const sortColumn = sortBy === "ADDED_AT" ? items.addedAt : items.movedAt;
+    const ratingCondition = buildRatingCondition(rating);
 
     // Get total count
     const [countResult] = await db
@@ -341,6 +403,7 @@ export const Query = {
           eq(items.type, type),
           eq(items.shelf, shelf),
           between(sortColumn, startDate, endDate),
+          ratingCondition,
         ),
       );
     const total = countResult?.count ?? 0;
@@ -357,6 +420,7 @@ export const Query = {
           eq(items.type, type),
           eq(items.shelf, shelf),
           between(sortColumn, startDate, endDate),
+          ratingCondition,
         ),
       )
       .orderBy(desc(sortColumn))

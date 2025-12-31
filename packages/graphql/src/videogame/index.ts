@@ -42,6 +42,7 @@ const typeDefs = gql`
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
+      rating: RatingFilter
     ): VideoGamePage!
     searchExternalVideoGame(term: String!): [ExternalVideoGame!]!
   }
@@ -71,6 +72,7 @@ const typeDefs = gql`
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
+      rating: RatingFilter
     ): VideoGamePage!
   }
 

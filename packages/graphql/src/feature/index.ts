@@ -42,6 +42,7 @@ const typeDefs = gql`
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
+      rating: RatingFilter
     ): FeaturePage!
     searchExternalFeature(term: String!): [ExternalFeature!]!
   }
@@ -69,6 +70,7 @@ const typeDefs = gql`
       startDate: DateTime
       endDate: DateTime
       sortBy: SortBy
+      rating: RatingFilter
     ): FeaturePage!
   }
 
