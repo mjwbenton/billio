@@ -1,7 +1,6 @@
 process.env.AWS_SDK_LOAD_CONFIG = "1";
-process.env.AWS_PROFILE = "admin-legacy-sso";
+process.env.AWS_PROFILE = "admin";
 process.env.AWS_REGION = "us-east-1";
-process.env.BILLIO_TABLE = "BillioLocalDataV3-ItemTable276B2AC8-1TR74TBIIY3RR";
 
 import { TYPES } from "@mattb.tech/billio-config";
 import fs from "fs/promises";

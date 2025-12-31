@@ -5,6 +5,7 @@ import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
+import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import path from "path";
 import BillioDataStack from "./BillioDataStack";
 import {
@@ -41,14 +42,20 @@ export default class BillioBackupStack extends Stack {
       memorySize: 3008,
       timeout: Duration.minutes(1),
       environment: {
-        BILLIO_TABLE: dataStack.itemTable.tableName,
+        BILLIO_DSQL_ENDPOINT: dataStack.dsqlEndpoint,
         BILLIO_BACKUP_BUCKET: backupBucket.bucketName,
       },
       architecture: Architecture.ARM_64,
     });
 
     backupBucket.grantWrite(lambdaFunction);
-    dataStack.itemTable.grantReadData(lambdaFunction);
+    lambdaFunction.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ["dsql:DbConnectAdmin"],
+        resources: [dataStack.dsqlCluster.attrResourceArn],
+      }),
+    );
 
     new Rule(this, "Rule", {
       schedule: Schedule.cron({

@@ -42,18 +42,10 @@ export async function writeAll(data: any[]): Promise<Array<Success | Failure>> {
 function transform(data: any): CreateItem {
   const { movedAt, addedAt, type, platforms, ...rest } = data;
   return {
-    type,
+    type: type === "Movie" ? "Feature" : type, // Movies renamed to Features
     movedAt: new Date(movedAt),
     addedAt: new Date(addedAt),
     ...rest,
-    // Movies being renamed to Features
-    ...(type === "Movie"
-      ? {
-          type: "Feature",
-          "type:id": `Feature:${rest.id}`,
-          "type:shelf": `Feature:${rest.shelf}`,
-        }
-      : {}),
     // Splitting out platforms and devices for VideoGames
     ...(platforms ? { devices: platforms, platforms: [] } : {}),
   };
