@@ -7,7 +7,11 @@ const endpoint = process.env.BILLIO_DSQL_ENDPOINT!;
 const region = process.env.AWS_REGION || "us-east-1";
 
 async function getAuthToken(): Promise<string> {
-  const signer = new DsqlSigner({ hostname: endpoint, region });
+  const signer = new DsqlSigner({
+    hostname: endpoint,
+    region,
+    expiresIn: 604800, // Token valid for 1 week (max supported by DSQL)
+  });
   return signer.getDbConnectAdminAuthToken();
 }
 
