@@ -8,9 +8,12 @@ import { ExternalBook } from "./types";
 
 const ID_NAMESPACE = "googlebooks";
 
+const API_KEY = process.env.GOOGLE_BOOKS_API_KEY!;
+
 const BASE_URL = "https://www.googleapis.com/books/v1/volumes";
 
 const BASE_PARAMS = {
+  key: API_KEY,
   maxResults: 10,
   langRestrict: "en",
 };
