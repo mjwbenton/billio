@@ -107,6 +107,7 @@ const typeDefs = gql`
     TrimUiBrick
     RetroidPocketMiniV2
     RetroidPocketFlip2
+    AyaneoPocketMicro
   }
 
   type VideoGamePlatform {
@@ -213,6 +214,7 @@ const PLATFORM_DEVICE_NAMES: {
   TrimUiBrick: "Trim UI Brick",
   RetroidPocketMiniV2: "Retroid Pocket Mini V2",
   RetroidPocketFlip2: "Retroid Pocket Flip 2",
+  AyaneoPocketMicro: "Ayaneo Pocket Micro",
   NintendoGameBoy: "Game Boy",
   NintendoGameBoyAdvance: "Game Boy Advance",
   NintendoGameBoyColor: "Game Boy Color",
