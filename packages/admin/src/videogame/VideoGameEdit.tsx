@@ -50,6 +50,10 @@ const DEVICES = [
     id: "RetroidPocketFlip2",
     name: "Retroid Pocket Flip 2",
   },
+  {
+    id: "AyaneoPocketMicro",
+    name: "Ayaneo Pocket Micro",
+  },
 ];
 
 const PLATFORMS = [
