@@ -1,0 +1,8 @@
+[keepass]
+database = ~/Dropbox/Apps/KeePass/db.kdbx
+
+[env]
+IGDB_CLIENT_ID = ${"env/IGDB_CLIENT_ID".Password}
+IGDB_CLIENT_SECRET = ${"env/IGDB_CLIENT_SECRET".Password}
+TMDB_API_KEY = ${"env/TMDB_API_KEY".Password}
+GOOGLE_BOOKS_API_KEY = ${"env/GOOGLE_BOOKS_API_KEY".Password}
