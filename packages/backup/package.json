@@ -24,7 +24,7 @@
     "@mattb.tech/billio-config": "1.0.0",
     "@mattb.tech/billio-data": "1.0.0",
     "aws-sdk": "^2.1035.0",
-    "drizzle-orm": "^0.45.1",
+    "drizzle-orm": "^0.45.2",
     "pg": "^8.16.3"
   }
 }
