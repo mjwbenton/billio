@@ -6104,10 +6104,10 @@ axe-core@^4.9.1:
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.10.0.tgz#d9e56ab0147278272739a000880196cdfe113b59"
   integrity sha512-Mr2ZakwQ7XUAjp7pAwQWRhhK8mQQ6JAaNWSjmjxil0R8BPioMtQsTLOolGYkji1rcL++3dCqZA3zWqpT+9Ew6g==
 
-axios@^0.30.2:
-  version "0.30.2"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.30.2.tgz#256d3a8ee765cc27188d08b8b545a5f5a0c77dad"
-  integrity sha512-0pE4RQ4UQi1jKY6p7u6i1Tkzqmu+d+/tHS7Q7rKunWLB9WyilBTpHHpXzPNMDj5hTbK0B0PTLSz07yqMBiF6xg==
+axios@^0.31.1:
+  version "0.31.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.31.1.tgz#05b4c8f99e0b6f897708c74d6788d7535c6ac0c3"
+  integrity sha512-Ef8DUZSZQP6igY48mjGaoEjwhely97lserep0IFJifBH4YdKvwH5eMLniy3kig2HQoBNR8EkZpDjowxwTJcmbg==
   dependencies:
     follow-redirects "^1.15.4"
     form-data "^4.0.4"
