@@ -23,7 +23,7 @@
     "test:graphql-integration": "yarn workspace @mattb.tech/billio-graphql-snapshot-tests test-integration"
   },
   "devDependencies": {
-    "turbo": "^1.2.9"
+    "turbo": "^2.9.14"
   },
   "packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447"
 }
