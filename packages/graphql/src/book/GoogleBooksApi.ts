@@ -14,8 +14,6 @@ const BASE_URL = "https://www.googleapis.com/books/v1/volumes";
 
 const BASE_PARAMS = {
   key: API_KEY,
-  maxResults: 10,
-  langRestrict: "en",
 };
 
 export class GoogleBooksApi implements ExternalApi<ExternalBook> {
@@ -28,6 +26,8 @@ export class GoogleBooksApi implements ExternalApi<ExternalBook> {
       `?${qs.stringify({
         ...BASE_PARAMS,
         q: term,
+        maxResults: 10,
+        langRestrict: "en",
       })}`,
     );
     const result = (await axios.get(url)).data;
@@ -39,7 +39,9 @@ export class GoogleBooksApi implements ExternalApi<ExternalBook> {
       assertNamespace: ID_NAMESPACE,
     });
 
-    const url = BASE_URL.concat(`/${externalId}`);
+    const url = BASE_URL.concat(`/${externalId}`).concat(
+      `?${qs.stringify(BASE_PARAMS)}`,
+    );
     const result = (await axios.get(url)).data;
     if (result.error) {
       return null;
