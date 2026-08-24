@@ -107,6 +107,7 @@ const typeDefs = gql`
     TrimUiBrick
     RetroidPocketMiniV2
     RetroidPocketFlip2
+    RetroidPocketNova
     AyaneoPocketMicro
   }
 
@@ -214,6 +215,7 @@ const PLATFORM_DEVICE_NAMES: {
   TrimUiBrick: "Trim UI Brick",
   RetroidPocketMiniV2: "Retroid Pocket Mini V2",
   RetroidPocketFlip2: "Retroid Pocket Flip 2",
+  RetroidPocketNova: "Retroid Pocket Nova",
   AyaneoPocketMicro: "Ayaneo Pocket Micro",
   NintendoGameBoy: "Game Boy",
   NintendoGameBoyAdvance: "Game Boy Advance",
