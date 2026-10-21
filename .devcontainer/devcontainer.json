@@ -1,0 +1,33 @@
+{
+  "name": "Billio",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "dockerDashComposeVersion": "v2"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "containerEnv": {
+    "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0"
+  },
+  "postCreateCommand": "yarn install --frozen-lockfile",
+  "forwardPorts": [3000, 4000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Admin UI"
+    },
+    "4000": {
+      "label": "GraphQL Server"
+    }
+  },
+  "remoteEnv": {
+    "AWS_SDK_LOAD_CONFIG": "1"
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.aws,target=/home/node/.aws,type=bind,consistency=cached"
+  ],
+  "remoteUser": "node"
+}
