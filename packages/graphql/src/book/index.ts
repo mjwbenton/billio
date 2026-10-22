@@ -18,7 +18,7 @@ import {
 import resolveShelfItems from "../resolvers/resolveShelfItems";
 import resolveUpdateItem from "../resolvers/resolveUpdateItem";
 import resolveImportedItem from "../resolvers/resolveImportedItem";
-import { GoogleBooksApi } from "./GoogleBooksApi";
+import { OpenLibraryApi } from "./OpenLibraryApi";
 import {
   ExternalToInputTransform,
   AddInputTransform,
@@ -171,14 +171,14 @@ const EXTERNAL_TRANSFORM: ExternalToInputTransform<
   reread: false,
 });
 
-const GOOGLEBOOKS_API = new GoogleBooksApi();
+const OPENLIBRARY_API = new OpenLibraryApi();
 
 const resolvers: PartialResolvers = {
   Query: {
     book: resolveForId<Book, BookShelfId>(TYPE, OUTPUT_TRANSFORM),
     books: resolveForType<Book, BookShelfId>(TYPE, OUTPUT_TRANSFORM),
     bookShelf: resolveShelfArgs<BookShelfId>(SHELF_NAMES),
-    searchExternalBook: resolveExternal<ExternalBook>(GOOGLEBOOKS_API),
+    searchExternalBook: resolveExternal<ExternalBook>(OPENLIBRARY_API),
   },
   Book: {
     shelf: resolveShelfParent<BookShelfId>(SHELF_NAMES),
@@ -206,7 +206,7 @@ const mutationResolvers: PartialResolvers["Mutation"] = {
     OUTPUT_TRANSFORM,
     ADD_INPUT_TRANSFORM,
     EXTERNAL_TRANSFORM,
-    GOOGLEBOOKS_API,
+    OPENLIBRARY_API,
   ),
   addBook: resolveAddItem<Book, BookShelfId, AddBookInput>(
     TYPE,

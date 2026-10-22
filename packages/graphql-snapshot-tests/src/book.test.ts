@@ -43,7 +43,7 @@ test("can import external book", async () => {
     mutation: gql`
       mutation Test_ImportBook {
         importExternalBook(
-          externalId: "googlebooks:CkVF9cg8daMC"
+          externalId: "openlibrary:OL2042562W"
           shelfId: Reading
         ) {
           id
@@ -193,7 +193,7 @@ test("can search for external books", async () => {
   expect(data.searchExternalBook.length).toBeGreaterThan(0);
   data.searchExternalBook.forEach((result: unknown) => {
     expect(result).toMatchSnapshot({
-      id: expect.stringMatching(/^googlebooks:/),
+      id: expect.stringMatching(/^openlibrary:/),
       title: expect.any(String),
     });
   });

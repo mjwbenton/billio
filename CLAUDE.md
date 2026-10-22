@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Billio is a digital shelving application for tracking books, video games, movies, and TV series. Items can be placed on shelves (e.g., Reading, Read, DidNotFinish) and tracked over time. Data comes from external APIs: Google Books, IGDB (video games), and TMDB (movies/TV).
+Billio is a digital shelving application for tracking books, video games, movies, and TV series. Items can be placed on shelves (e.g., Reading, Read, DidNotFinish) and tracked over time. Data comes from external APIs: Open Library (books), IGDB (video games), and TMDB (movies/TV).
 
 ## Commands
 

@@ -72,7 +72,7 @@ Object {
   "importExternalBook": Object {
     "__typename": "Book",
     "author": "David Peace",
-    "externalId": "googlebooks:CkVF9cg8daMC",
+    "externalId": "openlibrary:OL2042562W",
     "id": Any<String>,
     "reread": false,
     "shelf": Object {
@@ -119,7 +119,7 @@ Object {
 exports[`can search for external books 1`] = `
 Object {
   "__typename": "ExternalBook",
-  "id": StringMatching /\\^googlebooks:/,
+  "id": StringMatching /\\^openlibrary:/,
   "title": Any<String>,
 }
 `;
@@ -127,7 +127,7 @@ Object {
 exports[`can search for external books 2`] = `
 Object {
   "__typename": "ExternalBook",
-  "id": StringMatching /\\^googlebooks:/,
+  "id": StringMatching /\\^openlibrary:/,
   "title": Any<String>,
 }
 `;
@@ -135,7 +135,7 @@ Object {
 exports[`can search for external books 3`] = `
 Object {
   "__typename": "ExternalBook",
-  "id": StringMatching /\\^googlebooks:/,
+  "id": StringMatching /\\^openlibrary:/,
   "title": Any<String>,
 }
 `;
@@ -143,7 +143,7 @@ Object {
 exports[`can search for external books 4`] = `
 Object {
   "__typename": "ExternalBook",
-  "id": StringMatching /\\^googlebooks:/,
+  "id": StringMatching /\\^openlibrary:/,
   "title": Any<String>,
 }
 `;
@@ -151,7 +151,7 @@ Object {
 exports[`can search for external books 5`] = `
 Object {
   "__typename": "ExternalBook",
-  "id": StringMatching /\\^googlebooks:/,
+  "id": StringMatching /\\^openlibrary:/,
   "title": Any<String>,
 }
 `;
@@ -159,7 +159,7 @@ Object {
 exports[`can search for external books 6`] = `
 Object {
   "__typename": "ExternalBook",
-  "id": StringMatching /\\^googlebooks:/,
+  "id": StringMatching /\\^openlibrary:/,
   "title": Any<String>,
 }
 `;
@@ -167,7 +167,7 @@ Object {
 exports[`can search for external books 7`] = `
 Object {
   "__typename": "ExternalBook",
-  "id": StringMatching /\\^googlebooks:/,
+  "id": StringMatching /\\^openlibrary:/,
   "title": Any<String>,
 }
 `;
@@ -175,7 +175,7 @@ Object {
 exports[`can search for external books 8`] = `
 Object {
   "__typename": "ExternalBook",
-  "id": StringMatching /\\^googlebooks:/,
+  "id": StringMatching /\\^openlibrary:/,
   "title": Any<String>,
 }
 `;
@@ -183,7 +183,7 @@ Object {
 exports[`can search for external books 9`] = `
 Object {
   "__typename": "ExternalBook",
-  "id": StringMatching /\\^googlebooks:/,
+  "id": StringMatching /\\^openlibrary:/,
   "title": Any<String>,
 }
 `;
@@ -191,7 +191,7 @@ Object {
 exports[`can search for external books 10`] = `
 Object {
   "__typename": "ExternalBook",
-  "id": StringMatching /\\^googlebooks:/,
+  "id": StringMatching /\\^openlibrary:/,
   "title": Any<String>,
 }
 `;

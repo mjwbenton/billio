@@ -4,7 +4,7 @@ My digital shelving unit showing what I'm reading and playing.
 
 Billio came into existance when Goodreads announced the end of their existing API product. I'd been using Goodreads for a long time to track what I've been reading, but the API was essential to me. I don't want to trap my data inside a platform with limited ways to get it out. I started Billio with books in mind, but quickly decided to build it to cover video games, and potentially other things in the future too.
 
-Billio allows you to store books or video games ("items") on particular "shelves" depending on whether you've finished them, given up on them, or are in the process of consuming them. Billio keeps track of when the items are moved between shelves, and some other basic metadata. Data for books comes from Google Books and for games comes from IGDB.
+Billio allows you to store books or video games ("items") on particular "shelves" depending on whether you've finished them, given up on them, or are in the process of consuming them. Billio keeps track of when the items are moved between shelves, and some other basic metadata. Data for books comes from Open Library and for games comes from IGDB.
 
 ![Screenshot of Admin UI](./images/admin.png)
 
