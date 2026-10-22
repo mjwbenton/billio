@@ -11,7 +11,9 @@
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "containerEnv": {
-    "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0"
+    "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0",
+    "AGENT_BROWSER_EXECUTABLE_PATH": "/usr/bin/chromium",
+    "AGENT_BROWSER_ARGS": "--no-sandbox,--disable-dev-shm-usage"
   },
   "initializeCommand": "keeenv --config packages/graphql/.keeenv eval | sed 's/^export //' > packages/graphql/.env",
   "postCreateCommand": "yarn install --frozen-lockfile",

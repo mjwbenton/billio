@@ -1,8 +1,11 @@
 FROM mcr.microsoft.com/devcontainers/typescript-node:24-bookworm
 
-# Install PostgreSQL client (useful for local DSQL debugging)
+# Install PostgreSQL client (useful for local DSQL debugging) and Chromium
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends postgresql-client \
+    && apt-get -y install --no-install-recommends \
+        postgresql-client \
+        chromium \
+        fonts-liberation \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
