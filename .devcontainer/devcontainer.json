@@ -13,6 +13,7 @@
   "containerEnv": {
     "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0"
   },
+  "initializeCommand": "keeenv --config packages/graphql/.keeenv eval | sed 's/^export //' > packages/graphql/.env",
   "postCreateCommand": "yarn install --frozen-lockfile",
   "forwardPorts": [3000, 4000],
   "portsAttributes": {

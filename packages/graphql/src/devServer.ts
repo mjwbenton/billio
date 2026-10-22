@@ -1,3 +1,4 @@
+require("dotenv").config();
 process.env.AWS_SDK_LOAD_CONFIG = "1";
 process.env.AWS_PROFILE = "admin";
 process.env.AWS_REGION = "us-east-1";
