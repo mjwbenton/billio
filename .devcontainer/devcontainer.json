@@ -29,8 +29,5 @@
   "remoteEnv": {
     "AWS_SDK_LOAD_CONFIG": "1"
   },
-  "mounts": [
-    "source=${localEnv:HOME}/.aws,target=/home/node/.aws,type=bind,consistency=cached"
-  ],
   "remoteUser": "node"
 }
