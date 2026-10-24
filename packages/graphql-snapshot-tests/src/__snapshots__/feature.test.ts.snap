@@ -145,3 +145,19 @@ Object {
   "title": Any<String>,
 }
 `;
+
+exports[`can search for external features 7`] = `
+Object {
+  "__typename": "ExternalFeature",
+  "id": StringMatching /\\^tmdb:/,
+  "title": Any<String>,
+}
+`;
+
+exports[`can search for external features 8`] = `
+Object {
+  "__typename": "ExternalFeature",
+  "id": StringMatching /\\^tmdb:/,
+  "title": Any<String>,
+}
+`;
