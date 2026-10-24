@@ -1,22 +1,15 @@
 {
   "name": "Billio",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:24",
   "features": {
-    "ghcr.io/devcontainers/features/aws-cli:1": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "dockerDashComposeVersion": "v2"
-    },
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/aws-cli:1": {}
   },
   "containerEnv": {
-    "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0",
     "AGENT_BROWSER_EXECUTABLE_PATH": "/usr/bin/chromium",
     "AGENT_BROWSER_ARGS": "--no-sandbox,--disable-dev-shm-usage"
   },
   "initializeCommand": "keeenv --config packages/graphql/.keeenv eval | sed 's/^export //' > packages/graphql/.env",
-  "postCreateCommand": "yarn install --frozen-lockfile",
+  "postCreateCommand": "sudo corepack enable && COREPACK_ENABLE_DOWNLOAD_PROMPT=0 yarn install --frozen-lockfile",
   "forwardPorts": [3000, 4000],
   "portsAttributes": {
     "3000": {
