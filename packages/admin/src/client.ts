@@ -12,21 +12,27 @@ const CLIENT = new ApolloClient({
       fetchPolicy: "network-only",
     },
   },
-  link: new HttpLink({
-    uri: process.env.REACT_APP_USE_LOCAL_GRAPHQL ? LOCAL_ENDPOINT : ENDPOINT,
-    fetch: async (uri, options) => {
-      const credentials = await Auth.currentCredentials();
-      return aws4.fetch(
-        uri,
-        {
-          service: "execute-api",
-          region: "us-east-1",
-          ...options,
-        },
-        credentials
-      );
-    },
-  }),
+  link: new HttpLink(
+    process.env.REACT_APP_USE_LOCAL_GRAPHQL
+      ? {
+          uri: LOCAL_ENDPOINT,
+        }
+      : {
+          uri: ENDPOINT,
+          fetch: async (uri, options) => {
+            const credentials = await Auth.currentCredentials();
+            return aws4.fetch(
+              uri,
+              {
+                service: "execute-api",
+                region: "us-east-1",
+                ...options,
+              },
+              credentials
+            );
+          },
+        }
+  ),
 });
 
 export default CLIENT;
